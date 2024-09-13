@@ -1,0 +1,100 @@
+.parent-container-joingame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+}
+
+.gamepinJoingame, .strategyJoingame, .nameJoingame {
+    display: grid;
+    grid-template: 1fr / 0.5fr 1fr 0.2fr 1fr 0.5fr;
+}
+
+.gamepinJoingameLabel, .strategyJoingameLabel, .nameJoingameLabel {
+    grid-area: 1 / 2 / 1 / 2;
+}
+
+.gamepinJoingameInput, .strategyJoingameSelect, .nameJoingameInput {
+    grid-area: 1 / 4 / 1 / 4;
+}
+
+@media (max-width: 800px) {
+    .gamepinJoingame, .strategyJoingame, .nameJoingame {
+        grid-template: 1fr 1fr / 1fr;
+    }
+
+    .gamepinJoingameLabel, .strategyJoingameLabel, .nameJoingameLabel {
+        grid-area: 1 / 1 / 1 / 1;
+    }
+
+    .gamepinJoingameInput, .strategyJoingameSelect, .nameJoingameInput {
+        grid-area: 2 / 1 / 2 / 1;
+    }
+}
+
+.errorJoingame, .joingameLabel {
+    color: #F9E513;
+    font-size: calc(8vh * 0.6);
+}
+
+.inputJoingame, .selectJoingame {
+    font-family: itim;
+    border-radius: 10px;
+    border: 3px solid white;
+    width: 40vw;
+    min-width: 350px;
+    height: 6vh;
+    font-size: min(calc(6vh * 0.6), calc(40vw * 0.15));
+}
+
+select {
+    cursor: pointer;
+}
+
+.startgame {
+    border: 3px solid white;
+    background-color: #195678;
+    color: #F9E513;
+    border-radius: 10px;
+    font-family: itim;
+    cursor: pointer;
+    width: 30vw;
+    height: 8vh;
+    font-size: min(calc(8vh * 0.6), calc(30vw * 0.15));
+}
+
+.startgame:hover {
+    background-color: #3f6072;
+    font-weight: bold;
+}
+
+.dropyellow {
+    color: #DAB24B;
+}
+.dropblue {
+    color: #47A1C8;
+}
+.dropred {
+    color: #BA4040;
+}
+.dropgreen {
+    color: #53A65B;
+}
+.droporange {
+    color: #C66732;
+}
+.droppurple {
+    color: #A83E8A;
+}
+
+.flagImg2 {
+    border-radius: 10px;
+    cursor: pointer;
+    width: 5vw;
+    height: auto;
+    margin-right: 1vw;
+}
+
+

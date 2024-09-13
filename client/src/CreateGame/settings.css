@@ -1,0 +1,129 @@
+.parent-container-settings {
+    width: 100%;
+    height: 100%;
+}
+.form-container-settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+}
+
+.playerRowSettings, .roundsRowSettings {
+    height: 30vh;
+    display: grid;
+    grid-template: 1fr / 0.5fr 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr;
+    text-align: center;
+    align-items: center;
+    justify-items: center;
+    grid-gap: 2vw;
+}
+
+.settings {
+    grid-area: 1 / 2 / 1 / 2;
+}
+
+.minus {
+    grid-area: 1 / 4 / 1 / 4;
+}
+
+.count{
+    grid-area: 1 / 5 / 1 / 5;
+}
+
+.plus {
+    grid-area: 1 / 6 / 1 / 6;
+}
+
+.player, .rounds{
+    border: 3px solid white;
+    border-radius: 10px;
+}
+
+.player, .rounds, .settings, .continueSettings{
+    font-family: Itim, serif;
+    color: #F9E513;
+    font-size: calc(15vh * 0.6);
+    text-align: center;
+}
+
+.minus, .count, .plus {
+    width: 15vh;
+    height: 15vh;
+}
+
+.minus, .plus{
+    color: #F9E513;
+    border: 3px solid white;
+    border-radius: 10px;
+    cursor: pointer;
+    align-content: center;
+}
+
+.count{
+    background-color: white;
+    border-radius: 10px;
+    color: black;
+}
+
+.minus:hover, .plus:hover, .continueButton:hover{
+    background-color: #3f6072;
+    font-weight: bold;
+}
+
+.continueButton{
+    font-family: Itim, serif;
+    border: 3px solid white;
+    background-color: #195678;
+    color: #F9E513;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 30vw;
+    height: 10vh;
+    font-size: min(calc(10vh * 0.6), calc(40vw * 0.15));
+}
+
+@media (max-width: 800px) {
+    .playerRowSettings, .roundsRowSettings {
+        grid-template: 1fr 1fr / 0.5fr 1fr 1fr 1fr 0.5fr;
+        grid-gap: 0;
+    }
+
+    .settings {
+        grid-area: 1 / 3 / 1 / 3;
+    }
+
+    .minus, .count, .plus {
+        width: 10vh;
+        height: 10vh;
+        font-size: calc(10vh * 0.6);
+    }
+
+    .minus {
+        grid-area: 2 / 2 / 2 / 2;
+        justify-self: self-end;
+    }
+
+    .count{
+        grid-area: 2 / 3 / 2 / 3;
+    }
+
+    .plus {
+        grid-area: 2 / 4 / 2 / 4;
+        justify-self: self-start;
+    }
+
+    .settings {
+        font-size: calc(10vh * 0.6);
+    }
+}
+
+.flagImg3 {
+    border-radius: 10px;
+    cursor: pointer;
+    width: 5vw;
+    height: auto;
+    margin-right: 1vw;
+}

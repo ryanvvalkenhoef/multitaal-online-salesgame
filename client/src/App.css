@@ -1,0 +1,23 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  font-family: 'Itim', Arial, sans-serif;
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  z-index: 1;
+  background: url('./Assets/money-background.png');
+}
+
+.appBlurred{
+  background-image: url('./Assets/money-backgroundBlur.png');
+  filter: blur(5px);
+  z-index: 0;
+}
+
