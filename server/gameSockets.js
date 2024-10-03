@@ -60,11 +60,11 @@ module.exports = function (io){
             'start_turn' : (data) => {
                 const room = modLogger('room', socket.id);
                 const strategy = modLogger('getPlayerTurn', socket.id) //is een array
-                const name = modLogger('getPlayerName', socket.id) // is een array
+                const names = modLogger('getPlayerName', socket.id) // is een array
                 socket.emit('players_turn', strategy)
-                socket.emit('players_name', name)
+                socket.emit('players_name', names)
                 socket.to(room).emit('players_turn', strategy)
-                socket.to(room).emit('players_name', name)
+                socket.to(room).emit('players_name', names)
 
                 const roundInfo = modLogger('getRound', socket.id);
                 socket.to(room).emit('rounds', roundInfo);

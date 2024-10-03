@@ -17,11 +17,11 @@ export function Game() {
     const sortedUserData = data.sort((a, b) => b.points - a.points);
     const [question, setQuestion] = useState("")
     const [steps, setSteps] = useState(0)
-    const [moveMade, setMoveMade] = useState(true)
+    const [moveMade, setMoveMade] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [color, setColor] = useState('')
     const [popupColor, setPopupColor] = useState('')
-    const [myTurn, setMyTurn] = useState(false)
+    //const [myTurn, setMyTurn] = useState(false)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [gamePaused, setGamePaused] = useState(false)
@@ -67,21 +67,21 @@ export function Game() {
             'submitted_points' : (data) => {
                 setGamePaused2(false)
             },
-            'players_turn': (data) => {
+            'players_turn': (strategy) => {
                 try {
-                    const pawn = document.querySelector('#' + data)
+                    const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
                     const parentPosition = parent.getAttribute('pos')
                     setPosition(parentPosition)
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
-                    if (currentPlayer === data) {
-                        setMyTurn(true)
-                        setMoveMade(false)
-                    } else {
-                        setMyTurn(false)
-                        setMoveMade(true)
-                    }
+                    // if (currentPlayer === strategy) {
+                    //     setMyTurn(true)
+                    //     setMoveMade(false)
+                    // } else {
+                    //     setMyTurn(false)
+                    //     setMoveMade(true)
+                    // }
                     socket.emit('get_data', 'leaderboard_update');
                 } catch (TypeError) {
                     socket.emit('pawns_request_failed', '')
