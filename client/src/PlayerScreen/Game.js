@@ -21,7 +21,7 @@ export function Game() {
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [color, setColor] = useState('')
     const [popupColor, setPopupColor] = useState('')
-    //const [myTurn, setMyTurn] = useState(false)
+    const [myTurn, setMyTurn] = useState(true)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [gamePaused, setGamePaused] = useState(false)
@@ -120,7 +120,8 @@ export function Game() {
                 setMoveMade={setMoveMade}
                 position={position}
                 myTurn={myTurn}
-                setMyTurn={setMyTurn}/>
+                setMyTurn={setMyTurn}
+                />
             <LeaderBoard
                 sortedUserData={sortedUserData}
                 playerName={playerName}/>

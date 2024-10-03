@@ -110,7 +110,7 @@ const addPlayerToMod = (socketid, strategy) => {
     if (!data) return null;
     for (let i = 0; i < data.mods.length; i++) {
         if (data.mods[i].id === socketid) {
-            data.mods[i].players_joined.push(strategy);
+            data.mods[i].players_joined.push({socketid:strategy});
             writeData(data);
             return 'added';
         }
@@ -122,7 +122,7 @@ const addPlayerNameToMod = (socketid, name) => {
     if (!data) return null;
     for (let i = 0; i < data.mods.length; i++) {
         if (data.mods[i].id === socketid) {
-            data.mods[i].player_names.push(name);
+            data.mods[i].player_names.push({socketid:name});
             writeData(data);
             return 'added';
         }
@@ -149,8 +149,8 @@ const getPlayerTurn = (socketid) => {
     const playerArray = mod.players_joined;
     const turn = mod.turn;
     if (typeof turn !== 'number' || turn < 0 || turn >= playerArray.length) return null;
-    
-    return playerArray; // name = strategy
+    const strategy = playerArray.find(obj => obj.hasOwnProperty(socketid))
+    return strategy; 
     
 }
 
@@ -162,6 +162,7 @@ const getPlayerName = (socketid) => {
     const playerArray = mod.player_names;
     const turn = mod.turn;
     if (typeof turn !== 'number' || turn < 0 || turn >= playerArray.length) return null;
+    const name = playerArray.find(obj => obj.hasOwnProperty(socketid))
     return playerArray;
     
 }

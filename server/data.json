@@ -1,13 +1,55 @@
 {
   "users": [
     {
-      "id": "_b3hadP5tGZu--0VAAAH",
+      "id": "3CNuNH9Mk1pOMlXlAAAB",
       "language": "en",
       "room": "",
       "name": "",
       "points": 0,
       "strategy": ""
+    },
+    {
+      "id": "nAUs--sLmw-Cgy7mAAAD",
+      "language": "en",
+      "room": "48863",
+      "name": "speler1",
+      "points": 0,
+      "strategy": "Lunar"
+    },
+    {
+      "id": "5yXhq62ShGp_y7WHAAAF",
+      "language": "en",
+      "room": "48863",
+      "name": "speler2",
+      "points": 0,
+      "strategy": "Top of the World"
     }
   ],
-  "mods": []
+  "mods": [
+    {
+      "id": "3CNuNH9Mk1pOMlXlAAAB",
+      "language": "NL",
+      "room": "48863",
+      "player_names": [
+        {
+          "socketid": "speler1"
+        },
+        {
+          "socketid": "speler2"
+        }
+      ],
+      "players_joined": [
+        {
+          "socketid": "lunar"
+        },
+        {
+          "socketid": "world"
+        }
+      ],
+      "total_players": 2,
+      "turn": 0,
+      "current_round": 1,
+      "total_rounds": 5
+    }
+  ]
 }
