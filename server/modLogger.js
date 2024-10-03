@@ -149,8 +149,9 @@ const getPlayerTurn = (socketid) => {
     const playerArray = mod.players_joined;
     const turn = mod.turn;
     if (typeof turn !== 'number' || turn < 0 || turn >= playerArray.length) return null;
-    const name = playerArray[turn];
-    return name;
+    
+    return playerArray; // name = strategy
+    
 }
 
 const getPlayerName = (socketid) => {
@@ -161,8 +162,8 @@ const getPlayerName = (socketid) => {
     const playerArray = mod.player_names;
     const turn = mod.turn;
     if (typeof turn !== 'number' || turn < 0 || turn >= playerArray.length) return null;
-    const name = playerArray[turn];
-    return name;
+    return playerArray;
+    
 }
 
 const getRound = (socketid) => {
