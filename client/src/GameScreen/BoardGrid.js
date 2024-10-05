@@ -174,7 +174,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         const tileClass = `tile ${currentColor} ${isHighlighted ? 'blink' : ''}`
         if (tileInfo[i] === 'start') {
             tiles.push(
-                <div key={`tile-{position}`} className={tileClass} tile-id={i} pos={position}>
+                <div key={i} className={tileClass} tile-id={i} pos={position}>
                     {renderStartPieces()}
                 </div>
             );
