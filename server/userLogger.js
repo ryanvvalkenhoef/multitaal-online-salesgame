@@ -1,3 +1,4 @@
+const { log } = require('console');
 const { json } = require('express');
 const fs = require('fs');
 
@@ -61,7 +62,6 @@ const updateUser = (userId, newData) => {
 function getRoom(socketid) {
     let data = readData();
     if (!data) return null;
-
     const user = data.users.find(user => user.id === socketid);
     if (user) {
         return user.room;
@@ -117,9 +117,13 @@ function availability(socketid, userName, userRoom, userStrat) {
 function getData(socketid) {
     let data = readData();
     if (!data) return null;
-    const user = data.users.find(user => user.id === socketid);
-    const room = user.room;
-    const users = data.users.filter(user => user.room === room);
+    
+    // const user = data.users.find(user => user.id === socketid);
+    // const room = user.room;
+    // const users = data.users.filter(user => user.room === room);
+    //Dit werkt nu alleen wanneer de server maar 1 mod heeft
+    const users = data.users
+
     if (users) {
         return users
     } else {
@@ -127,6 +131,7 @@ function getData(socketid) {
         return null;
     }
 }
+
 function getStrategy(socketid) {
     let data = readData();
     if (!data) return null;
@@ -228,7 +233,9 @@ function getPlayerName(socketid) {
     let data = readData();
     if (!data) return null;
     const user = data.users.find(user => user.id === socketid);
+    
     if (user) {
+        
         return user.name
     } else {
         console.error('User not found6.');

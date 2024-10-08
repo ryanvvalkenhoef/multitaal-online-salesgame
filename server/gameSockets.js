@@ -35,8 +35,10 @@ module.exports = function (io){
 
                 socket.emit('send_tileInfo', tileInfo)
                 socket.emit('send_tileInfo2', tileInfo2)
-                socket.to(room).emit('send_tileInfo', tileInfo)
-                socket.to(room).emit('send_tileInfo2',tileInfo2)
+                //socket.to(room).emit('send_tileInfo', tileInfo)
+                //socket.to(room).emit('send_tileInfo2',tileInfo2)
+                socket.to("players").emit('send_tileInfo', tileInfo)
+                socket.to("players").emit('send_tileInfo2',tileInfo2)
             },
 
             'roll_dice' : (data) => {
@@ -59,15 +61,41 @@ module.exports = function (io){
 
             'start_turn' : (data) => {
                 const room = modLogger('room', socket.id);
-                const strategy = modLogger('getPlayerTurn', socket.id) //is een array
+                const strategies = modLogger('getPlayerTurn', socket.id) //is een array
                 const names = modLogger('getPlayerName', socket.id) // is een array
-                socket.emit('players_turn', strategy)
-                socket.emit('players_name', names)
-                socket.to(room).emit('players_turn', strategy)
-                socket.to(room).emit('players_name', names)
+                
+                // console.log('start_turn in gameSockets.js STRATEGIES ' +strategies[0]);
+                // console.log('start_turn in gameSockets.js NAMES ' +names);
+                // console.log('Socketid in start_turn ' +socket.id);
+                
+                for(let i = 0; i< strategies.length; i++){
+                    const socketId = Object.keys(strategies[i]);
+                    const strategy = strategies[i][socketId];
+                    // console.log("socketId " + socketId);
+                    // console.log("Strategy " + strategy);
+                    
+                    
+                    socket.to(socketId).emit('players_turn',strategy);
+                    const name = names[i];
+                    socket.to(socketId).emit('players_name', name)
+                    
+                    
+                
+                    
+                    
+                }
+                
+                
+                socket.emit('players_turn', strategies) //is voor moderator
+                socket.emit('players_name', names) //is voor moderator
+                //socket.to(room).emit('players_turn', strategies)
+                
+                //socket.to(room).emit('players_name', names)
 
                 const roundInfo = modLogger('getRound', socket.id);
-                socket.to(room).emit('rounds', roundInfo);
+                //socket.to(room).emit('rounds', roundInfo);
+                socket.to("players").emit('rounds', roundInfo);
+
                 socket.emit('rounds', roundInfo);
             },
 
@@ -83,7 +111,8 @@ module.exports = function (io){
                         break
                 }
                 const pieces = modLogger('getPieces', modID)
-                socket.emit('add_piece', pieces)
+                io.emit('add_piece', pieces)
+                
             }
         }
         Object.keys(socketHandlers).forEach(event => {

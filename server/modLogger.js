@@ -1,3 +1,4 @@
+const { log } = require('console');
 const { json } = require('express');
 const fs = require('fs');
 const { get } = require('http');
@@ -109,25 +110,25 @@ const addPlayerToMod = (socketid, strategy) => {
     let data = readData();
     if (!data) return null;
     for (let i = 0; i < data.mods.length; i++) {
-        if (data.mods[i].id === socketid) {
-            data.mods[i].players_joined.push({socketid:strategy});
+       // if (data.mods[i].id === socketid) {
+            data.mods[i].players_joined.push({[socketid]:strategy});
             writeData(data);
             return 'added';
         }
     }
-}
+//}
 
 const addPlayerNameToMod = (socketid, name) => {
     let data = readData();
     if (!data) return null;
     for (let i = 0; i < data.mods.length; i++) {
-        if (data.mods[i].id === socketid) {
-            data.mods[i].player_names.push({socketid:name});
+       // if (data.mods[i].id === socketid) {
+            data.mods[i].player_names.push(name);
             writeData(data);
             return 'added';
         }
     }
-}
+//}
 
 const nextTurn = (socketid) => {
     let data = readData();
@@ -149,8 +150,8 @@ const getPlayerTurn = (socketid) => {
     const playerArray = mod.players_joined;
     const turn = mod.turn;
     if (typeof turn !== 'number' || turn < 0 || turn >= playerArray.length) return null;
-    const strategy = playerArray.find(obj => obj.hasOwnProperty(socketid))
-    return strategy; 
+    //const strategy = playerArray.find(obj => obj.hasOwnProperty(socketid)) had ik zelf toegevoegd
+    return playerArray; 
     
 }
 
@@ -162,7 +163,8 @@ const getPlayerName = (socketid) => {
     const playerArray = mod.player_names;
     const turn = mod.turn;
     if (typeof turn !== 'number' || turn < 0 || turn >= playerArray.length) return null;
-    const name = playerArray.find(obj => obj.hasOwnProperty(socketid))
+    //const name = playerArray.find(obj => obj.hasOwnProperty(socketid))
+
     return playerArray;
     
 }
@@ -232,13 +234,23 @@ function modLogger(method, socketid, info='temp'){
             addPlayerToMod(socketid, info)
             break
         case 'getPieces':
-            var playerPieces
+            
+            let playerPieces = [];
             try{
-                playerPieces = readData().mods.find(mod => mod.id === socketid).players_joined
+                const playerObjects = readData().mods.find(mod => mod.id === socketid).players_joined
+                for(let i = 0; i < playerObjects.length; i++){
+                    playerObject = playerObjects[i]
+                    strategy = Object.values(playerObject)
+                    playerPieces.push(strategy)      
+
+                }
+
             } catch (TypeError){
+                         
                 playerPieces = 'No players found'
             }
             return playerPieces
+            
         case 'room':
             const room = readData().mods.find(mod => mod.id === socketid).room
             return room

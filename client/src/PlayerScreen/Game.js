@@ -45,7 +45,8 @@ export function Game() {
     };
 
     useEffect(() =>{
-
+        
+        
         const socketHandlers = {
             'rounds': (data) => {
                 setTotalRounds(data.totalRounds)
@@ -54,6 +55,8 @@ export function Game() {
             },
             'players_name': (data) => {
                 setPlayerName(data)
+                
+                
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'data_leaderboard': (jsonData) => {
@@ -70,11 +73,22 @@ export function Game() {
             'players_turn': (strategy) => {
                 try {
                     const pawn = document.querySelector('#' + strategy)
+                    
+                    
                     const parent = pawn.parentElement
+                    
+                    
                     const parentPosition = parent.getAttribute('pos')
+                    
+                    
                     setPosition(parentPosition)
+                    
+                    
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
+                    
+                    
+
                     // if (currentPlayer === strategy) {
                     //     setMyTurn(true)
                     //     setMoveMade(false)
@@ -82,11 +96,16 @@ export function Game() {
                     //     setMyTurn(false)
                     //     setMoveMade(true)
                     // }
-                    socket.emit('get_data', 'leaderboard_update');
+
+                   socket.emit('get_data', 'leaderboard_update');
+                   socket.to("players").to("mod").emit('get_data', 'leaderboard_update') // kan waarschijnlijk weg
+                   
                 } catch (TypeError) {
                     socket.emit('pawns_request_failed', '')
                 }
             }
+            
+            
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])
@@ -97,7 +116,7 @@ export function Game() {
                 socket.off(event, socketHandlers[event])
             })
         }
-    },[currentPlayer])
+    })//,[currentPlayer]
 
     return (
     <>
@@ -120,8 +139,7 @@ export function Game() {
                 setMoveMade={setMoveMade}
                 position={position}
                 myTurn={myTurn}
-                setMyTurn={setMyTurn}
-                />
+                setMyTurn={setMyTurn}/>
             <LeaderBoard
                 sortedUserData={sortedUserData}
                 playerName={playerName}/>

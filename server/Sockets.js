@@ -7,14 +7,17 @@ const getMovesFromCoordinate = require("./positionCalculator");
 module.exports = function (io){
 
     io.on('connection', (socket) => {
-        userLogger('log', socket.id)
+       //userLogger('log', socket.id)
+        
 
         const socketHandlers = {
 
             'create_room': (data) => {
+                //modLogger('log', socket.id) 
                 const room = modLogger('log', socket.id, data);
+                socket.join("mod")
                 const playerNeeded = modLogger('getPlayerTotal', socket.id)
-                socket.join(room)
+                //socket.join(room)
                 socket.emit('send_gamepin', {room: room, playerTotal: playerNeeded});
             },
 
@@ -28,9 +31,12 @@ module.exports = function (io){
             },
 
             'join_room' : (data) => {
+                userLogger('log', socket.id)
+                console.log(socket.id + " In 'join room' van Socket.js");
                 var exists = modLogger('checkExists', socket.id, data.room)
                 if (exists === 'exists') {
-                    socket.join(data.room)
+                    //socket.join(data.room)
+                    //socket.join("players")
                     var availability = userLogger('checkAvailability', socket.id, data)
                 } else{
                     availability = 'Room does not exist'
@@ -43,18 +49,24 @@ module.exports = function (io){
                     availability = 'Room is full'
                 }
                 if (availability === 'available') {
-                    socket.join(data.room)
-                    socket.to(data.room).emit('add_user', "adding")
+                    //socket.join(data.room)
+                    socket.join("players")
+                    
+                    
+                    
+                    socket.to("mod").to("players").emit('add_user', "adding")  //socket.to(data.room).emit('add_user', "adding")  Dit was de orginele lijn
+                    
+                    
                     userLogger('updateName', socket.id, data.name)
                     userLogger('updateRoom', socket.id, data.room)
                     userLogger('updateStrategy', socket.id, data.strategy)
                     const modID = modLogger('getMod', socket.id, data.room)
-                    modLogger('addPlayer', modID, data.strategy.toLowerCase())
-                    modLogger('addPlayerName', modID, data.name)
+                    modLogger('addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
+                    modLogger('addPlayerName', socket.id, data.name) //socket.id was modID
                     const pieces = modLogger('getPieces', modID)
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
-                    socket.to(data.room).emit('add_piece', pieces);
+                    socket.to("players").emit('add_piece', pieces);
                 } else {
                     socket.emit('join_succes', availability);
                 }
@@ -113,6 +125,8 @@ module.exports = function (io){
             'submit_points' : (data) => {
                 const room = modLogger('room', socket.id);
                 let name = modLogger('getPlayerName', socket.id)
+               
+                
                 const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
@@ -140,7 +154,7 @@ module.exports = function (io){
 
             'send_textbox_content' : (data) => {
                 const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('submitted_answer', data);
+                socket.to("mod").emit('submitted_answer', data);
             },
 
             'update_position' : (data) => {
@@ -156,9 +170,10 @@ module.exports = function (io){
             },
 
             'get_data' : (userData) => {
-                const room = userLogger('getRoom', socket.id);
+                //const room = userLogger('getRoom', socket.id);
                 userData = userLogger('getData', socket.id);
-                socket.to(room).emit('data_leaderboard', userData);
+                //socket.to(room).emit('data_leaderboard', userData);
+                io.emit('data_leaderboard', userData);
                 socket.emit('data_leaderboard', userData);
             },
 

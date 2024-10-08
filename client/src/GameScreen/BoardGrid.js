@@ -90,20 +90,31 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         socket.on("update_valid_positions", (data) => {
             setValidPositions(data)
         })
-        socket.on("add_piece", (data) => {
-            let joinedColorsArray = []
-            const colorMap = {
-                "world": "green",
-                "lunar": "yellow",
-                "domino": "blue",
-                "jysk": "orange",
-                "klaphatten": "purple",
-                "safeline": "red"
-            }
-            joinedColorsArray = data.map(color => colorMap[color])
-            setStartPieces(data)
-            setJoinedColors(joinedColorsArray)
-        })
+            socket.on("add_piece", (data) => {
+                Object.keys(data[0]).forEach(key => {
+                    console.log(`${key}: ${data[key]}`);
+                });
+                
+                let joinedColorsArray = []
+                const colorMap = {
+                    "world": "green",
+                    "lunar": "yellow",
+                    "domino": "blue",
+                    "jysk": "orange",
+                    "klaphatten": "purple",
+                    "safeline": "red"
+                }
+                let newArray = data.map(obj => Object.values(obj))
+                
+                
+                //joinedColorsArray = data.map(color => colorMap[color])
+                joinedColorsArray = newArray.map(color => colorMap[color])
+                
+                
+                
+                setStartPieces(data)
+                setJoinedColors(joinedColorsArray)
+            })
 
         socket.on("update_position", (data) => {
             const newPosition = data.newPosition

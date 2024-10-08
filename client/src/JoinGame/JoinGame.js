@@ -20,9 +20,13 @@ export function JoinGame() {
 
     const setName = (username) => {
         if (!username) {
+            console.log(socket.id + " In JoinGame.js");
             setInformation("Please enter a name");
             return;
         }
+        
+      
+        
         socket.emit("join_room", { name: username, room: gamepin, strategy: strategy});
     };
 

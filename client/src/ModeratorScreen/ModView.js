@@ -49,7 +49,7 @@ export function ModView() {
     };
 
     useEffect(() => {
-
+        
         const socketHandlers = {
             'set_dice': (data) => {
                 setDiceValue(data);
@@ -64,7 +64,7 @@ export function ModView() {
             },
             'data_leaderboard': (jsonData) => {
                 setData(jsonData)
-                socket.emit('get_current','mod')
+                //socket.emit('get_current','mod')
             },
             'set_current_player': (data)=> {
                 try {
