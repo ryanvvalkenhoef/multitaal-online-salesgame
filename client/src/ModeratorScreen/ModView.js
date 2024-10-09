@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import '../PlayerScreen/GameStyle.css';
 import '../App.css';
 import {socket} from '../client'
@@ -27,32 +27,82 @@ export function ModView() {
     const [selectedPawn , setSelectedPawn] = useState()
     const [showPopup, setShowPopup] = useState(false);
     const [position, setPosition] = useState("8-5")
-    const [submittedAnswer, setSubmittedAnswer] = useState(t("Game.modWait"))
+    const [submittedAnswer, setSubmittedAnswer] = useState(null)
     const [diceValue, setDiceValue] = useState(1);
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
+    const questionQueRef = useRef([]);
+    const isFirstRender = useRef(true);
+    const [currentQuestion, setCurrentQuestion] = useState(null);
+    const submittedAnswersQueueRef = useRef([]);
+    const submittedAnswerRef = useRef(null);
 
     const handleUpdatePoints = (points) => {
         setSelectedPoints(points);
     };
 
     const handleSubmitPoints = () => {
-        
+        console.log("submit antwoord" + submittedAnswer);
         
         if (submittedAnswer !== t("Game.modWait")) {
-            
-            
-            
             setShowPopup(false)
             socket.emit("submit_points", { points: selectedPoints, color: userColor});
             setSubmittedAnswer(t("Game.modWait"));
             setSelectedPoints([]);
+
+       
+            
+            //const newSubmittedAnswersQue = submittedAnswersQueue.splice();
+            //console.log(newSubmittedAnswersQue);
+            
+            //newSubmittedAnswersQue.shift();
+            console.log("refff " + submittedAnswersQueueRef.current);
+            
+            submittedAnswersQueueRef.current.shift();
+            if(submittedAnswersQueueRef.current.length > 0){
+                submittedAnswerRef.current = submittedAnswersQueueRef.current[0];
+                //setSubmittedAnswersQueue(newSubmittedAnswersQue);
+                
+            }
+
+            //const newQuestionQue = questionQue.splice();
+            //newQuestionQue.shift();
+            questionQueRef.current.shift();
+            if(questionQueRef.current.length > 0){
+                setCurrentQuestion(questionQueRef.current[0]);
+               // setQuestionQue(newQuestionQue)
+            }
+
         }
     };
 
+    useEffect(()=>{
+        
+        
+        if(isFirstRender.current){
+            
+            isFirstRender.current = false
+            return;
+        }
+        
+        
+        else{
+            if(showPopup === false){
+                
+            setShowPopup(true);
+            setQuestion(currentQuestion.questionText);
+            setColor(currentQuestion.color);
+            setUserColor(currentQuestion.userColor);
+            setAnswer(currentQuestion.answer);
+
+            }
+        }
+    
+
+    }, [currentQuestion])
     
 
     useEffect(() => {
@@ -82,17 +132,40 @@ export function ModView() {
                 }
             },
             'receive_player_answer_through_pop_up': (data)=> {
-                setShowPopup(true);
-                setQuestion(data.questionText);
-                setColor(data.color);
-                setUserColor(data.userColor);
-                setAnswer(data.answer);
+
+                
+                // const newQuestionQue = questionQue.splice();
+                // newQuestionQue.push(data)
+                // setQuestionQue(newQuestionQue)
+                console.log(data);
+                
+                questionQueRef.current.push(data);
+                console.log(questionQueRef.current);
+                
+                if(currentQuestion === null){
+                    setCurrentQuestion(questionQueRef.current[0])
+                }
+
             },
+
             'receive_answer': (data)=> {
                 setAnswer(data);
             },
             'submitted_answer': (data)=> {
-                setSubmittedAnswer(data.text)
+                // let newSubmittedAnswersQueue = [...submittedAnswersQueue];
+                // newSubmittedAnswersQueue.push(data.text);
+                // setSubmittedAnswersQueue(newSubmittedAnswersQueue);
+                submittedAnswersQueueRef.current.push(data.text);
+
+                if(submittedAnswerRef.current === null){
+                    
+                    
+                    submittedAnswerRef.current = submittedAnswersQueueRef.current[0];
+                }
+
+              
+                
+
             }
         }
 
@@ -139,7 +212,7 @@ export function ModView() {
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     question={question}
-                    submittedAnswer={submittedAnswer}
+                    submittedAnswer={submittedAnswerRef.current}
                     selectedPoints={selectedPoints}
                     handleSubmitPoints={handleSubmitPoints}
                     handleUpdatePoints={handleUpdatePoints}
