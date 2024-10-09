@@ -53,10 +53,7 @@ export function ModView() {
         }
     };
 
-    useEffect(()=>{
-        console.log("Dit is het sub antwoord "+submittedAnswer);
-        
-    },[submittedAnswer])
+    
 
     useEffect(() => {
         
@@ -84,7 +81,7 @@ export function ModView() {
                     socket.emit('pawns_request_failed', '')
                 }
             },
-            'mod-pause': (data)=> {
+            'receive_player_answer_through_pop_up': (data)=> {
                 setShowPopup(true);
                 setQuestion(data.questionText);
                 setColor(data.color);

@@ -42,6 +42,7 @@ export function Game() {
         socket.emit('send_textbox_content', {text: textBoxContent, color: color})
         setTextBoxContent('')
         setGamePaused2(true)
+        socket.emit('send_answer_to_moderator', {questionText: question, color: popupColor, userColor: popupColor, answer: textBoxContent});
     };
 
     useEffect(() =>{

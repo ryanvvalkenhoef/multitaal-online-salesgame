@@ -72,7 +72,7 @@ module.exports = function (io){
                 }
             },
 
-            'send_question_request': async (data) => {
+            'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler en moderator gestuurd
                 const availableColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
                 const language = userLogger('getLanguage', socket.id)
                 const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
@@ -98,12 +98,16 @@ module.exports = function (io){
 
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger('getReceiver', socket.id, {color: data.questionColor, room: room})
-                    socket.to("mod").emit('mod-pause', {questionText: question, color: popupColor, userColor: popupColor, answer: answer});
+                    //socket.to("mod").emit('mod-pause', {questionText: question, color: popupColor, userColor: popupColor, answer: answer});
                     io.to(receiver).emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor})
                 } else {
-                    socket.to("mod").emit('mod-pause', {questionText: question, color: popupColor, userColor: data.userColor, answer: answer});
+                    //socket.to("mod").emit('mod-pause', {questionText: question, color: popupColor, userColor: data.userColor, answer: answer});
                     socket.emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor});
                 }
+            },
+
+            'send_answer_to_moderator': (data) =>{
+                socket.to("mod").emit('mod-pause', data);
             },
 
             'send_answer_request' :  async (data) => {
