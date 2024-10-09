@@ -40,13 +40,23 @@ export function ModView() {
     };
 
     const handleSubmitPoints = () => {
+        
+        
         if (submittedAnswer !== t("Game.modWait")) {
+            
+            
+            
             setShowPopup(false)
             socket.emit("submit_points", { points: selectedPoints, color: userColor});
             setSubmittedAnswer(t("Game.modWait"));
             setSelectedPoints([]);
         }
     };
+
+    useEffect(()=>{
+        console.log("Dit is het sub antwoord "+submittedAnswer);
+        
+    },[submittedAnswer])
 
     useEffect(() => {
         

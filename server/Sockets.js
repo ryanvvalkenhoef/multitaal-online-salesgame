@@ -98,10 +98,10 @@ module.exports = function (io){
 
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger('getReceiver', socket.id, {color: data.questionColor, room: room})
-                    socket.to(room).emit('mod-pause', {questionText: question, color: popupColor, userColor: popupColor, answer: answer});
+                    socket.to("mod").emit('mod-pause', {questionText: question, color: popupColor, userColor: popupColor, answer: answer});
                     io.to(receiver).emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor})
                 } else {
-                    socket.to(room).emit('mod-pause', {questionText: question, color: popupColor, userColor: data.userColor, answer: answer});
+                    socket.to("mod").emit('mod-pause', {questionText: question, color: popupColor, userColor: data.userColor, answer: answer});
                     socket.emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor});
                 }
             },
