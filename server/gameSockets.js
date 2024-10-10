@@ -68,12 +68,13 @@ module.exports = function (io){
                 // console.log('start_turn in gameSockets.js NAMES ' +names);
                 // console.log('Socketid in start_turn ' +socket.id);
                 
-                for(let i = 0; i< strategies.length; i++){
+                for(let i = 0; i < strategies.length; i++){
                     const socketId = Object.keys(strategies[i]);
                     const strategy = strategies[i][socketId];
                     // console.log("socketId " + socketId);
                     // console.log("Strategy " + strategy);
                     
+                    console.log("i: " + socketId);
                     
                     socket.to(socketId).emit('players_turn',strategy);
                     const name = names[i];
@@ -86,8 +87,8 @@ module.exports = function (io){
                 }
                 
                 
-                socket.emit('players_turn', strategies) //is voor moderator
-                socket.emit('players_name', names) //is voor moderator
+                //socket.emit('players_turn', strategies) //is voor moderator
+                //socket.emit('players_name', names) //is voor moderator
                 //socket.to(room).emit('players_turn', strategies)
                 
                 //socket.to(room).emit('players_name', names)

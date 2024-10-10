@@ -129,14 +129,26 @@ module.exports = function (io){
             'submit_points' : (data) => {
                 const room = modLogger('room', socket.id);
                 let name = modLogger('getPlayerName', socket.id)
-               
+              
                 
-                const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
+                
+               
+                console.log("Data: " + Object.values(data));
+                
+                //const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
+                const id = data.playerId;
                 const oldPoints = userLogger('getPoints', id, id);
+                
                 const newPoints = Number(oldPoints) + Number(data.points);
+                
+                
                 userLogger('updatePoints', id, newPoints);
-
-                socket.to(room).emit('submitted_points', data.points);
+                
+                
+                console.log("id: " + id);
+                
+                
+                //io.to(id).emit('submitted_points', data.points);
                 socket.emit('players_name', name)
                 modLogger('nextTurn', socket.id)
                 name = modLogger('getPlayerName', socket.id);
@@ -144,7 +156,7 @@ module.exports = function (io){
                 socket.emit('players_turn', strategy)
 
                 socket.emit('players_name', name)
-                socket.to(room).emit('players_turn', strategy)
+                //socket.to(room).emit('players_turn', strategy)  test
                 socket.to(room).emit('players_name', name)
 
                 const roundInfo = modLogger('getRound', socket.id);

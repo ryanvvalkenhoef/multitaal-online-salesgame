@@ -45,12 +45,13 @@ export function ModView() {
     };
 
     const handleSubmitPoints = () => {
-        console.log("submit antwoord" + submittedAnswer);
+       
         
-        if (submittedAnswer !== t("Game.modWait")) {
+        if (submittedAnswerRef.current !== t("Game.modWait")) {
             setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor});
-            setSubmittedAnswer(t("Game.modWait"));
+            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: [currentQuestion.playerId]});
+            //setSubmittedAnswer(t("Game.modWait"));
+            submittedAnswerRef.current= t("Game.modWait");
             setSelectedPoints([]);
 
        
@@ -59,7 +60,7 @@ export function ModView() {
             //console.log(newSubmittedAnswersQue);
             
             //newSubmittedAnswersQue.shift();
-            console.log("refff " + submittedAnswersQueueRef.current);
+            
             
             submittedAnswersQueueRef.current.shift();
             if(submittedAnswersQueueRef.current.length > 0){
@@ -125,26 +126,31 @@ export function ModView() {
             },
             'set_current_player': (data)=> {
                 try {
+                
+                    
                     const pawn = document.querySelector('#' + data)
                     setSelectedPawn(pawn)
                 } catch (TypeError) {
                     socket.emit('pawns_request_failed', '')
                 }
             },
-            'receive_player_answer_through_pop_up': (data)=> {
+            'receive_player_answer_through_pop_up': (QuestionInformation)=> {
 
                 
                 // const newQuestionQue = questionQue.splice();
-                // newQuestionQue.push(data)
+                // newQuestionQue.push(QuestionInformation)
                 // setQuestionQue(newQuestionQue)
-                console.log(data);
                 
-                questionQueRef.current.push(data);
+                
+                questionQueRef.current.push(QuestionInformation);
                 console.log(questionQueRef.current);
+                
+                
                 
                 if(currentQuestion === null){
                     setCurrentQuestion(questionQueRef.current[0])
                 }
+                console.log("answerrrr: " + questionQueRef.current[0].answer);
 
             },
 
@@ -212,7 +218,7 @@ export function ModView() {
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     question={question}
-                    submittedAnswer={submittedAnswerRef.current}
+                    submittedAnswer={currentQuestion && currentQuestion.answer}// When the game starts currentQuestion will be null
                     selectedPoints={selectedPoints}
                     handleSubmitPoints={handleSubmitPoints}
                     handleUpdatePoints={handleUpdatePoints}

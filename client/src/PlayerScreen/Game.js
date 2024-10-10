@@ -42,7 +42,7 @@ export function Game() {
         socket.emit('send_textbox_content', {text: textBoxContent, color: color})
         setTextBoxContent('')
         setGamePaused2(true)
-        socket.emit('send_answer_to_moderator', {questionText: question, color: popupColor, userColor: popupColor, answer: textBoxContent});
+        socket.emit('send_answer_to_moderator', {questionText: question, color: popupColor, userColor: popupColor, answer: textBoxContent, playerId:[socket.id]});
     };
 
     useEffect(() =>{
@@ -69,12 +69,15 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
+                console.log("Debug " + data);
+                
                 setGamePaused2(false)
             },
             'players_turn': (strategy) => {
                 try {
                     const pawn = document.querySelector('#' + strategy)
                     
+                    console.log("pawnnnnnn: " + pawn);
                     
                     const parent = pawn.parentElement
                     
@@ -117,7 +120,7 @@ export function Game() {
                 socket.off(event, socketHandlers[event])
             })
         }
-    })//,[currentPlayer]
+    },[])//,[currentPlayer]
 
     return (
     <>

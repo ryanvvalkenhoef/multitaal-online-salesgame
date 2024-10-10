@@ -223,8 +223,11 @@ function getReceiver(room, questionColor) {
                 color = 'red'
                 break
         }
-
+            
+            
         if (questionColor === color) {
+           
+            
             return user.id
         }
     }
