@@ -92,7 +92,7 @@ const modID = (roomcode) => {
     }
 }
 
-const addPlayerToMod = (socketid, strategy) => {
+const addPlayerToMod = (socketid, strategy) => { 
     switch (strategy) {
         case 'top of the world':
             strategy = 'world'
@@ -104,14 +104,14 @@ const addPlayerToMod = (socketid, strategy) => {
             strategy = 'domino'
             break
         default:
-            strategy = strategy
+            strategy = strategy;
             break
     }
     let data = readData();
     if (!data) return null;
     for (let i = 0; i < data.mods.length; i++) {
        // if (data.mods[i].id === socketid) {
-            data.mods[i].players_joined.push({[socketid]:strategy});
+            data.mods[i].players_joined.push(strategy);
             writeData(data);
             return 'added';
         }
@@ -155,7 +155,7 @@ const getPlayerTurn = (socketid) => {
     
 }
 
-const getPlayerName = (socketid) => {
+const getPlayerNames = (socketid) => {
     let data = readData();
     if (!data) return null;
     const mod = data.mods.find(mods => mods.id === socketid);
@@ -211,6 +211,16 @@ const removeUserFromMod = (info) => {
     }
 }
 
+const getPlayersList = () => {
+    let data = readData();
+    if(!data){
+        console.log("Can't read data: getPlayersList()");
+        return null;
+        
+    }
+    return data.users
+}
+
 function modLogger(method, socketid, info='temp'){
     switch(method){
         case 'log':
@@ -237,11 +247,10 @@ function modLogger(method, socketid, info='temp'){
             
             let playerPieces = [];
             try{
-                const playerObjects = readData().mods.find(mod => mod.id === socketid).players_joined
-                for(let i = 0; i < playerObjects.length; i++){
-                    playerObject = playerObjects[i]
-                    strategy = Object.values(playerObject)
-                    playerPieces.push(strategy)      
+                const strategies = readData().mods.find(mod => mod.id === socketid).players_joined
+                for(let i = 0; i < strategies.length; i++){
+                    
+                    playerPieces.push(strategies[i])      
 
                 }
 
@@ -263,8 +272,8 @@ function modLogger(method, socketid, info='temp'){
         case 'addPlayerName':
             addPlayerNameToMod(socketid, info)
             break
-        case 'getPlayerName':
-            return getPlayerName(socketid)
+        case 'getPlayerNames':
+            return getPlayerNames(socketid)
             break
         case 'getRound':
             return getRound(socketid)
@@ -277,6 +286,10 @@ function modLogger(method, socketid, info='temp'){
             break
         case 'removeUser':
             removeUserFromMod(info)
+            break
+
+        case 'getPlayersList':
+            return getPlayersList()
             break
     }
 }

@@ -69,24 +69,17 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
-                console.log("Debug " + data);
+                console.log("Debug submitted_points " + data);
                 
                 setGamePaused2(false)
             },
             'players_turn': (strategy) => {
                 try {
                     const pawn = document.querySelector('#' + strategy)
-                    
-                    console.log("pawnnnnnn: " + pawn);
-                    
                     const parent = pawn.parentElement
-                    
-                    
                     const parentPosition = parent.getAttribute('pos')
                     
-                    
                     setPosition(parentPosition)
-                    
                     
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
@@ -102,9 +95,9 @@ export function Game() {
                     // }
 
                    socket.emit('get_data', 'leaderboard_update');
-                   socket.to("players").to("mod").emit('get_data', 'leaderboard_update') // kan waarschijnlijk weg
                    
                 } catch (TypeError) {
+                    
                     socket.emit('pawns_request_failed', '')
                 }
             }

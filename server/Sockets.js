@@ -23,7 +23,7 @@ module.exports = function (io){
 
             'disconnect': (reason) => {
                 const room = userLogger("getRoom", socket.id)
-                const name = userLogger('getPlayerName', socket.id)
+                const name = userLogger('getPlayerNames', socket.id)
                 modLogger('removeUser', socket.id, {name: name, room: room})
                 socket.to(userLogger("getRoom", socket.id)).emit('delete_user', "deleting")
                 userLogger("delete", socket.id)
@@ -32,7 +32,6 @@ module.exports = function (io){
 
             'join_room' : (data) => {
                 userLogger('log', socket.id)
-                console.log(socket.id + " In 'join room' van Socket.js");
                 var exists = modLogger('checkExists', socket.id, data.room)
                 if (exists === 'exists') {
                     //socket.join(data.room)
@@ -127,33 +126,24 @@ module.exports = function (io){
             },
 
             'submit_points' : (data) => {
+                const id = data.playerId;
                 const room = modLogger('room', socket.id);
-                let name = modLogger('getPlayerName', socket.id)
-              
-                
-                
-               
-                console.log("Data: " + Object.values(data));
+                let name = userLogger('getPlayerNames',id)
                 
                 //const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
-                const id = data.playerId;
-                const oldPoints = userLogger('getPoints', id, id);
                 
+                const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
                 
-                
                 userLogger('updatePoints', id, newPoints);
-                
-                
-                console.log("id: " + id);
-                
-                
+            
                 //io.to(id).emit('submitted_points', data.points);
                 socket.emit('players_name', name)
                 modLogger('nextTurn', socket.id)
-                name = modLogger('getPlayerName', socket.id);
+                name = modLogger('getPlayerNames', socket.id);
                 const strategy = modLogger('getPlayerTurn', socket.id)
-                socket.emit('players_turn', strategy)
+                //socket.emit('players_turn', strategy)
+                socket.to(id).emit('players_turn', strategy)
 
                 socket.emit('players_name', name)
                 //socket.to(room).emit('players_turn', strategy)  test
@@ -190,7 +180,8 @@ module.exports = function (io){
                 userData = userLogger('getData', socket.id);
                 //socket.to(room).emit('data_leaderboard', userData);
                 io.emit('data_leaderboard', userData);
-                socket.emit('data_leaderboard', userData);
+                //socket.emit('data_leaderboard', userData);
+                //socket.to("mod").emit('data_leaderboard',userData)
             },
 
             'get_playerstrategy' : (data) => {

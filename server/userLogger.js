@@ -62,10 +62,13 @@ const updateUser = (userId, newData) => {
 function getRoom(socketid) {
     let data = readData();
     if (!data) return null;
+    
+    
     const user = data.users.find(user => user.id === socketid);
     if (user) {
         return user.room;
     } else {
+        console.log("socketid: " + socketid);
         console.error('User not found2.');
         return null;
     }
@@ -145,6 +148,7 @@ function getStrategy(socketid) {
                 break
             case 'jysk telepartner':
                 strategy = 'jysk'
+                
                 break
             case 'domino house':
                 strategy = 'domino'

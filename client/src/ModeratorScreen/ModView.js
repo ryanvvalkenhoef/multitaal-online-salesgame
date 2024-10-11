@@ -49,18 +49,10 @@ export function ModView() {
         
         if (submittedAnswerRef.current !== t("Game.modWait")) {
             setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: [currentQuestion.playerId]});
+            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestion.playerId});
             //setSubmittedAnswer(t("Game.modWait"));
             submittedAnswerRef.current= t("Game.modWait");
             setSelectedPoints([]);
-
-       
-            
-            //const newSubmittedAnswersQue = submittedAnswersQueue.splice();
-            //console.log(newSubmittedAnswersQue);
-            
-            //newSubmittedAnswersQue.shift();
-            
             
             submittedAnswersQueueRef.current.shift();
             if(submittedAnswersQueueRef.current.length > 0){
@@ -93,6 +85,7 @@ export function ModView() {
         else{
             if(showPopup === false){
                 
+                
             setShowPopup(true);
             setQuestion(currentQuestion.questionText);
             setColor(currentQuestion.color);
@@ -121,6 +114,9 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
+                
+                
+                  
                 setData(jsonData)
                 //socket.emit('get_current','mod')
             },
@@ -135,22 +131,12 @@ export function ModView() {
                 }
             },
             'receive_player_answer_through_pop_up': (QuestionInformation)=> {
-
-                
-                // const newQuestionQue = questionQue.splice();
-                // newQuestionQue.push(QuestionInformation)
-                // setQuestionQue(newQuestionQue)
-                
-                
+                       
                 questionQueRef.current.push(QuestionInformation);
-                console.log(questionQueRef.current);
-                
-                
-                
+            
                 if(currentQuestion === null){
                     setCurrentQuestion(questionQueRef.current[0])
                 }
-                console.log("answerrrr: " + questionQueRef.current[0].answer);
 
             },
 

@@ -43,8 +43,6 @@ module.exports = function (io){
 
             'roll_dice' : (data) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                const room = userLogger("getRoom", socket.id)
-                socket.to(room).emit("set_dice", diceValue)
                 socket.emit("set_dice", diceValue)
             },
 
@@ -53,39 +51,29 @@ module.exports = function (io){
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
                 const moves = getMovesFromCoordinate(xPos, yPos, data.diceValue);
-                const formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`)
-                const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('update_valid_positions', formattedPositions);
+                const formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`);
                 socket.emit('update_valid_positions', formattedPositions);
             },
 
             'start_turn' : (data) => {
                 const room = modLogger('room', socket.id);
                 const strategies = modLogger('getPlayerTurn', socket.id) //is een array
-                const names = modLogger('getPlayerName', socket.id) // is een array
+                const names = modLogger('getPlayerNames', socket.id) // is een array
+                const playersList = modLogger('getPlayersList');
                 
-                // console.log('start_turn in gameSockets.js STRATEGIES ' +strategies[0]);
-                // console.log('start_turn in gameSockets.js NAMES ' +names);
-                // console.log('Socketid in start_turn ' +socket.id);
-                
-                for(let i = 0; i < strategies.length; i++){
-                    const socketId = Object.keys(strategies[i]);
-                    const strategy = strategies[i][socketId];
-                    // console.log("socketId " + socketId);
-                    // console.log("Strategy " + strategy);
-                    
-                    console.log("i: " + socketId);
-                    
+                for(let i = 0; i < playersList.length; i++){
+                  
+                    const socketId = playersList[i].id;
+                    const strategy = strategies[i];
+                    const name = playersList[i].name;
                     socket.to(socketId).emit('players_turn',strategy);
-                    const name = names[i];
-                    socket.to(socketId).emit('players_name', name)
-                    
+                    socket.to(socketId).emit('players_name', name) // heeft te maken met knipperen van naam op leaderbord
+                                        
                     
                 
                     
                     
                 }
-                
                 
                 //socket.emit('players_turn', strategies) //is voor moderator
                 //socket.emit('players_name', names) //is voor moderator
@@ -112,6 +100,8 @@ module.exports = function (io){
                         break
                 }
                 const pieces = modLogger('getPieces', modID)
+                
+                
                 io.emit('add_piece', pieces)
                 
             }
