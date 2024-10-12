@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react"
 import './BoardGridStyle.css'
 import {socket} from "../client"
 
-const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setColor, color, modView, gameScreen}) => {
+const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen}) => {
     const [startPieces, setStartPieces] = useState([])
     const [validPositions, setValidPositions] = useState([])
     const [updatedPieces, setUpdatedPieces] = useState(false)
@@ -54,7 +54,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     }
 
     const sendQuestionRequest = (colorTile) => {
-        socket.emit("send_question_request", { questionColor: colorTile, userColor: color })
+        socket.emit("send_question_request", { questionColor: colorTile, userColor: playerColor })
     }
 
     useEffect(() => {
@@ -87,9 +87,25 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             setTileInfo2(data)
         })
 
-        socket.on("update_valid_positions", (data) => {
-            setValidPositions(data)
+        socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is an string array of coordinates
+              
+            document.querySelectorAll(`.tile.${playerColor} `).forEach( tile => {
+            console.log("color: " + playerColor);
+            
+            const position = tile.getAttribute("pos");
+            
+            const tempArray = validPositionsArray.filter(pos =>{
+        
+                return position.trim() !== pos.trim()
+
+            })
+
+            validPositionsArray = tempArray;
+            
         })
+        
+        setValidPositions(validPositionsArray)
+    })
 
             socket.on("add_piece", (data) => {
               
@@ -129,14 +145,14 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         if (gameScreen){
             socket.on("register_currentplayer", (data) => {
                 setCurrentPlayer(data.strategy)
-                setColor(data.color)
+                setPlayerColor(data.color)
             })
             const boardGrid = document.querySelector('.board-grid')
             if (boardGrid !== null){
                 boardGrid.addEventListener('click', handleTileClick)
             }
         }
-    }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setColor, color, gameScreen])
+    }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setPlayerColor, playerColor, gameScreen])
 
     if (tileInfo.length === 0 || tileInfo2.length === 0){
         socket.emit('get_tileInfo')

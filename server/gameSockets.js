@@ -51,7 +51,7 @@ module.exports = function (io){
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
                 const moves = getMovesFromCoordinate(xPos, yPos, data.diceValue);
-                const formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`);
+                let formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`);
                 socket.emit('update_valid_positions', formattedPositions);
             },
 

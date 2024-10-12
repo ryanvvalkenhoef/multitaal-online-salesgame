@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {socket} from '../client'
 import './GameStyle.css';
 import BoardGrid from "../GameScreen/BoardGrid";
@@ -19,7 +19,7 @@ export function Game() {
     const [steps, setSteps] = useState(0)
     const [moveMade, setMoveMade] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState ('')
-    const [color, setColor] = useState('')
+    const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
     const [popupColor, setPopupColor] = useState('')
     const [myTurn, setMyTurn] = useState(true)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
@@ -32,6 +32,7 @@ export function Game() {
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
+    const [currentColor,setCurrentColor] = useState('yellow');
 
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
@@ -39,10 +40,10 @@ export function Game() {
 
     const handleSubmitAnswer = () => {
         setGamePaused(false);
-        socket.emit('send_textbox_content', {text: textBoxContent, color: color})
+        socket.emit('send_textbox_content', {text: textBoxContent, color: playerColor})
         setTextBoxContent('')
         setGamePaused2(true)
-        socket.emit('send_answer_to_moderator', {questionText: question, color: popupColor, userColor: popupColor, answer: textBoxContent, playerId:socket.id});
+        socket.emit('send_answer_to_moderator', {questionText: question, playerColor: popupColor, userColor: popupColor, answer: textBoxContent, playerId:socket.id});
     };
 
     useEffect(() =>{
@@ -128,9 +129,11 @@ export function Game() {
                 setPosition={setPosition}
                 setCurrentPlayer={setCurrentPlayer}
                 currentPlayer={currentPlayer}
-                color={color}
-                setColor={setColor}
-                gameScreen={true}/>
+                playerColor={playerColor}
+                setPlayerColor={setPlayerColor}
+                gameScreen={true}
+                currentColor = {currentColor}
+                />
             <DiceContainer
                 setSteps={setSteps}
                 setMoveMade={setMoveMade}
