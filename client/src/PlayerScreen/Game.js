@@ -32,7 +32,8 @@ export function Game() {
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
-    const [currentColor,setCurrentColor] = useState('yellow');
+    const currentQuestion = useRef(null);
+    
 
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
@@ -43,7 +44,11 @@ export function Game() {
         socket.emit('send_textbox_content', {text: textBoxContent, color: playerColor})
         setTextBoxContent('')
         setGamePaused2(true)
-        socket.emit('send_answer_to_moderator', {questionText: question, playerColor: popupColor, userColor: popupColor, answer: textBoxContent, playerId:socket.id});
+        console.log(popupColor);
+        
+        currentQuestion.current.playerAnswer = textBoxContent;
+        currentQuestion.current.playerId = socket.id;
+        socket.emit('send_answer_to_moderator', currentQuestion.current)
     };
 
     useEffect(() =>{
@@ -65,8 +70,9 @@ export function Game() {
                 setData(jsonData)
             },
             'receive_question': (data) => {
-                setPopupColor(data.color)
-                setQuestion(data.questionText);
+                currentQuestion.current = data;
+                setPopupColor(currentQuestion.current.questionColor)
+                setQuestion(currentQuestion.current.questionText);
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
@@ -76,6 +82,7 @@ export function Game() {
             },
             'players_turn': (strategy) => {
                 try {
+                    
                     const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
                     const parentPosition = parent.getAttribute('pos')
@@ -132,7 +139,7 @@ export function Game() {
                 playerColor={playerColor}
                 setPlayerColor={setPlayerColor}
                 gameScreen={true}
-                currentColor = {currentColor}
+                
                 />
             <DiceContainer
                 setSteps={setSteps}

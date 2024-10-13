@@ -2,37 +2,38 @@ import React from "react";
 import './PopUpStyle.css'
 import {useTranslation} from "react-i18next";
 
-const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, selectedPoints, handleSubmitPoints, handleUpdatePoints, answer, color}) => {
+const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, selectedPoints, handleSubmitPoints, handleUpdatePoints, answer, popupColor}) => {
 
     const { t, i18n } = useTranslation('global');
 
     return (
         <>
             {showPopup && (
+                
                 <div className='scorePopup'>
-                    <div className={`questionColorBox ${color}`}>
+                    <div className={`questionColorBox ${popupColor}`} >
                         <div className='rowpopup'>
                             <img className={`${
-                                color === 'red' ? 'popupsafeline' :
-                                color === 'yellow' ? 'popuplunar' :
-                                color === 'blue' ? 'popupdomino' :
-                                color === 'purple' ? 'popupklaphatten' :
-                                color === 'green' ? 'popupworld' :
-                                color === 'orange' ? 'popupjysk' : 
-                                color === 'black1'? 'chance' :
-                                color === 'black2'? 'sales' :
-                                color === 'black3'? 'megatrends' : ''}`}
+                                popupColor === 'red' ? 'popupsafeline' :
+                                popupColor === 'yellow' ? 'popuplunar' :
+                                popupColor === 'blue' ? 'popupdomino' :
+                                popupColor === 'purple' ? 'popupklaphatten' :
+                                popupColor === 'green' ? 'popupworld' :
+                                popupColor === 'orange' ? 'popupjysk' : 
+                                popupColor === 'black1'? 'chance' :
+                                popupColor === 'black2'? 'sales' :
+                                popupColor === 'black3'? 'megatrends' : ''}`}
                                  alt="" />
                             <div className='strategyName2'>
-                                {color === 'yellow' ? 'Lunar':
-                                 color === 'green' ? 'Top of the World' :
-                                 color === 'blue' ? 'Domino House' :
-                                 color === 'purple' ? 'Klaphatten' :
-                                 color === 'red' ? 'Safeline' :
-                                 color === 'orange' ? 'Jysk Telepartner' :
-                                 color === 'black1' ? 'Chance':
-                                 color === 'black2' ? 'Sales' :
-                                 color === 'black3' ? 'Megatrends' :
+                                {popupColor === 'yellow' ? 'Lunar':
+                                 popupColor === 'green' ? 'Top of the World' :
+                                 popupColor === 'blue' ? 'Domino House' :
+                                 popupColor === 'purple' ? 'Klaphatten' :
+                                 popupColor === 'red' ? 'Safeline' :
+                                 popupColor === 'orange' ? 'Jysk Telepartner' :
+                                 popupColor === 'black1' ? 'Chance':
+                                 popupColor === 'black2' ? 'Sales' :
+                                 popupColor === 'black3' ? 'Megatrends' :
                                 'strategy'}</div>
                         </div>
                         <div className='questionLabel2'> {t("PopUps.question")}</div>

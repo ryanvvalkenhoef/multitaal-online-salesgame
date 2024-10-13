@@ -21,24 +21,22 @@ export function ModView() {
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
     const [currentPlayer, setCurrentPlayer] = useState (0)
-    const [color, setColor] = useState('')
+    const [popupColor, setColor] = useState('')
     const [userColor, setUserColor] = useState('')
     const [playerName, setPlayerName] = useState('')
     const [selectedPawn , setSelectedPawn] = useState()
     const [showPopup, setShowPopup] = useState(false);
     const [position, setPosition] = useState("8-5")
-    const [submittedAnswer, setSubmittedAnswer] = useState(null)
     const [diceValue, setDiceValue] = useState(1);
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
-    const questionQueRef = useRef([]);
+    const questionQueueRef = useRef([]);
     const isFirstRender = useRef(true);
     const [currentQuestion, setCurrentQuestion] = useState(null);
-    const submittedAnswersQueueRef = useRef([]);
-    const submittedAnswerRef = useRef(null);
+
    
 
     const handleUpdatePoints = (points) => {
@@ -48,50 +46,39 @@ export function ModView() {
     const handleSubmitPoints = () => {
        
         
-        if (submittedAnswerRef.current !== t("Game.modWait")) {
+        if (currentQuestion.playerAnswer !== t("Game.modWait")) {
+            
             setShowPopup(false)
             socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestion.playerId});
-            //setSubmittedAnswer(t("Game.modWait"));
-            submittedAnswerRef.current= t("Game.modWait");
-            setSelectedPoints([]);
             
-            submittedAnswersQueueRef.current.shift();
-            if(submittedAnswersQueueRef.current.length > 0){
-                submittedAnswerRef.current = submittedAnswersQueueRef.current[0];
-                //setSubmittedAnswersQueue(newSubmittedAnswersQue);
-                
-            }
+            currentQuestion.playerAnswer = t("Game.modWait");
+            setSelectedPoints([]);
 
-            //const newQuestionQue = questionQue.splice();
-            //newQuestionQue.shift();
-            questionQueRef.current.shift();
-            if(questionQueRef.current.length > 0){
-                setCurrentQuestion(questionQueRef.current[0]);
-               // setQuestionQue(newQuestionQue)
+            questionQueueRef.current.shift();
+            if(questionQueueRef.current.length > 0){
+                setCurrentQuestion(questionQueueRef.current[0]);
+               
             }
           
-
         }
+        
     };
 
     useEffect(()=>{
         
         
         if(isFirstRender.current){
-            
             isFirstRender.current = false
             return;
         }
         
         
         else{
-            if(showPopup === false){
-                
-                
+            if(showPopup === false){    
             setShowPopup(true);
             setQuestion(currentQuestion.questionText);
-            setColor(currentQuestion.color);
-            setUserColor(currentQuestion.userColor);
+            setColor(currentQuestion.questionColor);
+            setUserColor(currentQuestion.playerColor);
             setAnswer(currentQuestion.answer);
 
             }
@@ -116,51 +103,27 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
-                
-                
-                  
                 setData(jsonData)
                 //socket.emit('get_current','mod')
             },
             'set_current_player': (data)=> {
                 try {
-                
-                    
                     const pawn = document.querySelector('#' + data)
                     setSelectedPawn(pawn)
                 } catch (TypeError) {
                     socket.emit('pawns_request_failed', '')
                 }
             },
-            'receive_player_answer_through_pop_up': (QuestionInformation)=> {
+            'receive_player_answer': (questionData)=> { //parameter is an object
                        
-                questionQueRef.current.push(QuestionInformation);
+                questionQueueRef.current.push(questionData);
             
                 if(currentQuestion === null){
-                    setCurrentQuestion(questionQueRef.current[0])
+                    setCurrentQuestion(questionQueueRef.current[0])
                 }
 
             },
 
-            'receive_answer': (data)=> {
-                setAnswer(data);
-            },
-            'submitted_answer': (data)=> {
-                // let newSubmittedAnswersQueue = [...submittedAnswersQueue];
-                // newSubmittedAnswersQueue.push(data.text);
-                // setSubmittedAnswersQueue(newSubmittedAnswersQueue);
-                submittedAnswersQueueRef.current.push(data.text);
-
-                if(submittedAnswerRef.current === null){
-                    
-                    
-                    submittedAnswerRef.current = submittedAnswersQueueRef.current[0];
-                }
-
-              
-                
-
-            }
         }
 
         Object.keys(socketHandlers).forEach(event => {
@@ -202,11 +165,11 @@ export function ModView() {
             </div>
                 <ModeratorPopUps
                     answer={answer}
-                    color={color}
+                    popupColor={popupColor}
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     question={question}
-                    submittedAnswer={currentQuestion && currentQuestion.answer}// When the game starts currentQuestion will be null
+                    submittedAnswer={currentQuestion && currentQuestion.playerAnswer}// When the game starts currentQuestion will be null
                     selectedPoints={selectedPoints}
                     handleSubmitPoints={handleSubmitPoints}
                     handleUpdatePoints={handleUpdatePoints}

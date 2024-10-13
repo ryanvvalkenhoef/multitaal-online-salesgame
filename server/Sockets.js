@@ -100,16 +100,14 @@ module.exports = function (io){
 
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger('getReceiver', socket.id, {color: data.questionColor, room: room})
-                    //socket.to("mod").emit('receive_player_answer_through_pop_up', {questionText: question, color: popupColor, userColor: popupColor, answer: answer});
-                    io.to(receiver).emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor})
+                    io.to(receiver).emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer})
                 } else {
-                    //socket.to("mod").emit('receive_player_answer_through_pop_up', {questionText: question, color: popupColor, userColor: data.userColor, answer: answer});
-                    socket.emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor});
+                    socket.emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer});
                 }
             },
 
-            'send_answer_to_moderator': (data) =>{
-                socket.to("mod").emit('receive_player_answer_through_pop_up', data);
+            'send_answer_to_moderator': (questionData) =>{
+                socket.to("mod").emit('receive_player_answer', questionData);
             },
 
             'send_answer_request' :  async (data) => {
@@ -129,27 +127,22 @@ module.exports = function (io){
             },
 
             'submit_points' : (data) => {
-                const id = data.playerId;
                 const room = modLogger('room', socket.id);
-                let name = userLogger('getPlayerNames',id)
-                
-                //const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
-                
+                let name = modLogger('getPlayerName', socket.id)
+                const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
-                
                 userLogger('updatePoints', id, newPoints);
-            
-                //io.to(id).emit('submitted_points', data.points);
+
+                socket.to(room).emit('submitted_points', data.points);
                 socket.emit('players_name', name)
                 modLogger('nextTurn', socket.id)
-                name = modLogger('getPlayerNames', socket.id);
+                name = modLogger('getPlayerName', socket.id);
                 const strategy = modLogger('getPlayerTurn', socket.id)
-                //socket.emit('players_turn', strategy)
-                socket.to(id).emit('players_turn', strategy)
+                socket.emit('players_turn', strategy)
 
                 socket.emit('players_name', name)
-                //socket.to(room).emit('players_turn', strategy)  test
+                socket.to(room).emit('players_turn', strategy)
                 socket.to(room).emit('players_name', name)
 
                 const roundInfo = modLogger('getRound', socket.id);
