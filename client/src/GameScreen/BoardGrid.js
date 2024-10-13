@@ -28,21 +28,21 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     const tiles = []
 
     useEffect(() =>{
-        const getTilesColorAndPosition = () =>{
+        const getTilesColorAndPosition = () =>{  // returns an object where the key is a color and the value is an array consisting of the tile positions
             let tilesColorAndPostionObject = {};
             
-            
             joinedColors.forEach(color =>{
-                
-                
+                        
                 document.querySelectorAll(`.tile.${color} `).forEach(tile =>{
+                    
                     const tilePostion = tile.getAttribute("pos");
+                
                     if(!tilesColorAndPostionObject[color]){
                         tilesColorAndPostionObject[color] = [];
                     }
-                    else{
+                    
                     tilesColorAndPostionObject[color] = [...tilesColorAndPostionObject[color], tilePostion];
-                    }
+                    
                 })
             })
             
@@ -119,55 +119,22 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
 
         socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is an string array of coordinates
             
-            
-        //     document.querySelectorAll(`.tile.${playerColor} `).forEach( tile => {
-        //     console.log("color: " + playerColor);
-            
-        //     const position = tile.getAttribute("pos");
-            
-        //     const tempArray = validPositionsArray.filter(pos =>{
-        
-        //         return position.trim() !== pos.trim()
+            const opponentColors = joinedColors.filter(color => color !== playerColor)
+            let filteredValidPositionsArray = validPositionsArray;
 
-        //     })
+            opponentColors.forEach(color =>{
+                
+                filteredValidPositionsArray = filteredValidPositionsArray.filter(validPosition =>{ //Tile gets filtered out if it's an opponent tile
+                        return !tilesColorAndPositionRef.current[color].includes(validPosition)
+                    })
+                
 
-        //     validPositionsArray = tempArray;
-            
-        // })
-        // console.log("Valid: " + validPositionsArray);
-        console.log("Geel: "+ tilesColorAndPositionRef.current.yellow);
-        console.log("Groen: "+ tilesColorAndPositionRef.current.green);
-        console.log("rood: "+ tilesColorAndPositionRef.current.red);
-        console.log("oranje: "+ tilesColorAndPositionRef.current.orange);
-        console.log("paars: "+ tilesColorAndPositionRef.current.purple);
-        console.log("blau: "+ tilesColorAndPositionRef.current.blue);
-        
-        
-        
-        const opponentColors = joinedColors.filter(color =>{
-            return color !== playerColor;
-        })
-        let filteredArray = validPositionsArray;
-        opponentColors.forEach(color =>{
-            console.log("map type: "+ typeof tilesColorAndPositionRef.current.yellow[0]);
-            
-          filteredArray = filteredArray.filter(validPosition =>{
-            console.log("filterdedarray type: " + typeof validPosition);
-            
-                return !tilesColorAndPositionRef.current[color].includes(validPosition)
-                    
-            
             })
-            
-
-        })
-        console.log("valid before : " + validPositionsArray );
-        console.log("valid After : " + filteredArray );
-        
-        setValidPositions(filteredArray)
+       
+        setValidPositions(filteredValidPositionsArray)
     })
 
-            socket.on("add_piece", (data) => {
+            socket.on("add_piece", (strategies) => {
               
                 let joinedColorsArray = []
                 const colorMap = {
@@ -179,14 +146,14 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                     "safeline": "red"
                 }
                 
-                data.forEach(key => {
-                    if (colorMap[key]) {  
-                        joinedColorsArray.push(colorMap[key]);  
+                strategies.forEach(strategies => {
+                    if (colorMap[strategies]) {  
+                        joinedColorsArray.push(colorMap[strategies]);  
                     }
                 });
 
                 
-                setStartPieces(data)
+                setStartPieces(strategies)
                 setJoinedColors(joinedColorsArray)
             })
 

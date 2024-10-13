@@ -43,7 +43,7 @@ module.exports = function (io){
 
             'roll_dice' : (data) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", diceValue)
+                socket.emit("set_dice", 5)
             },
 
             'send_dice_roll_and_position': (data) => {
