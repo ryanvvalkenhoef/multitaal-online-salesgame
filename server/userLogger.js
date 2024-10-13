@@ -199,6 +199,9 @@ function getColor(socketid) {
     }
 }
 
+
+
+
 function getReceiver(room, questionColor) {
     let data = readData();
     if (!data) return null;
@@ -283,6 +286,8 @@ function userLogger(method, socketid, info=""){
             break
         case 'updateLanguage':
             updateUser(socketid, {language: info})
+        case 'addColorToPlayer':
+            updateUser(socketid, {color: info})    
         case 'getRoom':
             return getRoom(socketid)
         case 'getPoints':

@@ -39,6 +39,7 @@ export function ModView() {
     const [currentQuestion, setCurrentQuestion] = useState(null);
     const submittedAnswersQueueRef = useRef([]);
     const submittedAnswerRef = useRef(null);
+   
 
     const handleUpdatePoints = (points) => {
         setSelectedPoints(points);
@@ -68,6 +69,7 @@ export function ModView() {
                 setCurrentQuestion(questionQueRef.current[0]);
                // setQuestionQue(newQuestionQue)
             }
+          
 
         }
     };

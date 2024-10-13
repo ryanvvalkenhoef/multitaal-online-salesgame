@@ -59,9 +59,12 @@ module.exports = function (io){
                     userLogger('updateName', socket.id, data.name)
                     userLogger('updateRoom', socket.id, data.room)
                     userLogger('updateStrategy', socket.id, data.strategy)
+                    const playerColor = userLogger('getColor',socket.id)
+                    userLogger('addColorToPlayer',socket.id,playerColor)
                     const modID = modLogger('getMod', socket.id, data.room)
                     modLogger('addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
                     modLogger('addPlayerName', socket.id, data.name) //socket.id was modID
+                    
                     const pieces = modLogger('getPieces', modID)
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useState,useRef} from "react"
 import './BoardGridStyle.css'
 import {socket} from "../client"
 
@@ -9,6 +9,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     const [joinedColors, setJoinedColors] = useState([])
     const [tileInfo, setTileInfo] = useState([])
     const [tileInfo2, setTileInfo2] = useState([])
+    const tilesColorAndPositionRef = useRef(null)
 
     //CO-ORDINATES FOR PAWN MOVEMENT
     const possiblePositions = [
@@ -25,6 +26,35 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
 
     //EMPTY ARRAY NECESSARY FOR RENDERING TILES
     const tiles = []
+
+    useEffect(() =>{
+        const getTilesColorAndPosition = () =>{
+            let tilesColorAndPostionObject = {};
+            
+            
+            joinedColors.forEach(color =>{
+                
+                
+                document.querySelectorAll(`.tile.${color} `).forEach(tile =>{
+                    const tilePostion = tile.getAttribute("pos");
+                    if(!tilesColorAndPostionObject[color]){
+                        tilesColorAndPostionObject[color] = [];
+                    }
+                    else{
+                    tilesColorAndPostionObject[color] = [...tilesColorAndPostionObject[color], tilePostion];
+                    }
+                })
+            })
+            
+            
+            return tilesColorAndPostionObject
+        }
+
+        tilesColorAndPositionRef.current = getTilesColorAndPosition();
+        
+        
+        
+    },[joinedColors])
 
     const renderStartPieces = () => {
         if (!updatedPieces) {
@@ -88,23 +118,53 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         })
 
         socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is an string array of coordinates
-              
-            document.querySelectorAll(`.tile.${playerColor} `).forEach( tile => {
-            console.log("color: " + playerColor);
             
-            const position = tile.getAttribute("pos");
             
-            const tempArray = validPositionsArray.filter(pos =>{
+        //     document.querySelectorAll(`.tile.${playerColor} `).forEach( tile => {
+        //     console.log("color: " + playerColor);
+            
+        //     const position = tile.getAttribute("pos");
+            
+        //     const tempArray = validPositionsArray.filter(pos =>{
         
-                return position.trim() !== pos.trim()
+        //         return position.trim() !== pos.trim()
 
-            })
+        //     })
 
-            validPositionsArray = tempArray;
+        //     validPositionsArray = tempArray;
             
+        // })
+        // console.log("Valid: " + validPositionsArray);
+        console.log("Geel: "+ tilesColorAndPositionRef.current.yellow);
+        console.log("Groen: "+ tilesColorAndPositionRef.current.green);
+        console.log("rood: "+ tilesColorAndPositionRef.current.red);
+        console.log("oranje: "+ tilesColorAndPositionRef.current.orange);
+        console.log("paars: "+ tilesColorAndPositionRef.current.purple);
+        console.log("blau: "+ tilesColorAndPositionRef.current.blue);
+        
+        
+        
+        const opponentColors = joinedColors.filter(color =>{
+            return color !== playerColor;
         })
+        let filteredArray = validPositionsArray;
+        opponentColors.forEach(color =>{
+            console.log("map type: "+ typeof tilesColorAndPositionRef.current.yellow[0]);
+            
+          filteredArray = filteredArray.filter(validPosition =>{
+            console.log("filterdedarray type: " + typeof validPosition);
+            
+                return !tilesColorAndPositionRef.current[color].includes(validPosition)
+                    
+            
+            })
+            
+
+        })
+        console.log("valid before : " + validPositionsArray );
+        console.log("valid After : " + filteredArray );
         
-        setValidPositions(validPositionsArray)
+        setValidPositions(filteredArray)
     })
 
             socket.on("add_piece", (data) => {
