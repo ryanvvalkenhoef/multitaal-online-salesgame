@@ -41,14 +41,12 @@ export function Game() {
 
     const handleSubmitAnswer = () => {
         setGamePaused(false);
-        socket.emit('send_textbox_content', {text: textBoxContent, color: playerColor})
-        setTextBoxContent('')
-        setGamePaused2(true)
-        console.log(popupColor);
-        
+        setTextBoxContent('');
+        setGamePaused2(true);
         currentQuestion.current.playerAnswer = textBoxContent;
         currentQuestion.current.playerId = socket.id;
         socket.emit('send_answer_to_moderator', currentQuestion.current)
+        socket.emit('updateHasFinishedTurn',true);
     };
 
     useEffect(() =>{
@@ -76,12 +74,14 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
-                console.log("Debug submitted_points " + data);
-                
                 setGamePaused2(false)
             },
             'players_turn': (strategy) => {
                 try {
+
+                    
+                    
+                    console.log("Move made:" + myTurn);
                     
                     const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement

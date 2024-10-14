@@ -60,32 +60,30 @@ module.exports = function (io){
                 const strategies = modLogger('getPlayerTurn', socket.id) //is een array
                 const names = modLogger('getPlayerNames', socket.id) // is een array
                 const playersList = modLogger('getPlayersList');
+
+                const roundInfo = modLogger('getRound', socket.id);
+                socket.to("players").emit('rounds', roundInfo);
+                socket.emit('rounds', roundInfo);
+                socket.emit('get_player_count');
                 
                 for(let i = 0; i < playersList.length; i++){
+                  
                   
                     const socketId = playersList[i].id;
                     const strategy = strategies[i];
                     const name = playersList[i].name;
                     socket.to(socketId).emit('players_turn',strategy);
-                    socket.to(socketId).emit('players_name', name) // heeft te maken met knipperen van naam op leaderbord
-                                        
-                    
-                
-                    
+                    socket.to(socketId).emit('players_name', name) // heeft te maken met knipperen van naam op leaderbord en turn text
+                                            
                     
                 }
                 
-                //socket.emit('players_turn', strategies) //is voor moderator
-                //socket.emit('players_name', names) //is voor moderator
-                //socket.to(room).emit('players_turn', strategies)
                 
-                //socket.to(room).emit('players_name', names)
-
-                const roundInfo = modLogger('getRound', socket.id);
-                //socket.to(room).emit('rounds', roundInfo);
-                socket.to("players").emit('rounds', roundInfo);
-
-                socket.emit('rounds', roundInfo);
+                //socket.emit('players_name', names) //is voor moderator
+                // const roundInfo = modLogger('getRound', socket.id);
+                // socket.to("players").emit('rounds', roundInfo);
+                // socket.emit('rounds', roundInfo);
+                // socket.emit('get_player_count');
             },
 
             'get_pieces': (data) => {

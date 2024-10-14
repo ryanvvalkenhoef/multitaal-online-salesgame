@@ -267,7 +267,7 @@ function getLanguage(socketid) {
 function userLogger(method, socketid, info=""){
     switch(method){
         case 'log':
-            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:''})
+            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false })
             break
         case 'delete':
             deleteUser(socketid)
@@ -308,6 +308,9 @@ function userLogger(method, socketid, info=""){
             return getPlayerName(socketid)
         case 'getLanguage':
             return getLanguage(socketid)
+        case 'updateHasFinishedTurn':
+            updateUser(socketid, {hasFinishedTurn: info})  
+            break;  
     }
 }
 

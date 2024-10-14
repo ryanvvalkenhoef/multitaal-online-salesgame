@@ -33,9 +33,11 @@ export function ModView() {
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
+    const [currentQuestion, setCurrentQuestion] = useState(null);
     const questionQueueRef = useRef([]);
     const isFirstRender = useRef(true);
-    const [currentQuestion, setCurrentQuestion] = useState(null);
+    const playerCountRef = useRef(0);
+    const numberOfQuestionsReviewedRef = useRef(0);
 
    
 
@@ -52,12 +54,16 @@ export function ModView() {
             socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestion.playerId});
             
             currentQuestion.playerAnswer = t("Game.modWait");
+            numberOfQuestionsReviewedRef.current++;
             setSelectedPoints([]);
 
             questionQueueRef.current.shift();
             if(questionQueueRef.current.length > 0){
                 setCurrentQuestion(questionQueueRef.current[0]);
                
+            }
+            else if(playerCountRef.current === numberOfQuestionsReviewedRef.current){
+                socket.emit('start_turn');
             }
           
         }
@@ -123,6 +129,10 @@ export function ModView() {
                 }
 
             },
+
+            'player_count': (playerCount) => {
+                playerCountRef.current = playerCount;
+            }
 
         }
 

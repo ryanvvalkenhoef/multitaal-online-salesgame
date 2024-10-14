@@ -18,7 +18,7 @@ const DiceContainer = (props) => {
 
     const roll = () => {
         socket.emit("roll_dice");
-        setMyTurn(false);
+        //setMyTurn(false);
     };
 
     useEffect(() => {

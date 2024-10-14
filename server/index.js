@@ -8,7 +8,7 @@ const fs = require('fs');
 const socketInit = require('./socketInit')
 const sockets = require('./Sockets')
 const gameSockets = require('./gameSockets')
-fs.writeFileSync('data.json', '{\n  "users": [],\n  "mods": []\n}');
+fs.writeFileSync('data.json', '{\n  "users": [],\n  "mods": []\n }');
 const server = http.createServer(app)
 const { instrument } = require("@socket.io/admin-ui");
 

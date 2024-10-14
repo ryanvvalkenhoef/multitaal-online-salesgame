@@ -123,8 +123,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             let filteredValidPositionsArray = validPositionsArray;
 
             opponentColors.forEach(color =>{
-                
-                filteredValidPositionsArray = filteredValidPositionsArray.filter(validPosition =>{ //Tile gets filtered out if it's an opponent tile
+                filteredValidPositionsArray = filteredValidPositionsArray.filter(validPosition =>{ //Tile gets filtered out if it's an opponent's tile
                         return !tilesColorAndPositionRef.current[color].includes(validPosition)
                     })
                 
@@ -161,6 +160,8 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             const newPosition = data.newPosition
             const selectedPawnName = data.selectedPawn
             const selectedPawnElement = document.getElementById(selectedPawnName)
+            console.log(validPositions.includes(newPosition));
+            
             if (selectedPawnElement && validPositions.includes(newPosition)) {
                 const newTile = document.querySelector(`.tile[pos="${newPosition}"]`)
                 newTile.appendChild(selectedPawnElement)

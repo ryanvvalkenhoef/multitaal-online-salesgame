@@ -25,6 +25,7 @@ export function Gamepin() {
             
             
             setGamepin(data.room);
+            
             setPlayerNeeded(data.playerTotal);
         });
         socket.on('add_user', () => {

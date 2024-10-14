@@ -6,6 +6,7 @@ const getMovesFromCoordinate = require("./positionCalculator");
 
 module.exports = function (io){
 
+
     io.on('connection', (socket) => {
        //userLogger('log', socket.id)
         
@@ -74,7 +75,7 @@ module.exports = function (io){
                 }
             },
 
-            'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler en moderator gestuurd
+            'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler gestuurd
                 const availableColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
                 const language = userLogger('getLanguage', socket.id)
                 const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
@@ -127,26 +128,29 @@ module.exports = function (io){
             },
 
             'submit_points' : (data) => {
+                const id = data.playerId;
                 const room = modLogger('room', socket.id);
-                let name = modLogger('getPlayerName', socket.id)
-                const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
+                let name = userLogger('getPlayerName',id)
+                
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
+                
                 userLogger('updatePoints', id, newPoints);
-
-                socket.to(room).emit('submitted_points', data.points);
-                socket.emit('players_name', name)
+            
+                io.to(id).emit('submitted_points', data.points);
+                //socket.emit('players_name', name)
                 modLogger('nextTurn', socket.id)
-                name = modLogger('getPlayerName', socket.id);
+                name = modLogger('getPlayerNames', socket.id);
                 const strategy = modLogger('getPlayerTurn', socket.id)
-                socket.emit('players_turn', strategy)
+                //socket.emit('players_turn', strategy)
+                //socket.to(id).emit('players_turn', strategy)
 
-                socket.emit('players_name', name)
-                socket.to(room).emit('players_turn', strategy)
-                socket.to(room).emit('players_name', name)
+                //socket.emit('players_name', name)
+                //socket.to(room).emit('players_turn', strategy)  test
+                //socket.to(room).emit('players_name', name)
 
                 const roundInfo = modLogger('getRound', socket.id);
-                socket.to(room).emit('rounds', roundInfo);
+                socket.to('players').emit('rounds', roundInfo);
                 socket.emit('rounds', roundInfo);
             },
 
@@ -155,13 +159,15 @@ module.exports = function (io){
             },
 
             'send_textbox_content' : (data) => {
-                const room = userLogger('getRoom', socket.id);
+                //const room = userLogger('getRoom', socket.id);
                 socket.to("mod").emit('submitted_answer', data);
             },
 
             'update_position' : (data) => {
-                const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('update_position', data);
+                // const room = userLogger('getRoom', socket.id);
+                // socket.to(room).emit('update_position', data);
+
+                io.emit('update_position', data);
             },
 
             'pawns_request_failed' : (data) => {
@@ -189,7 +195,18 @@ module.exports = function (io){
             'get_current' : (data) => {
                 const strategy = modLogger('getPlayerTurn', socket.id)
                 socket.emit('set_current_player', strategy)
+            },
+
+            'get_player_count': ()=>{
+                const playerCount = modLogger('getPlayerTotal',socket.id);
+                socket.emit('player_count', playerCount);
+            },
+
+            'updateHasFinishedTurn': (hasFinishedTurn)=>{
+                userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn)
             }
+
+
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])})
