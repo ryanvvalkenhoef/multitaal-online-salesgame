@@ -99,9 +99,10 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                         event.target.appendChild(selectedPawn)
                         const color = targetTile.className.split(' ')[1]
                         sendQuestionRequest(color)
-                        setMoveMade(true)
+                        //setMoveMade(true)
                         document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
-                        socket.emit("update_position", {newPosition: newPosition, selectedPawn: selectedPawn.id})
+                        //socket.emit("update_position", {newPosition: newPosition, selectedPawn: selectedPawn.id})
+                        socket.emit('updatePlayerPosition', {newPosition: newPosition, selectedPawn: selectedPawn.id});
                     } else {
                         console.error("Selected pawn is not a valid DOM element")
                     }
@@ -156,18 +157,35 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                 setJoinedColors(joinedColorsArray)
             })
 
-        socket.on("update_position", (data) => {
-            const newPosition = data.newPosition
-            const selectedPawnName = data.selectedPawn
-            const selectedPawnElement = document.getElementById(selectedPawnName)
-            console.log(validPositions.includes(newPosition));
+        socket.on("update_position", (dataa) => {
+            console.log("data: " + dataa);
             
-            if (selectedPawnElement && validPositions.includes(newPosition)) {
-                const newTile = document.querySelector(`.tile[pos="${newPosition}"]`)
-                newTile.appendChild(selectedPawnElement)
-                setPosition(newPosition)
-                document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
-            }
+            dataa.forEach(data =>{
+
+                const newPosition = data.newPosition
+                const selectedPawnName = data.selectedPawn
+                const selectedPawnElement = document.getElementById(selectedPawnName)
+                console.log(validPositions.includes(newPosition));
+                
+                if (selectedPawnElement) {
+                    const newTile = document.querySelector(`.tile[pos="${newPosition}"]`)
+                    newTile.appendChild(selectedPawnElement)
+                    setPosition(newPosition)
+                    document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
+                }
+
+            })
+            // const newPosition = data.newPosition
+            // const selectedPawnName = data.selectedPawn
+            // const selectedPawnElement = document.getElementById(selectedPawnName)
+            // console.log(validPositions.includes(newPosition));
+            
+            // if (selectedPawnElement && validPositions.includes(newPosition)) {
+            //     const newTile = document.querySelector(`.tile[pos="${newPosition}"]`)
+            //     newTile.appendChild(selectedPawnElement)
+            //     setPosition(newPosition)
+            //     document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
+            // }
         })
 
         if (gameScreen){

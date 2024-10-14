@@ -85,11 +85,13 @@ const modID = (roomcode) => {
     let data = readData();
     if (!data) return null;
     const modID = data.mods.find(mod => mod.room === roomcode);
+    const mod = data.mods[0];
     if (modID) {
         return modID.id;
     } else {
-        return null;
-    }
+         return null;
+     }
+    
 }
 
 const addPlayerToMod = (socketid, strategy) => { 
@@ -221,11 +223,44 @@ const getPlayersList = () => {
     return data.users
 }
 
+const updateIsRoundFinished = () =>{
+    let data = readData();
+
+    if(!data){
+        console.log("Can't read data: updateIsRoundFinished()");
+        return null;
+    }
+
+    const playerCount = data.mods[0].total_players;
+    
+    for(let i = 0; i < playerCount; i++){
+        const hasFinishedTurn = data.users[i].hasFinishedTurn;
+        if(!hasFinishedTurn){
+            return
+        }
+    }
+    data.mods[0].isRoundFinished = true;
+    writeData(data);
+   
+}
+
+const getIsRoundFinished = () => {
+    let data = readData();
+
+    if(!data){
+        console.log("Can't read data: getIsRoundFinished()");
+        return null;
+    }
+    
+    return data.mods[0].isRoundFinished;
+    
+}
+
 function modLogger(method, socketid, info='temp'){
     switch(method){
         case 'log':
             const gamepin = generateGamepin();
-            addMods({id: socketid, language: 'NL', room: gamepin, player_names: [], players_joined: [], total_players: info.playerCount,turn: 0, current_round: 1, total_rounds: info.roundsCount});
+            addMods({id: socketid, language: 'NL', room: gamepin, player_names: [], players_joined: [], total_players: info.playerCount,turn: 0, current_round: 1, total_rounds: info.roundsCount,isRoundFinished: false});
             return gamepin
         case 'delete':
             deleteMods(socketid)
@@ -289,8 +324,14 @@ function modLogger(method, socketid, info='temp'){
             break
 
         case 'getPlayersList':
-            return getPlayersList()
-            break
+            return getPlayersList();
+        case 'updateIsRoundFinished':
+            updateIsRoundFinished();
+            break;    
+        case 'getIsRoundFinished':{
+            return getIsRoundFinished();
+            
+        }    
     }
 }
 

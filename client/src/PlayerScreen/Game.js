@@ -75,6 +75,7 @@ export function Game() {
             },
             'submitted_points' : (data) => {
                 setGamePaused2(false)
+                socket.emit('get_data', 'leaderboard_update');
             },
             'players_turn': (strategy) => {
                 try {
@@ -102,7 +103,7 @@ export function Game() {
                     //     setMoveMade(true)
                     // }
 
-                   socket.emit('get_data', 'leaderboard_update');
+                   //socket.emit('get_data', 'leaderboard_update');
                    
                 } catch (TypeError) {
                     

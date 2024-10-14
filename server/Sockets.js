@@ -6,6 +6,11 @@ const getMovesFromCoordinate = require("./positionCalculator");
 
 module.exports = function (io){
 
+    const updateAllBoards = () =>{
+        const players = userLogger('getAllPlayers');
+        const playerPositions = players.map(player => player.playerPosition);
+        io.emit('update_position',playerPositions);
+    }
 
     io.on('connection', (socket) => {
        //userLogger('log', socket.id)
@@ -203,8 +208,24 @@ module.exports = function (io){
             },
 
             'updateHasFinishedTurn': (hasFinishedTurn)=>{
-                userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn)
-            }
+                userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn);
+                modLogger('updateIsRoundFinished');
+                const isRoundFinished = modLogger('getIsRoundFinished')
+                
+                if(isRoundFinished){
+                    
+                    
+                    updateAllBoards();
+                    io.emit('get_data', 'leaderboard_update');
+                }
+            },
+
+            'updatePlayerPosition': (playerPosition) =>{ // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
+                userLogger('updatePlayerPosition', socket.id,playerPosition);
+                
+                
+            },
+            
 
 
         }

@@ -68,7 +68,6 @@ function getRoom(socketid) {
     if (user) {
         return user.room;
     } else {
-        console.log("socketid: " + socketid);
         console.error('User not found2.');
         return null;
     }
@@ -264,10 +263,20 @@ function getLanguage(socketid) {
     }
 }
 
+function getAllPlayers(){
+    let data = readData();
+    if (!data){
+        console.log("Can't read data: getAllPlayers()");
+        return null;
+    }
+
+    return data.users
+}
+
 function userLogger(method, socketid, info=""){
     switch(method){
         case 'log':
-            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false })
+            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' })
             break
         case 'delete':
             deleteUser(socketid)
@@ -309,9 +318,15 @@ function userLogger(method, socketid, info=""){
         case 'getLanguage':
             return getLanguage(socketid)
         case 'updateHasFinishedTurn':
-            updateUser(socketid, {hasFinishedTurn: info})  
+            updateUser(socketid, {hasFinishedTurn: info});
             break;  
-    }
+        case 'updatePlayerPosition':
+            updateUser(socketid, {playerPosition: info});
+            break;    
+        case 'getAllPlayers':{
+            return getAllPlayers()
+        }    
+    }   
 }
 
 module.exports=userLogger;
