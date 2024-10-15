@@ -189,7 +189,6 @@ module.exports = function (io){
                 userData = userLogger('getData', socket.id);
                 //socket.to(room).emit('data_leaderboard', userData);
                 io.emit('data_leaderboard', userData);
-                console.log("logggg");
                 
                 socket.to("mod").emit('data_leaderboard', userData)
                 //socket.emit('data_leaderboard', userData);
@@ -213,13 +212,11 @@ module.exports = function (io){
 
             'updateHasFinishedTurn': (hasFinishedTurn)=>{
                 userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn);
-                modLogger('updateIsRoundFinished');
-                const isRoundFinished = modLogger('getIsRoundFinished')
-                
+                const isRoundFinished = modLogger('checkIfRoundIsFinished');
+
                 if(isRoundFinished){
-                    
-                    
                     updateAllBoards();
+                    modLogger('resetRoundStatus');
                     
                 }
             },
@@ -234,18 +231,14 @@ module.exports = function (io){
                  
                  
                 modLogger('nextRound', socket.id)
-                io.emit('submitted_points');
+                socket.to("players").emit('submitted_points');
                 const roundInfo = modLogger('getRound', socket.id);
-                console.log("round info: " + JSON.stringify( roundInfo));
                 
                 io.emit('rounds', roundInfo);
                 userData = userLogger('getData', socket.id);
-                console.log("emit");
-                
+              
                 io.emit('data_leaderboard', userData);
-                console.log("logggg");
                 
-                //socket.to("mod").emit('data_leaderboard', userData)
                 
             }
             

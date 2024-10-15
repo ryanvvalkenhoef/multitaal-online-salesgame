@@ -220,11 +220,11 @@ const getPlayersList = () => {
     return data.users
 }
 
-const updateIsRoundFinished = () =>{
+const checkIfRoundIsFinished = () =>{
     let data = readData();
 
     if(!data){
-        console.log("Can't read data: updateIsRoundFinished()");
+        console.log("Can't read data: checkIfRoundIsFinished()");
         return null;
     }
 
@@ -233,12 +233,12 @@ const updateIsRoundFinished = () =>{
     for(let i = 0; i < playerCount; i++){
         const hasFinishedTurn = data.users[i].hasFinishedTurn;
         if(!hasFinishedTurn){
-            return
+            return false
         }
     }
     data.mods[0].isRoundFinished = true;
     writeData(data);
-   
+    return true;
 }
 
 const getIsRoundFinished = () => {
@@ -251,6 +251,18 @@ const getIsRoundFinished = () => {
     
     return data.mods[0].isRoundFinished;
     
+}
+
+const resetRoundStatus = () => {
+    let data = readData();
+
+    if(!data){
+        console.log("Can't read data: resetRoundStatus()");
+        return null;
+    }
+
+    data.mods[0].isRoundFinished = false;
+    writeData(data);
 }
 
 function modLogger(method, socketid, info='temp'){
@@ -319,16 +331,13 @@ function modLogger(method, socketid, info='temp'){
         case 'removeUser':
             removeUserFromMod(info)
             break
-
         case 'getPlayersList':
             return getPlayersList();
-        case 'updateIsRoundFinished':
-            updateIsRoundFinished();
-            break;    
-        case 'getIsRoundFinished':{
-            return getIsRoundFinished();
-            
-        }    
+        case 'checkIfRoundIsFinished':
+            return checkIfRoundIsFinished();
+        case 'resetRoundStatus':
+            resetRoundStatus();
+          
     }
 }
 

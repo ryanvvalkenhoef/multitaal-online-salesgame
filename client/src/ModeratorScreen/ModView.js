@@ -47,8 +47,6 @@ export function ModView() {
 
     const handleSubmitPoints = () => {
        
-        console.log("count: " + playerCountRef.current);
-        console.log("nummer: " + numberOfQuestionsReviewedRef.current);
         
         
         if (currentQuestion.playerAnswer !== t("Game.modWait")) {
@@ -59,15 +57,15 @@ export function ModView() {
             currentQuestion.playerAnswer = t("Game.modWait");
             numberOfQuestionsReviewedRef.current++;
             setSelectedPoints([]);
-
+           
+        
             questionQueueRef.current.shift();
             if(questionQueueRef.current.length > 0){
                 setCurrentQuestion(questionQueueRef.current[0]);
                
             }
             else if(playerCountRef.current === numberOfQuestionsReviewedRef.current){
-                console.log("test");
-                
+                numberOfQuestionsReviewedRef.current = 0;
                 socket.emit('update_game_state')
                 socket.emit('start_turn');
             }
@@ -115,9 +113,7 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
-                console.log("log: "+jsonData);
                 setData(jsonData)
-                //socket.emit('get_current','mod')
             },
             'set_current_player': (data)=> {
                 try {
@@ -138,8 +134,6 @@ export function ModView() {
             },
 
             'player_count': (playerCount) => {
-                console.log("eryerye: " + playerCount);
-                
                 playerCountRef.current = playerCount;
             }
 

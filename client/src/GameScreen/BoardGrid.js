@@ -158,10 +158,9 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                 setJoinedColors(joinedColorsArray)
             })
 
-        socket.on("update_position", (dataa) => {
-            console.log("data: " + dataa);
+        socket.on("update_position", (NewPositionData) => {
             
-            dataa.forEach(data =>{
+            NewPositionData.forEach(data =>{
 
                 const newPosition = data.newPosition
                 const selectedPawnName = data.selectedPawn
@@ -176,17 +175,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                 }
 
             })
-            // const newPosition = data.newPosition
-            // const selectedPawnName = data.selectedPawn
-            // const selectedPawnElement = document.getElementById(selectedPawnName)
-            // console.log(validPositions.includes(newPosition));
-            
-            // if (selectedPawnElement && validPositions.includes(newPosition)) {
-            //     const newTile = document.querySelector(`.tile[pos="${newPosition}"]`)
-            //     newTile.appendChild(selectedPawnElement)
-            //     setPosition(newPosition)
-            //     document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
-            // }
+
         })
 
         if (gameScreen){

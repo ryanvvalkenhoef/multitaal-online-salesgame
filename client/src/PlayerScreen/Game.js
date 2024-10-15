@@ -74,16 +74,12 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
-                console.log("emit2");
-                
                 setGamePaused2(false)
-                socket.emit('get_data', 'leaderboard_update');
+                //socket.emit('get_data', 'leaderboard_update');
             },
             'players_turn': (strategy) => {
                 try {
 
-                    console.log("Move made:" + myTurn);
-                    
                     const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
                     const parentPosition = parent.getAttribute('pos')
@@ -93,17 +89,6 @@ export function Game() {
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
                     
-                    
-
-                    // if (currentPlayer === strategy) {
-                    //     setMyTurn(true)
-                    //     setMoveMade(false)
-                    // } else {
-                    //     setMyTurn(false)
-                    //     setMoveMade(true)
-                    // }
-
-                   //socket.emit('get_data', 'leaderboard_update');
                    
                 } catch (TypeError) {
                     
