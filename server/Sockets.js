@@ -3,6 +3,8 @@ const databaseQuestion = require("./database");
 const userLogger = require("./userLogger");
 const databaseAnswer = require("./database");
 const getMovesFromCoordinate = require("./positionCalculator");
+const gameMethods = require('./gameMethods');
+const { json } = require("express");
 
 module.exports = function (io){
 
@@ -134,29 +136,29 @@ module.exports = function (io){
 
             'submit_points' : (data) => {
                 const id = data.playerId;
-                const room = modLogger('room', socket.id);
-                let name = userLogger('getPlayerName',id)
+                //const room = modLogger('room', socket.id);
+                //let name = userLogger('getPlayerName',id)
                 
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
                 
                 userLogger('updatePoints', id, newPoints);
             
-                io.to(id).emit('submitted_points', data.points);
-                //socket.emit('players_name', name)
-                modLogger('nextTurn', socket.id)
-                name = modLogger('getPlayerNames', socket.id);
-                const strategy = modLogger('getPlayerTurn', socket.id)
-                //socket.emit('players_turn', strategy)
-                //socket.to(id).emit('players_turn', strategy)
+                // io.to(id).emit('submitted_points', data.points);
+                // //socket.emit('players_name', name)
+                // modLogger('nextRound', socket.id)
+                // name = modLogger('getPlayerNames', socket.id);
+                // const strategy = modLogger('getPlayerTurn', socket.id)
+                // //socket.emit('players_turn', strategy)
+                // //socket.to(id).emit('players_turn', strategy)
 
-                //socket.emit('players_name', name)
-                //socket.to(room).emit('players_turn', strategy)  test
-                //socket.to(room).emit('players_name', name)
+                // //socket.emit('players_name', name)
+                // //socket.to(room).emit('players_turn', strategy)  test
+                // //socket.to(room).emit('players_name', name)
 
-                const roundInfo = modLogger('getRound', socket.id);
-                socket.to('players').emit('rounds', roundInfo);
-                socket.emit('rounds', roundInfo);
+                // const roundInfo = modLogger('getRound', socket.id);
+                // socket.to('players').emit('rounds', roundInfo);
+                // socket.emit('rounds', roundInfo);
             },
 
             'settings' : (data) => {
@@ -187,6 +189,9 @@ module.exports = function (io){
                 userData = userLogger('getData', socket.id);
                 //socket.to(room).emit('data_leaderboard', userData);
                 io.emit('data_leaderboard', userData);
+                console.log("logggg");
+                
+                socket.to("mod").emit('data_leaderboard', userData)
                 //socket.emit('data_leaderboard', userData);
                 //socket.to("mod").emit('data_leaderboard',userData)
             },
@@ -203,8 +208,7 @@ module.exports = function (io){
             },
 
             'get_player_count': ()=>{
-                const playerCount = modLogger('getPlayerTotal',socket.id);
-                socket.emit('player_count', playerCount);
+                gameMethods.sendPlayerCount(socket);
             },
 
             'updateHasFinishedTurn': (hasFinishedTurn)=>{
@@ -216,7 +220,7 @@ module.exports = function (io){
                     
                     
                     updateAllBoards();
-                    io.emit('get_data', 'leaderboard_update');
+                    
                 }
             },
 
@@ -225,6 +229,25 @@ module.exports = function (io){
                 
                 
             },
+
+            'update_game_state' : () =>{
+                 
+                 
+                modLogger('nextRound', socket.id)
+                io.emit('submitted_points');
+                const roundInfo = modLogger('getRound', socket.id);
+                console.log("round info: " + JSON.stringify( roundInfo));
+                
+                io.emit('rounds', roundInfo);
+                userData = userLogger('getData', socket.id);
+                console.log("emit");
+                
+                io.emit('data_leaderboard', userData);
+                console.log("logggg");
+                
+                //socket.to("mod").emit('data_leaderboard', userData)
+                
+            }
             
 
 

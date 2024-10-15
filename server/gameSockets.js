@@ -1,6 +1,7 @@
 const userLogger = require("./userLogger");
 const getMovesFromCoordinate = require("./positionCalculator");
 const modLogger = require("./modLogger");
+const gameMethods = require('./gameMethods');
 module.exports = function (io){
     io.on('connection', (socket) => {
         const socketHandlers = {
@@ -62,9 +63,13 @@ module.exports = function (io){
                 const playersList = modLogger('getPlayersList');
 
                 const roundInfo = modLogger('getRound', socket.id);
-                socket.to("players").emit('rounds', roundInfo);
+                io.emit('rounds', roundInfo);
                 socket.emit('rounds', roundInfo);
-                socket.emit('get_player_count');
+                //socket.emit('get_player_count');
+                gameMethods.sendPlayerCount(socket);
+                //io.emit('get_data')
+                
+    
                 
                 for(let i = 0; i < playersList.length; i++){
                   

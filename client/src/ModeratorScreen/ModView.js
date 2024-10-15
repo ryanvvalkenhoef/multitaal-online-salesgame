@@ -47,6 +47,9 @@ export function ModView() {
 
     const handleSubmitPoints = () => {
        
+        console.log("count: " + playerCountRef.current);
+        console.log("nummer: " + numberOfQuestionsReviewedRef.current);
+        
         
         if (currentQuestion.playerAnswer !== t("Game.modWait")) {
             
@@ -63,6 +66,9 @@ export function ModView() {
                
             }
             else if(playerCountRef.current === numberOfQuestionsReviewedRef.current){
+                console.log("test");
+                
+                socket.emit('update_game_state')
                 socket.emit('start_turn');
             }
           
@@ -109,6 +115,7 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
+                console.log("log: "+jsonData);
                 setData(jsonData)
                 //socket.emit('get_current','mod')
             },
@@ -131,6 +138,8 @@ export function ModView() {
             },
 
             'player_count': (playerCount) => {
+                console.log("eryerye: " + playerCount);
+                
                 playerCountRef.current = playerCount;
             }
 

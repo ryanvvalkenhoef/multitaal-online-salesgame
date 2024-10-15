@@ -74,14 +74,14 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
+                console.log("emit2");
+                
                 setGamePaused2(false)
                 socket.emit('get_data', 'leaderboard_update');
             },
             'players_turn': (strategy) => {
                 try {
 
-                    
-                    
                     console.log("Move made:" + myTurn);
                     
                     const pawn = document.querySelector('#' + strategy)

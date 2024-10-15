@@ -117,6 +117,7 @@ function availability(socketid, userName, userRoom, userStrat) {
 }
 
 function getData(socketid) {
+    
     let data = readData();
     if (!data) return null;
     

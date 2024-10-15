@@ -60,6 +60,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         if (!updatedPieces) {
             if (modView) {
                 socket.emit('get_pieces', 'mod')
+                socket.emit('get_data', 'leaderboard_update')
                 setUpdatedPieces(true)
             } else {
                 socket.emit('get_pieces', 'player')

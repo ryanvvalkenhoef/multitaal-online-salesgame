@@ -132,15 +132,12 @@ const addPlayerNameToMod = (socketid, name) => {
     }
 //}
 
-const nextTurn = (socketid) => {
+const nextRound = (socketid) => {
     let data = readData();
     if (!data) return null;
     const mod = data.mods.find(mods => mods.id === socketid)
-    mod.turn += 1
-    if (mod.players_joined.length === mod.turn) {
-        mod.turn = 0
-        mod.current_round += 1
-    }
+    mod.current_round += 1
+   
     writeData(data)
 }
 
@@ -298,8 +295,8 @@ function modLogger(method, socketid, info='temp'){
         case 'room':
             const room = readData().mods.find(mod => mod.id === socketid).room
             return room
-        case 'nextTurn':
-            nextTurn(socketid)
+        case 'nextRound':
+            nextRound(socketid)
             break
         case 'getPlayerTurn':
             return getPlayerTurn(socketid)
