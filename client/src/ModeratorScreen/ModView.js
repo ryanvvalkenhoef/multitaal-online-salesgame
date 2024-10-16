@@ -52,7 +52,7 @@ export function ModView() {
 }
 
     const submitPoints = () =>{
-        setShowPopup(false)
+            setShowPopup(false)
             socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId});
             socket.emit('question_reviewed');
             setSelectedPoints([]);

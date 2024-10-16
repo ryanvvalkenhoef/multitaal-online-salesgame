@@ -1,6 +1,7 @@
 import React, {useEffect, useState,useRef} from "react"
 import './BoardGridStyle.css'
 import {socket} from "../client"
+import { json } from "react-router-dom"
 
 const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen}) => {
     const [startPieces, setStartPieces] = useState([])
@@ -27,7 +28,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     //EMPTY ARRAY NECESSARY FOR RENDERING TILES
     const tiles = []
 
-    useEffect(() =>{
+    useEffect(() =>{// need to find other solution. 
         const getTilesColorAndPosition = () =>{  // returns an object where the key is a color and the value is an array consisting of the tile positions
             let tilesColorAndPostionObject = {};
             
@@ -159,6 +160,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             })
 
         socket.on("update_position", (NewPositionData) => {
+            console.log("posities: "+ JSON.stringify(NewPositionData));
             
             NewPositionData.forEach(data =>{
 

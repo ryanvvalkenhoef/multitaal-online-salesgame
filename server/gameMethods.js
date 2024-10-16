@@ -22,7 +22,8 @@ const updateGameState = (io,socket) => {
 }
 
 const startRound = (socket)=>{
-
+  console.log("Start round");
+  
   const strategies = modLogger("getPlayerTurn", socket.id); //is een array
   const playersList = modLogger("getPlayersList");
   sendPlayerCount(socket);

@@ -120,7 +120,7 @@ module.exports = function (io){
                 const questionQueueLength = questionQueue.getQuestionQueueLenght();
                 const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
-                  socket.to("mod").emit("receive_player_answer", questionData);
+                  gameMethods.sendAnswerToModerator(io,questionData);
                   modLogger("setIsReviewingQuestion", "", true);
                 } else {
                   questionQueue.addQuestionToQueue(questionData);
@@ -205,13 +205,7 @@ module.exports = function (io){
 
             'updateHasFinishedTurn': (hasFinishedTurn)=>{
                 userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn);
-                const isRoundFinished = modLogger('checkIfRoundIsFinished');
 
-                if(isRoundFinished){
-                    updateAllBoards();
-                    modLogger('resetRoundStatus');
-                    
-                }
             },
 
             'updatePlayerPosition': (playerPosition) =>{ // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
@@ -220,23 +214,12 @@ module.exports = function (io){
                 
             },
 
-            'update_game_state' : () =>{
-                 
-                 
-                modLogger('nextRound', socket.id)
-                socket.to("players").emit('submitted_points');
-                const roundInfo = modLogger('getRound', socket.id);
-                
-                io.emit('rounds', roundInfo);
-                userData = userLogger('getData', socket.id);
-              
-                io.emit('data_leaderboard', userData);
-                
-                
-            },
+            // 'update_game_state' : () =>{
+            //     gameMethods.updateGameState(io,socket);
+            //     updateAllBoards();
+            // },
 
             'question_reviewed': () => {
-                modLogger("updateNumberOfQuestionsReviewed");
                 questionQueueLength = questionQueue.getQuestionQueueLenght();
                 
                 if (questionQueueLength > 0) {
@@ -248,18 +231,16 @@ module.exports = function (io){
                   modLogger("setIsReviewingQuestion", "", false);
                 }
 
-                const numberOfQuestionsReviewed = modLogger("getNumberOfQuestionsReviewed");
-                const playerCount = modLogger("getPlayerTotal");
-
-                if (numberOfQuestionsReviewed === playerCount) {
-                    modLogger('resetNumberOfQuestionsReviewed');
-                    //update Game state and next round
+                const isRoundFinished = modLogger('checkIfRoundIsFinished');
+                if (isRoundFinished) { //update Game state and next round
+                    
+                    modLogger('resetRoundStatus');
+                    userLogger('resetHasFinishedTurn');
                     gameMethods.updateGameState(io,socket);
+                    updateAllBoards();
                     gameMethods.startRound(socket);
         
                 }
-                
-                
                 
               },
             

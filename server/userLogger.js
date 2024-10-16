@@ -264,6 +264,22 @@ function getLanguage(socketid) {
     }
 }
 
+function resetHasFinishedTurn(){
+    let data = readData();
+    if (!data) return null;
+    const players = data.users;
+    if(players){
+        players.forEach(player => {
+            player.hasFinishedTurn = false;
+        });
+    }
+    else {
+        console.error('User not found7.');
+        return null;
+    }
+    writeData(data);
+}
+
 function getAllPlayers(){
     let data = readData();
     if (!data){
@@ -320,7 +336,10 @@ function userLogger(method, socketid, info=""){
             return getLanguage(socketid)
         case 'updateHasFinishedTurn':
             updateUser(socketid, {hasFinishedTurn: info});
-            break;  
+            break;
+        case 'resetHasFinishedTurn':
+            resetHasFinishedTurn();
+            break;     
         case 'updatePlayerPosition':
             updateUser(socketid, {playerPosition: info});
             break;    
