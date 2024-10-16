@@ -2,65 +2,60 @@ const { log } = require('console');
 const { json } = require('express');
 const fs = require('fs');
 
-const readData = () => {
+const readData = (room) => {
     try {
-        const data = fs.readFileSync('data.json', 'utf8');
-        return JSON.parse(data);
+      const data = fs.readFileSync(`${room}data.json`, "utf8");
+      return JSON.parse(data);
     } catch (err) {
-        console.error('Error reading file:', err);
-        return null;
+      console.error("Error reading file:", err);
+      return null;
     }
-};
+  };
 
-// Write JSON file
-const writeData = (jsonData) => {
+const writeData = (jsonData,room) => {
     try {
-        // jsonData['users'].forEach(user => {
-        //     console.log(user['id']);
-        // });
-        fs.writeFileSync('data.json', JSON.stringify(jsonData, null, 2));
-        // console.log('Data written to file successfully.');
+      fs.writeFileSync(`${room}data.json`, JSON.stringify(jsonData, null, 2));
     } catch (err) {
-        console.error('Error writing to file:', err);
+      console.error("Error writing to file:", err);
     }
-};
+  };
 
 // Delete user by ID
-const deleteUser = (userId) => {
-    let data = readData();
+const deleteUser = (userId,room) => {
+    let data = readData(room);
     if (!data) return;
 
     data.users = data.users.filter(user => user.id !== userId);
 
-    writeData(data);
+    writeData(data,room);
 };
 
 // Add a new user
-const addUser = (user) => {
-    let data = readData();
+const addUser = (user,room) => {
+    let data = readData(room);
     if (!data) return;
 
     data.users.push(user);
 
-    writeData(data);
+    writeData(data,room);
 };
 
 // Update user by ID
-const updateUser = (userId, newData) => {
-    let data = readData();
+const updateUser = (userId, newData,room) => {
+    let data = readData(room);
     if (!data) return;
 
     const index = data.users.findIndex(user => user.id === userId);
     if (index !== -1) {
         data.users[index] = { ...data.users[index], ...newData };
-        writeData(data);
+        writeData(data,room);
     } else {
         console.error('User not found1.');
     }
 };
 
-function getRoom(socketid) {
-    let data = readData();
+function getRoom(socketid,room) {
+    let data = readData(room);
     if (!data) return null;
     
     
@@ -74,8 +69,8 @@ function getRoom(socketid) {
 };
 
 // Get user by name
-function getUserIDByName(name) {
-    let data = readData();
+function getUserIDByName(name,room) {
+    let data = readData(room);
     if (!data) return null;
 
     const user = data.users.find(user => user.name === name);
@@ -88,8 +83,8 @@ function getUserIDByName(name) {
 }
 
 
-function getPoints(id) {
-    let data = readData();
+function getPoints(id,room) {
+    let data = readData(room);
     if (!data) return null;
 
     const user = data.users.find(user => user.id === id)
@@ -101,8 +96,8 @@ function getPoints(id) {
     }
 }
 
-function availability(socketid, userName, userRoom, userStrat) {
-    let data = readData();
+function availability(socketid, userName, userRoom, userStrat,room) {
+    let data = readData(room);
     if (!data) return 'available';
 
     for (let user of data.users) {
@@ -116,15 +111,10 @@ function availability(socketid, userName, userRoom, userStrat) {
     return 'available';
 }
 
-function getData(socketid) {
+function getData(socketid,room) {
     
-    let data = readData();
+    let data = readData(room);
     if (!data) return null;
-    
-    // const user = data.users.find(user => user.id === socketid);
-    // const room = user.room;
-    // const users = data.users.filter(user => user.room === room);
-    //Dit werkt nu alleen wanneer de server maar 1 mod heeft
     const users = data.users
 
     if (users) {
@@ -135,8 +125,8 @@ function getData(socketid) {
     }
 }
 
-function getStrategy(socketid) {
-    let data = readData();
+function getStrategy(socketid,room) {
+    let data = readData(room);
     if (!data) return null;
     const user = data.users.find(user => user.id === socketid);
 
@@ -164,8 +154,8 @@ function getStrategy(socketid) {
     }
 }
 
-function getColor(socketid) {
-    let data = readData();
+function getColor(socketid,room) {
+    let data = readData(room);
     if (!data) return null;
     const user = data.users.find(user => user.id === socketid);
 
@@ -202,8 +192,8 @@ function getColor(socketid) {
 
 
 
-function getReceiver(room, questionColor) {
-    let data = readData();
+function getReceiver(room, questionColor,room) {
+    let data = readData(room);
     if (!data) return null;
     const users = data.users.filter(user => user.room === room);
 
@@ -239,8 +229,8 @@ function getReceiver(room, questionColor) {
         }
     }
 }
-function getPlayerName(socketid) {
-    let data = readData();
+function getPlayerName(socketid,room) {
+    let data = readData(room);
     if (!data) return null;
     const user = data.users.find(user => user.id === socketid);
     
@@ -252,8 +242,8 @@ function getPlayerName(socketid) {
         return null;
     }
 }
-function getLanguage(socketid) {
-    let data = readData();
+function getLanguage(socketid,room) {
+    let data = readData(room);
     if (!data) return null;
     const user = data.users.find(user => user.id === socketid);
     if (user) {
@@ -264,8 +254,8 @@ function getLanguage(socketid) {
     }
 }
 
-function resetHasFinishedTurn(){
-    let data = readData();
+function resetHasFinishedTurn(room){
+    let data = readData(room);
     if (!data) return null;
     const players = data.users;
     if(players){
@@ -277,11 +267,11 @@ function resetHasFinishedTurn(){
         console.error('User not found7.');
         return null;
     }
-    writeData(data);
+    writeData(data,room);
 }
 
-function getAllPlayers(){
-    let data = readData();
+function getAllPlayers(room){
+    let data = readData(room);
     if (!data){
         console.log("Can't read data: getAllPlayers()");
         return null;
@@ -290,61 +280,61 @@ function getAllPlayers(){
     return data.users
 }
 
-function userLogger(method, socketid, info=""){
+function userLogger(method, socketid, info="",room){
     switch(method){
         case 'log':
-            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' })
+            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' },room)
             break
         case 'delete':
-            deleteUser(socketid)
+            deleteUser(socketid,room)
             break
         case 'updateName':
-            updateUser(socketid, {name: info})
+            updateUser(socketid, {name: info},room)
             break
         case 'updatePoints':
-            updateUser(socketid, {points: info})
+            updateUser(socketid, {points: info},room)
             break
         case 'updateRoom':
-            updateUser(socketid, {room: info})
+            updateUser(socketid, {room: info},room)
             break
         case 'updateStrategy':
-            updateUser(socketid, {strategy: info})
+            updateUser(socketid, {strategy: info},room)
             break
         case 'updateLanguage':
-            updateUser(socketid, {language: info})
+            updateUser(socketid, {language: info},room)
         case 'addColorToPlayer':
-            updateUser(socketid, {color: info})    
+            updateUser(socketid, {color: info},room)    
         case 'getRoom':
-            return getRoom(socketid)
+            return getRoom(socketid,room)
         case 'getPoints':
-            return getPoints(info)
+            return getPoints(info,room)
         case 'getStrategy':
-            return getStrategy(socketid)
+            return getStrategy(socketid,room)
         case 'getUserIDByName':
-            return getUserIDByName(info);
+            return getUserIDByName(info,room);
         case 'checkAvailability':
-            return availability(socketid, info.name, info.room, info.strategy)
+            return availability(socketid, info.name, info.room, info.strategy,room)
         case 'getData':
-            return getData(socketid)
+            return getData(socketid,room)
         case 'getColor':
-            return getColor(socketid)
+            return getColor(socketid,room)
         case 'getReceiver':
-            return getReceiver(info.room, info.color)
+            return getReceiver(info.room, info.color,room)
         case 'getPlayerName':
-            return getPlayerName(socketid)
+            return getPlayerName(socketid,room)
         case 'getLanguage':
-            return getLanguage(socketid)
+            return getLanguage(socketid,room)
         case 'updateHasFinishedTurn':
-            updateUser(socketid, {hasFinishedTurn: info});
+            updateUser(socketid, {hasFinishedTurn: info},room);
             break;
         case 'resetHasFinishedTurn':
-            resetHasFinishedTurn();
+            resetHasFinishedTurn(room);
             break;     
         case 'updatePlayerPosition':
-            updateUser(socketid, {playerPosition: info});
+            updateUser(socketid, {playerPosition: info},room);
             break;    
         case 'getAllPlayers':{
-            return getAllPlayers()
+            return getAllPlayers(room)
         }    
     }   
 }

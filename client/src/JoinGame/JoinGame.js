@@ -29,6 +29,10 @@ export function JoinGame() {
         socket.emit("join_room", { name: username, room: gamepin, strategy: strategy});
     };
 
+    useEffect(() =>{
+        socket.room = gamepin;
+    },gamepin)
+
   useEffect(() =>{
     socket.on('join_succes', (data) => {
         if (data === 'available'){

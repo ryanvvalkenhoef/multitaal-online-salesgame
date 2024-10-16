@@ -3,6 +3,23 @@ const { json } = require("express");
 const fs = require("fs");
 const { get } = require("http");
 
+
+function createJsonfile(room){
+    fs.writeFileSync(
+        `${room}data.json`,
+        '{\n  "users": [],\n  "mod": {},\n "questionQueue": []\n }'
+      );
+}
+
+function getMod(room){
+    let data = readData(room);
+    if (!data) {
+        console.log("Cant find mod");
+        return null;
+    }
+    return data.mod;
+}
+
 function generateGamepin() {
   const characters = "01234A5S678T9M";
   const length = 5;
@@ -14,9 +31,9 @@ function generateGamepin() {
   return pin;
 }
 
-const readData = () => {
+const readData = (room) => {
   try {
-    const data = fs.readFileSync("data.json", "utf8");
+    const data = fs.readFileSync(`${room}data.json`, "utf8");
     return JSON.parse(data);
   } catch (err) {
     console.error("Error reading file:", err);
@@ -24,56 +41,57 @@ const readData = () => {
   }
 };
 
-const writeData = (jsonData) => {
+const writeData = (jsonData,room) => {
   try {
-    fs.writeFileSync("data.json", JSON.stringify(jsonData, null, 2));
+    fs.writeFileSync(`${room}data.json`, JSON.stringify(jsonData, null, 2));
   } catch (err) {
     console.error("Error writing to file:", err);
   }
 };
 
-const deleteMods = (modsId) => {
-  let data = readData();
+// const deleteMods = (modsId) => {
+//   let data = readData(room);
+//   if (!data) return;
+//   data.mods = data.mods.filter((mods) => mods.id !== modsId);
+//   writeData(data,room);
+// };
+
+const addMods = (mod,gamepin) => {
+  let data = readData(gamepin);
   if (!data) return;
-  data.mods = data.mods.filter((mods) => mods.id !== modsId);
-  writeData(data);
+  data.mod = mod
+  writeData(data,room);
 };
 
-const addMods = (mods) => {
-  let data = readData();
+const updateMods = (modsId, newData,room) => {
+  let data = readData(room);
   if (!data) return;
-  data.mods.push(mods);
-  writeData(data);
-};
-
-const updateMods = (modsId, newData) => {
-  let data = readData();
-  if (!data) return;
-  const index = data.mods.findIndex((mods) => mods.id === modsId);
-  if (index !== -1) {
+  //const index = data.mods.findIndex((mods) => mods.id === modsId);
+  mod = data.mod;
+  if (mod) {
     data.mods[index] = { ...data.mods[index], ...newData };
-    writeData(data);
+    writeData(data,room);
   } else {
-    console.error("Mod(s) not found.");
+    console.error("Mod not found.");
   }
 };
 
-function getRoom(socketid) {
-  let data = readData();
-  if (!data) return null;
-  const mods = data.mods.find((mods) => mods.id === socketid);
-  if (mods) {
-    return mods.room;
-  } else {
-    console.error("Mod(s) not found.");
-    return null;
-  }
-}
+// function getRoom(socketid) {
+//   let data = readData(room);
+//   if (!data) return null;
+//   const mods = data.mods.find((mods) => mods.id === socketid);
+//   if (mods) {
+//     return mods.room;
+//   } else {
+//     console.error("Mod(s) not found.");
+//     return null;
+//   }
+// }
 
-const checkRoom = (roomcode) => {
-  let data = readData();
+const checkRoom = (roomcode,room) => {
+  let data = readData(room);
   if (!data) return null;
-  const roomExists = data.mods.some((mod) => mod.room === roomcode);
+  const roomExists = data.mods.room === roomcode;
   if (roomExists) {
     return "exists";
   } else {
@@ -81,19 +99,19 @@ const checkRoom = (roomcode) => {
   }
 };
 
-const modID = (roomcode) => {
-  let data = readData();
+const modID = (room) => {
+  let data = readData(room);
   if (!data) return null;
-  const modID = data.mods.find((mod) => mod.room === roomcode);
-  const mod = data.mods[0];
+  const modID = data.mod.id;
   if (modID) {
     return modID.id;
   } else {
+    console.log("Couldn't find modId");
     return null;
   }
 };
 
-const addPlayerToMod = (socketid, strategy) => {
+const addPlayerToMod = (socketid, strategy,room) => {
   switch (strategy) {
     case "top of the world":
       strategy = "world";
@@ -108,109 +126,108 @@ const addPlayerToMod = (socketid, strategy) => {
       strategy = strategy;
       break;
   }
-  let data = readData();
+  let data = readData(room);
   if (!data) return null;
   for (let i = 0; i < data.mods.length; i++) {
     // if (data.mods[i].id === socketid) {
-    data.mods[i].players_joined.push(strategy);
-    writeData(data);
+    data.mod.players_joined.push(strategy);
+    writeData(data,room);
     return "added";
   }
 };
 //}
 
 const addPlayerNameToMod = (socketid, name) => {
-  let data = readData();
+  let data = readData(room);
   if (!data) return null;
   for (let i = 0; i < data.mods.length; i++) {
-    // if (data.mods[i].id === socketid) {
-    data.mods[i].player_names.push(name);
-    writeData(data);
+    data.mod.player_names.push(name);
+    writeData(data,room);
     return "added";
   }
 };
-//}
 
-const nextRound = (socketid) => {
-  let data = readData();
-  if (!data) return null;
-  const mod = data.mods.find((mods) => mods.id === socketid);
+
+const nextRound = (socketid,room) => {
+  const mod = getMod(room);
   mod.current_round += 1;
-
-  writeData(data);
+  writeData(data,room);
 };
 
-const getPlayerTurn = (socketid) => {
-  let data = readData();
-  if (!data) return null;
-  const mod = data.mods.find((mods) => mods.id === socketid);
+const getPlayerTurn = (socketid,room) => {
+  const mod = getMod(room);
   if (!mod) return null;
   const playerArray = mod.players_joined;
   const turn = mod.turn;
   if (typeof turn !== "number" || turn < 0 || turn >= playerArray.length)
     return null;
-  //const strategy = playerArray.find(obj => obj.hasOwnProperty(socketid)) had ik zelf toegevoegd
+ 
   return playerArray;
 };
 
-const getPlayerNames = (socketid) => {
-  let data = readData();
-  if (!data) return null;
-  const mod = data.mods.find((mods) => mods.id === socketid);
+const getPieces = (room) => {
+    let playerPieces = [];
+      try {
+        const strategies = readData(room).mod.players_joined;
+        for (let i = 0; i < strategies.length; i++) {
+          playerPieces.push(strategies[i]);
+        }
+      } catch (TypeError) {
+        playerPieces = "No players found";
+      }
+      return playerPieces;
+}
+
+const getPlayerNames = (socketid,room) => {
+  
+  const mod = getMod(room);
   if (!mod) return null;
   const playerArray = mod.player_names;
   const turn = mod.turn;
   if (typeof turn !== "number" || turn < 0 || turn >= playerArray.length)
     return null;
-  //const name = playerArray.find(obj => obj.hasOwnProperty(socketid))
 
   return playerArray;
 };
 
-const getRound = (socketid) => {
-  let data = readData();
-  if (!data) return null;
-  const mod = data.mods.find((mods) => mods.id === socketid);
+const getRound = (socketid,room) => {
+  const mod = getMod(room);
   if (!mod) return null;
   return { currentRound: mod.current_round, totalRounds: mod.total_rounds };
 };
 
-const getPlayerTotal = () => {
-  let data = readData();
-  if (!data) return null;
-  const mod = data.mods[0];
+const getPlayerTotal = (room) => {
+  const mod = getMod(room);
   if (!mod) return null;
   return mod.total_players;
 };
 
 const checkFull = (room) => {
-  let data = readData();
-  if (!data) return null;
-  const mod = data.mods.find((mods) => mods.room === room);
+  const mod = getMod(room);
   if (!mod) return null;
-  //     return mod.total_players === mod.players_joined.length
+  
   if (mod.players_joined.length >= mod.total_players) {
     return "full";
   } else {
     return "space";
   }
 };
-const removeUserFromMod = (info) => {
-  let data = readData();
+const removeUserFromMod = (info,room) => {
+  let data = readData(room);
   if (!data) return null;
   try {
-    const mod = data.mods.find((mods) => mods.room === info.room);
+    const mod = data.mod;
     const index = mod.player_names.findIndex((name) => name === info.name);
     mod.player_names.splice(index, 1);
     mod.players_joined.splice(index, 1);
-    writeData(data);
+    writeData(data,room);
   } catch (error) {
     return null;
   }
 };
 
-const getPlayersList = () => {
-  let data = readData();
+const getPlayersList = (room) => {
+  let data = readData(room);
   if (!data) {
     console.log("Can't read data: getPlayersList()");
     return null;
@@ -218,15 +235,15 @@ const getPlayersList = () => {
   return data.users;
 };
 
-const checkIfRoundIsFinished = () => {
-  let data = readData();
+const checkIfRoundIsFinished = (room) => {
+  let data = readData(room);
 
   if (!data) {
     console.log("Can't read data: checkIfRoundIsFinished()");
     return null;
   }
 
-  const playerCount = data.mods[0].total_players;
+  const playerCount = data.mod.total_players;
 
   for (let i = 0; i < playerCount; i++) {
     const hasFinishedTurn = data.users[i].hasFinishedTurn;
@@ -234,13 +251,13 @@ const checkIfRoundIsFinished = () => {
       return false;
     }
   }
-  data.mods[0].isRoundFinished = true;
-  writeData(data);
+  data.mod.isRoundFinished = true;
+  writeData(data,room);
   return true;
 };
 
-const resetRoundStatus = () => {
-  let data = readData();
+const resetRoundStatus = (room) => {
+  let data = readData(room);
 
   if (!data) {
     console.log("Can't read data: resetRoundStatus()");
@@ -248,11 +265,11 @@ const resetRoundStatus = () => {
   }
 
   data.mods[0].isRoundFinished = false;
-  writeData(data);
+  writeData(data,room);
 };
 
-const getNumberOfQuestionsReviewed = () => {
-  const data = readData();
+const getNumberOfQuestionsReviewed = (room) => {
+  const data = readData(room);
 
   if (!data) {
     console.log("Can't read data: getNumberOfQuestionsReviewed()");
@@ -261,53 +278,55 @@ const getNumberOfQuestionsReviewed = () => {
   return data.mods[0].numberOfQuestionsReviewed;
 };
 
-const resetNumberOfQuestionsReviewed = () => {
-  const data = readData();
+const resetNumberOfQuestionsReviewed = (room) => {
+  const data = readData(room);
 
   if (!data) {
     console.log("Can't read data: resetNumberOfQuestionsReviewed()");
     return null;
   }
-  data.mods[0].numberOfQuestionsReviewed = 0;
-  writeData(data);
+  data.mod.numberOfQuestionsReviewed = 0;
+  writeData(data,room);
 };
 
-const updateNumberOfQuestionsReviewed = () => {
-  const data = readData();
+const updateNumberOfQuestionsReviewed = (room) => {
+  const data = readData(room);
 
   if (!data) {
     console.log("Can't read data: updateNumberOfQuestionsReviewed()");
     return null;
   }
-  data.mods[0].numberOfQuestionsReviewed++;
-  writeData(data);
+  data.mod.numberOfQuestionsReviewed++;
+  writeData(data,room);
 };
 
-const setIsReviewingQuestion = (boolean) => {
-  const data = readData();
+const setIsReviewingQuestion = (boolean,room) => {
+  const data = readData(room);
 
   if (!data) {
     console.log("Can't read data: setIsReviewingQuestion()");
     return null;
   }
-  data.mods[0].isReviewingQuestion = boolean;
-  writeData(data);
+  data.mod.isReviewingQuestion = boolean;
+  writeData(data,room);
 };
 
-const checkIfReviewingQuestion = () => {
-  const data = readData();
+const checkIfReviewingQuestion = (room) => {
+  const data = readData(room);
 
   if (!data) {
     console.log("Can't read data: checkIfReviewingQuestion()");
     return null;
   }
-  return data.mods[0].isReviewingQuestion;
+  return data.mod.isReviewingQuestion;
 };
 
-function modLogger(method, socketid, info = "temp") {
+function modLogger(method, socketid, info = "temp", room) {
   switch (method) {
     case "log":
       const gamepin = generateGamepin();
+      
+      createJsonfile(gamepin);
       addMods({
         id: socketid,
         language: "NL",
@@ -321,7 +340,7 @@ function modLogger(method, socketid, info = "temp") {
         isRoundFinished: false,
         numberOfQuestionsReviewed: 0,
         isReviewingQuestion: false,
-      });
+      },gamepin);
       return gamepin;
     case "delete":
       deleteMods(socketid);
@@ -340,22 +359,11 @@ function modLogger(method, socketid, info = "temp") {
       addPlayerToMod(socketid, info);
       break;
     case "getPieces":
-      let playerPieces = [];
-      try {
-        const strategies = readData().mods.find(
-          (mod) => mod.id === socketid
-        ).players_joined;
-        for (let i = 0; i < strategies.length; i++) {
-          playerPieces.push(strategies[i]);
-        }
-      } catch (TypeError) {
-        playerPieces = "No players found";
-      }
-      return playerPieces;
+      getPieces(room);
 
-    case "room":
-      const room = readData().mods.find((mod) => mod.id === socketid).room;
-      return room;
+    // case "room":
+    //   const room = readData(so).mods.find((mod) => mod.id === socketid).room;
+    //   return room;
     case "nextRound":
       nextRound(socketid);
       break;
@@ -372,7 +380,7 @@ function modLogger(method, socketid, info = "temp") {
       return getRound(socketid);
       break;
     case "getPlayerTotal":
-      return getPlayerTotal();
+      return getPlayerTotal(room);
       break;
     case "checkFull":
       return checkFull(info);
@@ -388,7 +396,7 @@ function modLogger(method, socketid, info = "temp") {
       resetRoundStatus();
       break;
     case "readData":
-      return readData();
+      return readData(room);
     case "writeData":
       writeData(info);
       break;

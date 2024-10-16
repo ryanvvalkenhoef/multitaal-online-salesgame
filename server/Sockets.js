@@ -23,12 +23,13 @@ module.exports = function (io){
         const socketHandlers = {
 
             'create_room': (data) => {
-                //modLogger('log', socket.id) 
+                
                 const room = modLogger('log', socket.id, data);
-                socket.join("mod")
-                const playerNeeded = modLogger('getPlayerTotal', socket.id)
-                //socket.join(room)
+                const playerNeeded = modLogger('getPlayerTotal', socket.id,'',room);
                 socket.emit('send_gamepin', {room: room, playerTotal: playerNeeded});
+                socket.room = room;
+                socket.join(`${room}mod`);
+                socket.join(room);
             },
 
             'disconnect': (reason) => {
@@ -41,12 +42,13 @@ module.exports = function (io){
             },
 
             'join_room' : (data) => {
-                userLogger('log', socket.id)
+                userLogger('log', socket.id,'',data.gamepin)
                 var exists = modLogger('checkExists', socket.id, data.room)
                 if (exists === 'exists') {
-                    //socket.join(data.room)
-                    //socket.join("players")
-                    var availability = userLogger('checkAvailability', socket.id, data)
+                    socket.join(data.gamepin);
+                    socket.join(`${data.gamepin}players`);
+                    socket.room = data.gamepin;
+                    var availability = userLogger(socket.room,'checkAvailability', socket.id, data)
                 } else{
                     availability = 'Room does not exist'
                 }
