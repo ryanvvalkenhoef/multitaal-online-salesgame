@@ -16,14 +16,16 @@ const addQuestionToQueue = (question) => {
     console.log("Can't read data: addQuestionToQueue()");
     return null;
   }
-
-  gameData.mods[0].questionQueue.push(question);
+  
+  gameData.questionQueue.push(question);
   modLogger("writeData", "", gameData);
 };
 
 const getQuestionFromQueue = () => {
   let gameData = getGameData();
-  return gameData.questionQueue.shift();
+  const question = gameData.questionQueue.shift();
+  modLogger('writeData','',gameData)
+  return question;
 };
 
 module.exports = {

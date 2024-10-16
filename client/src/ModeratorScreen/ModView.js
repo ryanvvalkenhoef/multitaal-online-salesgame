@@ -33,11 +33,8 @@ export function ModView() {
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
-    const [currentQuestion, setCurrentQuestion] = useState(null);
-    const questionQueueRef = useRef([]);
-    const isFirstRender = useRef(true);
     const playerCountRef = useRef(0);
-    const numberOfQuestionsReviewedRef = useRef(0);
+    const currentQuestionRef = useRef(null);
 
    
 
@@ -45,58 +42,31 @@ export function ModView() {
         setSelectedPoints(points);
     };
 
+    const reviewQuestion = (questionData) =>{
+        setShowPopup(true);
+        setQuestion(questionData.questionText);
+        setColor(questionData.questionColor);
+        setUserColor(questionData.playerColor);
+        setAnswer(questionData.answer);
+        currentQuestionRef.current = questionData;
+}
+
+    const submitPoints = () =>{
+        setShowPopup(false)
+            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId});
+            socket.emit('question_reviewed');
+            setSelectedPoints([]);
+    }
+
     const handleSubmitPoints = () => {
        
-        
-        
-        if (currentQuestion.playerAnswer !== t("Game.modWait")) {
-            
-            setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestion.playerId});
-            
-            currentQuestion.playerAnswer = t("Game.modWait");
-            numberOfQuestionsReviewedRef.current++;
-            setSelectedPoints([]);
-           
-        
-            questionQueueRef.current.shift();
-            if(questionQueueRef.current.length > 0){
-                setCurrentQuestion(questionQueueRef.current[0]);
-               
-            }
-            else if(playerCountRef.current === numberOfQuestionsReviewedRef.current){
-                numberOfQuestionsReviewedRef.current = 0;
-                socket.emit('update_game_state')
-                socket.emit('start_turn');
-            }
-          
+        if (currentQuestionRef.current.playerAnswer !== '') { 
+            submitPoints()
         }
         
     };
 
-    useEffect(()=>{
-        
-        
-        if(isFirstRender.current){
-            isFirstRender.current = false
-            return;
-        }
-        
-        
-        else{
-            if(showPopup === false){    
-            setShowPopup(true);
-            setQuestion(currentQuestion.questionText);
-            setColor(currentQuestion.questionColor);
-            setUserColor(currentQuestion.playerColor);
-            setAnswer(currentQuestion.answer);
 
-            }
-        }
-    
-
-    }, [currentQuestion])
-    
 
     useEffect(() => {
         
@@ -124,13 +94,7 @@ export function ModView() {
                 }
             },
             'receive_player_answer': (questionData)=> { //parameter is an object
-                       
-                questionQueueRef.current.push(questionData);
-            
-                if(currentQuestion === null){
-                    setCurrentQuestion(questionQueueRef.current[0])
-                }
-
+                    reviewQuestion(questionData)
             },
 
             'player_count': (playerCount) => {
@@ -182,7 +146,7 @@ export function ModView() {
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     question={question}
-                    submittedAnswer={currentQuestion && currentQuestion.playerAnswer}// When the game starts currentQuestion will be null
+                    submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
                     selectedPoints={selectedPoints}
                     handleSubmitPoints={handleSubmitPoints}
                     handleUpdatePoints={handleUpdatePoints}

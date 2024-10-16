@@ -79,7 +79,6 @@ export function Game() {
             },
             'players_turn': (strategy) => {
                 try {
-
                     const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
                     const parentPosition = parent.getAttribute('pos')

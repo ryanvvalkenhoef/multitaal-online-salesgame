@@ -175,10 +175,10 @@ const getRound = (socketid) => {
   return { currentRound: mod.current_round, totalRounds: mod.total_rounds };
 };
 
-const getPlayerTotal = (socketid) => {
+const getPlayerTotal = () => {
   let data = readData();
   if (!data) return null;
-  const mod = data.mods.find((mods) => mods.id === socketid);
+  const mod = data.mods[0];
   if (!mod) return null;
   return mod.total_players;
 };
@@ -283,6 +283,27 @@ const updateNumberOfQuestionsReviewed = () => {
   writeData(data);
 };
 
+const setIsReviewingQuestion = (boolean) => {
+  const data = readData();
+
+  if (!data) {
+    console.log("Can't read data: setIsReviewingQuestion()");
+    return null;
+  }
+  data.mods[0].isReviewingQuestion = boolean;
+  writeData(data);
+};
+
+const checkIfReviewingQuestion = () => {
+  const data = readData();
+
+  if (!data) {
+    console.log("Can't read data: checkIfReviewingQuestion()");
+    return null;
+  }
+  return data.mods[0].isReviewingQuestion;
+};
+
 function modLogger(method, socketid, info = "temp") {
   switch (method) {
     case "log":
@@ -299,6 +320,7 @@ function modLogger(method, socketid, info = "temp") {
         total_rounds: info.roundsCount,
         isRoundFinished: false,
         numberOfQuestionsReviewed: 0,
+        isReviewingQuestion: false,
       });
       return gamepin;
     case "delete":
@@ -350,7 +372,7 @@ function modLogger(method, socketid, info = "temp") {
       return getRound(socketid);
       break;
     case "getPlayerTotal":
-      return getPlayerTotal(socketid);
+      return getPlayerTotal();
       break;
     case "checkFull":
       return checkFull(info);
@@ -374,6 +396,15 @@ function modLogger(method, socketid, info = "temp") {
       return getNumberOfQuestionsReviewed();
     case "resetNumberOfQuestionsReviewed":
       resetNumberOfQuestionsReviewed();
+      break;
+    case "updateNumberOfQuestionsReviewed":
+      updateNumberOfQuestionsReviewed();
+      break;
+    case "setIsReviewingQuestion":
+      setIsReviewingQuestion(info);
+      break;
+    case "checkIfReviewingQuestion":
+      return checkIfReviewingQuestion();
   }
 }
 
