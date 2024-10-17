@@ -54,6 +54,7 @@ export function Game() {
         
         const socketHandlers = {
             'rounds': (data) => {
+                console.log("rounds event")
                 setTotalRounds(data.totalRounds)
                 setCurrentRound(data.currentRound)
                 setRoundText(t("Game.setRoundText", {data}))
@@ -95,6 +96,10 @@ export function Game() {
                     
                     socket.emit('pawns_request_failed', '')
                 }
+            },
+
+            'game_over': () => {
+                alert("game over");
             }
             
             

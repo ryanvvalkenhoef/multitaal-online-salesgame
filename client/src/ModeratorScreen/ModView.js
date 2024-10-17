@@ -75,6 +75,7 @@ export function ModView() {
                 setDiceValue(data);
             },
             'rounds': (data) => {
+
                 setTotalRounds(data.totalRounds)
                 setCurrentRound(data.currentRound)
                 setRoundText(t("Game.setRoundText", {data}))
@@ -101,6 +102,10 @@ export function ModView() {
 
             'player_count': (playerCount) => {
                 playerCountRef.current = playerCount;
+            },
+
+            'game_over': () => {
+                alert("game over");
             }
 
         }

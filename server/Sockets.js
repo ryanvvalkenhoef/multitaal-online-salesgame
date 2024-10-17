@@ -73,6 +73,7 @@ module.exports = function (io){
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
                     socket.to("players").emit('add_piece', pieces);
+
                 } else {
                     socket.emit('join_succes', availability);
                 }
@@ -144,7 +145,7 @@ module.exports = function (io){
                 
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
-                console.log("punten: " + newPoints);
+
                 
                 userLogger('updatePoints', id, newPoints);
                 
