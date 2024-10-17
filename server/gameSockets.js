@@ -1,9 +1,14 @@
 const userLogger = require("./userLogger");
 const getMovesFromCoordinate = require("./positionCalculator");
 const modLogger = require("./modLogger");
+const socketMethods = require("./socketMethods");
 const gameMethods = require('./gameMethods');
+const SocketManager = require("./socketMethods");
 module.exports = function (io){
     io.on('connection', (socket) => {
+
+        socketManager = new SocketManager(io);
+
         const socketHandlers = {
             'get_tileInfo': (data) => {
                 const room = userLogger(socket.room, 'getRoom', socket.id);
@@ -38,8 +43,11 @@ module.exports = function (io){
                 socket.emit('send_tileInfo2', tileInfo2)
                 //socket.to(room).emit('send_tileInfo', tileInfo)
                 //socket.to(room).emit('send_tileInfo2',tileInfo2)
-                socket.to("players").emit('send_tileInfo', tileInfo)
-                socket.to("players").emit('send_tileInfo2',tileInfo2)
+
+                //socket.to("players").emit('send_tileInfo', tileInfo)
+                //socket.to("players").emit('send_tileInfo2',tileInfo2)
+                socketManager.emitToPlayers(socket,'send_tileInfo', tileInfo)
+                socketManager.emitToPlayers(socket,'send_tileInfo2', tileInfo)
             },
 
             'roll_dice' : (data) => {

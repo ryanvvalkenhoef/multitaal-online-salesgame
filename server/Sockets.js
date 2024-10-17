@@ -3,15 +3,20 @@ const databaseQuestion = require("./database");
 const userLogger = require("./userLogger");
 const databaseAnswer = require("./database");
 const getMovesFromCoordinate = require("./positionCalculator");
-const gameMethods = require('./gameMethods');
+const GameManager = require('./gameMethods');
 const questionQueue = require("./questionQueue");
+const SocketManager = require("./socketMethods");
 const { json } = require("express");
+
+
 
 
 module.exports = function (io){
 
     io.on('connection', (socket) => {
        //userLogger('log', socket.id)
+        const socketManager = new SocketManager(io);
+        const gameManager = new GameManager(io,userLogger,modLogger,socketManager)
         
 
         const socketHandlers = {
@@ -78,7 +83,8 @@ module.exports = function (io){
                     const pieces = modLogger(socket.room, 'getPieces')
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
-                    socket.to(`${socket.room}players`).emit('add_piece', pieces);
+                    //socket.to(`${socket.room}players`).emit('add_piece', pieces);
+                    socketManager.emitToPlayers(socket,'add_piece',pieces)
                 } else {
                     socket.emit('join_succes', availability);
                 }
