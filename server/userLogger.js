@@ -4,6 +4,8 @@ const fs = require('fs');
 
 const readData = (room) => {
     try {
+        console.log("roooooom is:  " + room);
+        
       const data = fs.readFileSync(`${room}data.json`, "utf8");
       return JSON.parse(data);
     } catch (err) {
@@ -280,9 +282,11 @@ function getAllPlayers(room){
     return data.users
 }
 
-function userLogger(method, socketid, info="",room){
+function userLogger(room,method, socketid, info=""){
     switch(method){
         case 'log':
+            console.log("dit is de room: "+room);
+            
             addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' },room)
             break
         case 'delete':

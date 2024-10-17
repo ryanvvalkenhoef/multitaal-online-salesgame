@@ -10,22 +10,20 @@ const { json } = require("express");
 
 module.exports = function (io){
 
-    const updateAllBoards = () =>{
-        const players = userLogger('getAllPlayers');
-        const playerPositions = players.map(player => player.playerPosition);
-        io.emit('update_position',playerPositions);
-    }
+
 
     io.on('connection', (socket) => {
-       //userLogger('log', socket.id)
+        
         
 
         const socketHandlers = {
 
             'create_room': (data) => {
+              
                 
-                const room = modLogger('log', socket.id, data);
-                const playerNeeded = modLogger('getPlayerTotal', socket.id,'',room);
+                const room = modLogger('', 'log', socket.id, data);
+                
+                const playerNeeded = modLogger(room, 'getPlayerTotal', socket.id,'',room);
                 socket.emit('send_gamepin', {room: room, playerTotal: playerNeeded});
                 socket.room = room;
                 socket.join(`${room}mod`);
@@ -33,54 +31,56 @@ module.exports = function (io){
             },
 
             'disconnect': (reason) => {
-                const room = userLogger("getRoom", socket.id)
-                const name = userLogger('getPlayerNames', socket.id)
-                modLogger('removeUser', socket.id, {name: name, room: room})
-                socket.to(userLogger("getRoom", socket.id)).emit('delete_user', "deleting")
-                userLogger("delete", socket.id)
-                modLogger("delete", socket.id)
+                // const room = userLogger(socket.room, "getRoom", socket.id)
+                // const name = userLogger(socket.room, 'getPlayerNames', socket.id)
+                // modLogger(socket.room, 'removeUser', socket.id, {name: name, room: room})
+                // socket.to(userLogger(socket.room, "getRoom", socket.id)).emit('delete_user', "deleting")
+                // userLogger(socket.room, "delete", socket.id)
+                // modLogger(socket.room, "delete", socket.id)
             },
 
             'join_room' : (data) => {
-                userLogger('log', socket.id,'',data.gamepin)
-                var exists = modLogger('checkExists', socket.id, data.room)
+                userLogger(data.room, 'log', socket.id,'')
+                console.log("");
+                
+                var exists = modLogger(data.room, 'checkExists', socket.id,data.room)
                 if (exists === 'exists') {
                     socket.join(data.gamepin);
                     socket.join(`${data.gamepin}players`);
                     socket.room = data.gamepin;
                     var availability = userLogger(socket.room,'checkAvailability', socket.id, data)
+                    console.log('availablilty: ' + availability);
+                    
                 } else{
                     availability = 'Room does not exist'
                 }
                 if(data.strategy === ''){
                     availability = 'Choose a strategy'
                 }
-                var roomIsFull = modLogger('checkFull', socket.id, data.room)
+                var roomIsFull = modLogger(socket.room, 'checkFull', socket.id, data.room)
                 if (roomIsFull === 'full') {
                     availability = 'Room is full'
                 }
                 if (availability === 'available') {
                     //socket.join(data.room)
-                    socket.join("players")
                     
                     
+                    socket.emit('add_user', "adding")  //socket.to(data.room).emit('add_user', "adding")  Dit was de orginele lijn
                     
-                    socket.to("mod").to("players").emit('add_user', "adding")  //socket.to(data.room).emit('add_user', "adding")  Dit was de orginele lijn
                     
+                    userLogger(socket.room, 'updateName', socket.id, data.name)
+                    userLogger(socket.room, 'updateRoom', socket.id, data.room)
+                    userLogger(socket.room, 'updateStrategy', socket.id, data.strategy)
+                    const playerColor = userLogger(socket.room, 'getColor',socket.id)
+                    userLogger(socket.room, 'addColorToPlayer',socket.id,playerColor)
+                    const modID = modLogger(socket.room, 'getMod', socket.id, data.room)
+                    modLogger(socket.room, 'addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
+                    modLogger(socket.room, 'addPlayerName', socket.id, data.name) //socket.id was modID
                     
-                    userLogger('updateName', socket.id, data.name)
-                    userLogger('updateRoom', socket.id, data.room)
-                    userLogger('updateStrategy', socket.id, data.strategy)
-                    const playerColor = userLogger('getColor',socket.id)
-                    userLogger('addColorToPlayer',socket.id,playerColor)
-                    const modID = modLogger('getMod', socket.id, data.room)
-                    modLogger('addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
-                    modLogger('addPlayerName', socket.id, data.name) //socket.id was modID
-                    
-                    const pieces = modLogger('getPieces', modID)
+                    const pieces = modLogger(socket.room, 'getPieces', modID)
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
-                    socket.to("players").emit('add_piece', pieces);
+                    socket.to(`${socket.room}players`).emit('add_piece', pieces);
                 } else {
                     socket.emit('join_succes', availability);
                 }
@@ -88,9 +88,9 @@ module.exports = function (io){
 
             'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler gestuurd
                 const availableColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
-                const language = userLogger('getLanguage', socket.id)
+                const language = userLogger(socket.room, 'getLanguage', socket.id)
                 const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
-                const room = userLogger('getRoom', socket.id);
+                const room = userLogger(socket.room, 'getRoom', socket.id);
                 let popupColor
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
@@ -111,7 +111,7 @@ module.exports = function (io){
                 }
 
                 if (availableColors.includes(data.questionColor)){
-                    const receiver = userLogger('getReceiver', socket.id, {color: data.questionColor, room: room})
+                    const receiver = userLogger(socket.room, 'getReceiver', socket.id, {color: data.questionColor, room: room})
                     io.to(receiver).emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer})
                 } else {
                     socket.emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer});
@@ -120,10 +120,10 @@ module.exports = function (io){
 
             'send_answer_to_moderator': (questionData) => {
                 const questionQueueLength = questionQueue.getQuestionQueueLenght();
-                const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
+                const isReviewingQuestion = modLogger(socket.room, "checkIfReviewingQuestion");
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
                   gameMethods.sendAnswerToModerator(io,questionData);
-                  modLogger("setIsReviewingQuestion", "", true);
+                  modLogger(socket.room, "setIsReviewingQuestion", "", true);
                 } else {
                   questionQueue.addQuestionToQueue(questionData);
                 }
@@ -131,57 +131,57 @@ module.exports = function (io){
 
             'send_answer_request' :  async (data) => {
                 let answerText = await databaseAnswer(data.answerColor, 'answer');
-                const room = userLogger('getRoom', socket.id);
+                const room = userLogger(socket.room, 'getRoom', socket.id);
                 socket.to(room).emit('receive_answer', answerText);
                 socket.emit('receive_answer', answerText);
             },
 
             'change_language' : (data) => {
-                userLogger('updateLanguage', socket.id, data)
+                userLogger(socket.room, 'updateLanguage', socket.id, data)
             },
 
             'send_points' : (data) => {
-                const oldPoints = userLogger('getPoints', socket.id);
-                const points = userLogger('updatePoints', socket.id, parseInt(oldPoints + data.points));
+                const oldPoints = userLogger(socket.room, 'getPoints', socket.id);
+                const points = userLogger(socket.room, 'updatePoints', socket.id, parseInt(oldPoints + data.points));
             },
 
             'submit_points' : (data) => {
                 const id = data.playerId;
-                //const room = modLogger('room', socket.id);
-                //let name = userLogger('getPlayerName',id)
+                //const room = modLogger(socket.room, 'room', socket.id);
+                //let name = userLogger(socket.room, 'getPlayerName',id)
                 
-                const oldPoints = userLogger('getPoints', id, id);
+                const oldPoints = userLogger(socket.room, 'getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
                 
-                userLogger('updatePoints', id, newPoints);
+                userLogger(socket.room, 'updatePoints', id, newPoints);
             },
 
             'settings' : (data) => {
-                modLogger('updateSettings', socket.id, data)
+                modLogger(socket.room, 'updateSettings', socket.id, data)
             },
 
             'send_textbox_content' : (data) => {
-                //const room = userLogger('getRoom', socket.id);
+                //const room = userLogger(socket.room, 'getRoom', socket.id);
                 socket.to("mod").emit('submitted_answer', data);
             },
 
             'update_position' : (data) => {
-                // const room = userLogger('getRoom', socket.id);
+                // const room = userLogger(socket.room, 'getRoom', socket.id);
                 // socket.to(room).emit('update_position', data);
 
                 io.emit('update_position', data);
             },
 
             'pawns_request_failed' : (data) => {
-                const room = userLogger('getRoom', socket.id);
-                const modID = modLogger('getMod', socket.id, room);
-                const strategy = modLogger('getPlayerTurn', modID)
+                const room = userLogger(socket.room, 'getRoom', socket.id);
+                const modID = modLogger(socket.room, 'getMod', socket.id, room);
+                const strategy = modLogger(socket.room, 'getPlayerTurn', modID)
                 socket.emit('players_turn', strategy)
             },
 
             'get_data' : (userData) => {
-                //const room = userLogger('getRoom', socket.id);
-                userData = userLogger('getData', socket.id);
+                //const room = userLogger(socket.room, 'getRoom', socket.id);
+                userData = userLogger(socket.room, 'getData', socket.id);
                 //socket.to(room).emit('data_leaderboard', userData);
                 io.emit('data_leaderboard', userData);
                 
@@ -191,13 +191,13 @@ module.exports = function (io){
             },
 
             'get_playerstrategy' : (data) => {
-                const strategy = userLogger('getStrategy', socket.id);
-                const color = userLogger('getColor', socket.id);
+                const strategy = userLogger(socket.room, 'getStrategy', socket.id);
+                const color = userLogger(socket.room, 'getColor', socket.id);
                 socket.emit("register_currentplayer", {strategy: strategy, color: color});
             },
 
             'get_current' : (data) => {
-                const strategy = modLogger('getPlayerTurn', socket.id)
+                const strategy = modLogger(socket.room, 'getPlayerTurn', socket.id)
                 socket.emit('set_current_player', strategy)
             },
 
@@ -206,19 +206,19 @@ module.exports = function (io){
             },
 
             'updateHasFinishedTurn': (hasFinishedTurn)=>{
-                userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn);
+                userLogger(socket.room, 'updateHasFinishedTurn',socket.id,hasFinishedTurn);
 
             },
 
             'updatePlayerPosition': (playerPosition) =>{ // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
-                userLogger('updatePlayerPosition', socket.id,playerPosition);
+                userLogger(socket.room, 'updatePlayerPosition', socket.id,playerPosition);
                 
                 
             },
 
             // 'update_game_state' : () =>{
             //     gameMethods.updateGameState(io,socket);
-            //     updateAllBoards();
+            //     gameMethods.updateAllBoards();
             // },
 
             'question_reviewed': () => {
@@ -230,16 +230,16 @@ module.exports = function (io){
                 }
                 // when queue is empty but not all players have submitted
                 else {
-                  modLogger("setIsReviewingQuestion", "", false);
+                  modLogger(socket.room, "setIsReviewingQuestion", "", false);
                 }
 
-                const isRoundFinished = modLogger('checkIfRoundIsFinished');
+                const isRoundFinished = modLogger(socket.room, 'checkIfRoundIsFinished');
                 if (isRoundFinished) { //update Game state and next round
                     
-                    modLogger('resetRoundStatus');
-                    userLogger('resetHasFinishedTurn');
+                    modLogger(socket.room, 'resetRoundStatus');
+                    userLogger(socket.room, 'resetHasFinishedTurn');
                     gameMethods.updateGameState(io,socket);
-                    updateAllBoards();
+                    gameMethods.updateAllBoards();
                     gameMethods.startRound(socket);
         
                 }

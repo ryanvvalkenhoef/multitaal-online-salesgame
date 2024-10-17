@@ -2,7 +2,7 @@ const modLogger = require("./modLogger");
 const userLogger = require("./userLogger");
 
 function sendPlayerCount(socket) {
-  const playerCount = modLogger("getPlayerTotal", socket.id);
+  const playerCount = modLogger(socket.room, "getPlayerTotal", socket.id);
   socket.emit("player_count", playerCount);
 }
 
@@ -13,19 +13,19 @@ const sendAnswerToModerator = (io, questionData) => {
 
 
 const updateGameState = (io,socket) => {
-  modLogger("nextRound", socket.id);
+  modLogger(socket.room, "nextRound", socket.id);
   io.to("players").emit("submitted_points");
-  const roundInfo = modLogger("getRound", socket.id);
+  const roundInfo = modLogger(socket.room, "getRound", socket.id);
   io.emit("rounds", roundInfo);
-  userData = userLogger("getData", socket.id);
+  userData = userLogger(socket.room, "getData", socket.id);
   io.emit("data_leaderboard", userData);
 }
 
 const startRound = (socket)=>{
   console.log("Start round");
   
-  const strategies = modLogger("getPlayerTurn", socket.id); //is een array
-  const playersList = modLogger("getPlayersList");
+  const strategies = modLogger(socket.room, "getPlayerTurn", socket.id); //is een array
+  const playersList = modLogger(socket.room, "getPlayersList");
   sendPlayerCount(socket);
 
   for(let i = 0; i < playersList.length; i++){

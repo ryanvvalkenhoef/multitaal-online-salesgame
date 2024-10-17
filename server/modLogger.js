@@ -33,6 +33,7 @@ function generateGamepin() {
 
 const readData = (room) => {
   try {
+    
     const data = fs.readFileSync(`${room}data.json`, "utf8");
     return JSON.parse(data);
   } catch (err) {
@@ -49,15 +50,17 @@ const writeData = (jsonData,room) => {
   }
 };
 
-// const deleteMods = (modsId) => {
-//   let data = readData(room);
-//   if (!data) return;
-//   data.mods = data.mods.filter((mods) => mods.id !== modsId);
-//   writeData(data,room);
-// };
+const deleteMods = (modsId) => {
+  let data = readData(room);
+  if (!data) return;
+  data.mod = data.mod.filter((mods) => mods.id !== modsId);
+  writeData(data,room);
+};
 
-const addMods = (mod,gamepin) => {
-  let data = readData(gamepin);
+const addMods = (mod,room) => {
+    
+    
+  let data = readData(room);
   if (!data) return;
   data.mod = mod
   writeData(data,room);
@@ -66,10 +69,10 @@ const addMods = (mod,gamepin) => {
 const updateMods = (modsId, newData,room) => {
   let data = readData(room);
   if (!data) return;
-  //const index = data.mods.findIndex((mods) => mods.id === modsId);
+  //const index = data.mod.findIndex((mods) => mods.id === modsId);
   mod = data.mod;
   if (mod) {
-    data.mods[index] = { ...data.mods[index], ...newData };
+    data.mod[index] = { ...data.mod[index], ...newData };
     writeData(data,room);
   } else {
     console.error("Mod not found.");
@@ -79,7 +82,7 @@ const updateMods = (modsId, newData,room) => {
 // function getRoom(socketid) {
 //   let data = readData(room);
 //   if (!data) return null;
-//   const mods = data.mods.find((mods) => mods.id === socketid);
+//   const mods = data.mod.find((mods) => mods.id === socketid);
 //   if (mods) {
 //     return mods.room;
 //   } else {
@@ -91,7 +94,7 @@ const updateMods = (modsId, newData,room) => {
 const checkRoom = (roomcode,room) => {
   let data = readData(room);
   if (!data) return null;
-  const roomExists = data.mods.room === roomcode;
+  const roomExists = data.mod.room === roomcode;
   if (roomExists) {
     return "exists";
   } else {
@@ -128,8 +131,8 @@ const addPlayerToMod = (socketid, strategy,room) => {
   }
   let data = readData(room);
   if (!data) return null;
-  for (let i = 0; i < data.mods.length; i++) {
-    // if (data.mods[i].id === socketid) {
+  for (let i = 0; i < data.mod.length; i++) {
+    // if (data.mod[i].id === socketid) {
     data.mod.players_joined.push(strategy);
     writeData(data,room);
     return "added";
@@ -140,7 +143,7 @@ const addPlayerToMod = (socketid, strategy,room) => {
 const addPlayerNameToMod = (socketid, name) => {
   let data = readData(room);
   if (!data) return null;
-  for (let i = 0; i < data.mods.length; i++) {
+  for (let i = 0; i < data.mod.length; i++) {
     data.mod.player_names.push(name);
     writeData(data,room);
     return "added";
@@ -264,7 +267,7 @@ const resetRoundStatus = (room) => {
     return null;
   }
 
-  data.mods[0].isRoundFinished = false;
+  data.mod.isRoundFinished = false;
   writeData(data,room);
 };
 
@@ -275,7 +278,7 @@ const getNumberOfQuestionsReviewed = (room) => {
     console.log("Can't read data: getNumberOfQuestionsReviewed()");
     return null;
   }
-  return data.mods[0].numberOfQuestionsReviewed;
+  return data.mod[0].numberOfQuestionsReviewed;
 };
 
 const resetNumberOfQuestionsReviewed = (room) => {
@@ -321,10 +324,11 @@ const checkIfReviewingQuestion = (room) => {
   return data.mod.isReviewingQuestion;
 };
 
-function modLogger(method, socketid, info = "temp", room) {
+function modLogger(room,method, socketid, info = "temp") {
   switch (method) {
     case "log":
       const gamepin = generateGamepin();
+     
       
       createJsonfile(gamepin);
       addMods({
@@ -346,7 +350,7 @@ function modLogger(method, socketid, info = "temp", room) {
       deleteMods(socketid);
       break;
     case "checkExists":
-      const exists = checkRoom(info);
+      const exists = checkRoom(info,room);
       return exists;
     case "getRoom":
       const roomCode = generateGamepin();

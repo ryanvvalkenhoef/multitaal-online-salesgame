@@ -1,7 +1,7 @@
 const modLogger = require("./modLogger");
 
 const getGameData = () => {
-  return (gameData = modLogger("readData"));
+  return (gameData = modLogger(socket.room, "readData"));
 };
 
 const getQuestionQueueLenght = () => {
@@ -18,13 +18,13 @@ const addQuestionToQueue = (question) => {
   }
   
   gameData.questionQueue.push(question);
-  modLogger("writeData", "", gameData);
+  modLogger(socket.room, "writeData", "", gameData);
 };
 
 const getQuestionFromQueue = () => {
   let gameData = getGameData();
   const question = gameData.questionQueue.shift();
-  modLogger('writeData','',gameData)
+  modLogger(socket.room, 'writeData','',gameData)
   return question;
 };
 

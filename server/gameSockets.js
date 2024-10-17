@@ -6,7 +6,7 @@ module.exports = function (io){
     io.on('connection', (socket) => {
         const socketHandlers = {
             'get_tileInfo': (data) => {
-                const room = userLogger('getRoom', socket.id);
+                const room = userLogger(socket.room, 'getRoom', socket.id);
 
                 //TILE_INFO FOR WHEN 2-6 PLAYERS JOIN
                 const tileInfo = [
@@ -64,14 +64,14 @@ module.exports = function (io){
                 let modID;
                 switch (data){
                     case 'player':
-                        const room = userLogger('getRoom', socket.id);
-                        modID = modLogger('getMod', socket.id, room);
+                        const room = userLogger(socket.room, 'getRoom', socket.id);
+                        modID = modLogger(socket.room, 'getMod', socket.id, room);
                         break
                     case 'mod':
                         modID = socket.id
                         break
                 }
-                const pieces = modLogger('getPieces', modID)
+                const pieces = modLogger(socket.room, 'getPieces', modID)
                 
                 
                 io.emit('add_piece', pieces)
