@@ -18,13 +18,18 @@ const updateGameState = (io,socket) => {
   const roundInfo = modLogger("getRound", socket.id);
   io.emit("rounds", roundInfo);
   userData = userLogger("getData", socket.id);
+  console.log("punten speler 1:" + userData[0].points);
+  console.log("punten speler 2:" + userData[1].points);
+  
+
+  
   io.emit("data_leaderboard", userData);
 }
 
-const startRound = (socket)=>{
+const startRound = (io,socket)=>{
   console.log("Start round");
   
-  const strategies = modLogger("getPlayerTurn", socket.id); //is een array
+  const strategies = modLogger("getPlayerTurn", socket.id); 
   const playersList = modLogger("getPlayersList");
   sendPlayerCount(socket);
 
@@ -34,16 +39,25 @@ const startRound = (socket)=>{
     const strategy = strategies[i];
     const name = playersList[i].name;
 
-    socket.to(socketId).emit('players_turn',strategy);
-    socket.to(socketId).emit('players_name', name) // heeft te maken met knipperen van naam op leaderbord en turn text
+    io.to(socketId).emit('players_turn',strategy);
+    io.to(socketId).emit('players_name', name) // heeft te maken met knipperen van naam op leaderbord en turn text
                             
 }
 }
+
+
+const updateAllBoards = (io) =>{
+  const players = userLogger('getAllPlayers');
+  const playerPositions = players.map(player => player.playerPosition);
+  io.emit('update_position',playerPositions);
+}
+
 module.exports = {
  sendPlayerCount,
  sendAnswerToModerator,
  updateGameState,
- startRound 
+ startRound,
+ updateAllBoards 
 
 
 };

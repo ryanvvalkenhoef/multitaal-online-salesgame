@@ -10,12 +10,6 @@ const { json } = require("express");
 
 module.exports = function (io){
 
-    const updateAllBoards = () =>{
-        const players = userLogger('getAllPlayers');
-        const playerPositions = players.map(player => player.playerPosition);
-        io.emit('update_position',playerPositions);
-    }
-
     io.on('connection', (socket) => {
        //userLogger('log', socket.id)
         
@@ -116,10 +110,10 @@ module.exports = function (io){
                 }
             },
 
-            'send_answer_to_moderator': (questionData) => {
+            'send_answer_to_server': (questionData) => {
                 const questionQueueLength = questionQueue.getQuestionQueueLenght();
                 const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
-                if (questionQueueLength === 0 && !isReviewingQuestion) {
+                if (questionQueueLength === 0 && !isReviewingQuestion) { //checks if there is no question in que and mod is not reviewing
                   gameMethods.sendAnswerToModerator(io,questionData);
                   modLogger("setIsReviewingQuestion", "", true);
                 } else {
@@ -150,8 +144,11 @@ module.exports = function (io){
                 
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
+                console.log("punten: " + newPoints);
                 
                 userLogger('updatePoints', id, newPoints);
+                
+              
             },
 
             'settings' : (data) => {
@@ -220,6 +217,7 @@ module.exports = function (io){
             // },
 
             'question_reviewed': () => {
+                
                 questionQueueLength = questionQueue.getQuestionQueueLenght();
                 
                 if (questionQueueLength > 0) {
@@ -230,15 +228,15 @@ module.exports = function (io){
                 else {
                   modLogger("setIsReviewingQuestion", "", false);
                 }
-
+                const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
                 const isRoundFinished = modLogger('checkIfRoundIsFinished');
-                if (isRoundFinished) { //update Game state and next round
+                if (isRoundFinished && !isReviewingQuestion) { //Next round  if round is finsihed and mod not reviewing question
                     
                     modLogger('resetRoundStatus');
                     userLogger('resetHasFinishedTurn');
                     gameMethods.updateGameState(io,socket);
-                    updateAllBoards();
-                    gameMethods.startRound(socket);
+                    gameMethods.updateAllBoards(io);
+                    gameMethods.startRound(io,socket);
         
                 }
                 
