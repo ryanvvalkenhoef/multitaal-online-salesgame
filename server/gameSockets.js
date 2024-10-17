@@ -57,7 +57,7 @@ module.exports = function (io){
             },
 
             'start_turn' : (data) => {
-                gameMethods.startRound(socket);
+                gameMethods.startRound(io,socket);
             },
 
             'get_pieces': (data) => {

@@ -45,7 +45,7 @@ export function Game() {
         setGamePaused2(true);
         currentQuestion.current.playerAnswer = textBoxContent;
         currentQuestion.current.playerId = socket.id;
-        socket.emit('send_answer_to_moderator', currentQuestion.current)
+        socket.emit('send_answer_to_server', currentQuestion.current)
         socket.emit('updateHasFinishedTurn',true);
     };
 
@@ -65,6 +65,8 @@ export function Game() {
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'data_leaderboard': (jsonData) => {
+                console.log("update" );
+                
                 setData(jsonData)
             },
             'receive_question': (data) => {

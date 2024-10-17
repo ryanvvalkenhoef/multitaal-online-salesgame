@@ -10,19 +10,17 @@ const { json } = require("express");
 
 module.exports = function (io){
 
-
-
     io.on('connection', (socket) => {
-        
+       //userLogger('log', socket.id)
         
 
         const socketHandlers = {
 
             'create_room': (data) => {
-              
-                
+
+
                 const room = modLogger('', 'log', socket.id, data);
-                
+
                 const playerNeeded = modLogger(room, 'getPlayerTotal', socket.id,'',room);
                 socket.emit('send_gamepin', {room: room, playerTotal: playerNeeded});
                 socket.room = room;
@@ -42,7 +40,7 @@ module.exports = function (io){
             'join_room' : (data) => {
                 userLogger(data.room, 'log', socket.id,'')
                 console.log("");
-                
+
                 var exists = modLogger(data.room, 'checkExists', socket.id,data.room)
                 if (exists === 'exists') {
                     socket.join(data.gamepin);
@@ -50,7 +48,7 @@ module.exports = function (io){
                     socket.room = data.gamepin;
                     var availability = userLogger(socket.room,'checkAvailability', socket.id, data)
                     console.log('availablilty: ' + availability);
-                    
+
                 } else{
                     availability = 'Room does not exist'
                 }
@@ -66,7 +64,7 @@ module.exports = function (io){
                     
                     
                     socket.emit('add_user', "adding")  //socket.to(data.room).emit('add_user', "adding")  Dit was de orginele lijn
-                    
+
                     
                     userLogger(socket.room, 'updateName', socket.id, data.name)
                     userLogger(socket.room, 'updateRoom', socket.id, data.room)
@@ -76,7 +74,7 @@ module.exports = function (io){
                     const modID = modLogger(socket.room, 'getMod', socket.id, data.room)
                     modLogger(socket.room, 'addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
                     modLogger(socket.room, 'addPlayerName', socket.id, data.name) //socket.id was modID
-                    
+
                     const pieces = modLogger(socket.room, 'getPieces', modID)
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
@@ -233,14 +231,15 @@ module.exports = function (io){
                   modLogger(socket.room, "setIsReviewingQuestion", "", false);
                 }
 
-                const isRoundFinished = modLogger(socket.room, 'checkIfRoundIsFinished');
-                if (isRoundFinished) { //update Game state and next round
+                const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
+                const isRoundFinished = modLogger('checkIfRoundIsFinished');
+                if (isRoundFinished && !isReviewingQuestion) { //update Game state and next round
                     
                     modLogger(socket.room, 'resetRoundStatus');
                     userLogger(socket.room, 'resetHasFinishedTurn');
                     gameMethods.updateGameState(io,socket);
-                    gameMethods.updateAllBoards();
-                    gameMethods.startRound(socket);
+                    gameMethods.updateAllBoards(io);
+                    gameMethods.startRound(io,socket);
         
                 }
                 

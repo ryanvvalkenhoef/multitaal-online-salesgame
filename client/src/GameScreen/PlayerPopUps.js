@@ -1,9 +1,26 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import './PopUpStyle.css'
 import {useTranslation} from "react-i18next";
 
 const PlayerPopUps = ({ gamePaused, gamePaused2, question, textBoxContent, handleTextBoxChange, handleSubmitAnswer, popupColor, setPopupColor }) => {
     const { t, i18n } = useTranslation('global');
+
+    useEffect(() => { //prevents copying/pasting
+        const disableActions = (e) => e.preventDefault(); 
+        
+    
+        document.addEventListener('copy', disableActions);
+        document.addEventListener('paste', disableActions);
+        document.addEventListener('cut', disableActions);
+        document.addEventListener('contextmenu', disableActions);  
+    
+        return () => {
+          document.removeEventListener('copy', disableActions);
+          document.removeEventListener('paste', disableActions);
+          document.removeEventListener('cut', disableActions);
+          document.removeEventListener('contextmenu', disableActions);
+        };
+      }, []);
     return (
         <>
             {gamePaused && (

@@ -94,7 +94,8 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             const targetTile = event.target.closest('.tile')
             if (startPieces.includes(event.target.id)) {
                 event.target.classList.add('highlight')
-            } else if (targetTile && validPositions.includes(targetTile.getAttribute('pos'))) {
+            } else if (targetTile && validPositions.includes(targetTile.getAttribute('pos'))
+                && targetTile.classList.contains('blink')) {
                 const newPosition = targetTile.getAttribute('pos')
                 if (validPositions.includes(newPosition) && !moveMade) {
                     if (selectedPawn instanceof HTMLElement) {
@@ -189,7 +190,12 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             if (boardGrid !== null){
                 boardGrid.addEventListener('click', handleTileClick)
             }
-        }
+        } console.log('re-rendering due to update')
+        return () => {
+            socket.off('update_valid_positions');
+            socket.off('register_currentplayer');
+            socket.off('update_position');
+        };
     }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setPlayerColor, playerColor, gameScreen])
 
     if (tileInfo.length === 0 || tileInfo2.length === 0){
@@ -201,7 +207,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     const totalTiles = tileInfo.length
     for (let i = 0; i < totalTiles; i++) {
         const position = possiblePositions[i];
-        const isHighlighted = validPositions.includes(position);
+        let isHighlighted = validPositions.includes(position);
 
         let totalColors = joinedColors.length;
         let currentColor = joinedColors[0];
@@ -231,7 +237,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         const tileClass = `tile ${currentColor} ${isHighlighted ? 'blink' : ''}`
         if (tileInfo[i] === 'start') {
             tiles.push(
-                <div key={i} className={tileClass} tile-id={i} pos={position}>
+                <div key={`tile-{position}`} className={tileClass} tile-id={i} pos={position}>
                     {renderStartPieces()}
                 </div>
             );

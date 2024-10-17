@@ -53,7 +53,7 @@ export function ModView() {
 
     const submitPoints = () =>{
             setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId});
+            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId}, );
             socket.emit('question_reviewed');
             setSelectedPoints([]);
     }
@@ -83,6 +83,8 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
+                console.log("update: " + JSON.stringify(jsonData));
+                
                 setData(jsonData)
             },
             'set_current_player': (data)=> {
