@@ -1,0 +1,53 @@
+{
+  "gamepin": "",
+  "players": [
+    {
+      "username": "",
+      "position": 0,
+      "strategy": "",
+      "points": 0,
+      "turn": true
+    },
+    {
+      "username": "",
+      "position": 0,
+      "strategy": "",
+      "points": 0,
+      "turn": true
+    },
+    {
+      "username": "",
+      "position": 0,
+      "strategy": "",
+      "points": 0,
+      "turn": true
+    },
+    {
+      "username": "",
+      "position": 0,
+      "strategy": "",
+      "points": 0,
+      "turn": true
+    },
+    {
+      "username": "",
+      "position": 0,
+      "strategy": "",
+      "points": 0,
+      "turn": true
+    },
+    {
+      "username": "",
+      "position": 0,
+      "strategy": "",
+      "points": 0,
+      "turn": true
+    }
+  ],
+  "language": "",
+  "leaderboard": [
+    {"username": "", "points": 0},
+    {"username": "", "points": 0}
+  ],
+  "currentTurn": ""
+}

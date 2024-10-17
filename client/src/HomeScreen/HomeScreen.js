@@ -20,6 +20,10 @@ export function HomeScreen() {
         navigate('/joinGame');
     };
 
+    const handleLoadGame = () => {
+        navigate('/loadgame');
+    };
+
     return (
         <div className='parent-container-home'>
             <div className="logoRow">
@@ -27,8 +31,17 @@ export function HomeScreen() {
                 <button className="Qbutton" onClick={handleGuide}>?</button>
             </div>
             <div className="homeButtonRow">
-                <button type="submit" className="homeGameButton homeButtonLeft" onClick={handleJoinGame} > {t("HomeScreen.join")} </button>
-                <button type="submit" className="homeGameButton homeButtonRight" onClick={handleCreateGame} > {t("HomeScreen.create")} </button>
+                <button type="submit" className="homeGameButton homeButtonLeft" onClick={handleJoinGame} >
+                    {t("HomeScreen.join")}
+                </button>
+                <button type="submit" className="homeGameButton homeButtonRight" onClick={handleCreateGame} >
+                    {t("HomeScreen.create")}
+                </button>
+            </div>
+            <div className="homeButtonRow">
+                <button type="submit" className="homeGameButton homeButtonCenter" onClick={handleLoadGame} >
+                    {t("Load Save Game")}
+                </button>
             </div>
             <div className="languageRow">
                 <img className='flagImg' id='DEN' src={den_flag} alt='Danish' onClick={() => handleChangeLanguage('dk')} />
