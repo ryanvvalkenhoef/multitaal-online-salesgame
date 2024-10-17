@@ -1,6 +1,7 @@
 const userLogger = require("./userLogger");
 const getMovesFromCoordinate = require("./positionCalculator");
 const modLogger = require("./modLogger");
+const gameMethods = require('./gameMethods');
 module.exports = function (io){
     io.on('connection', (socket) => {
         const socketHandlers = {
@@ -35,14 +36,14 @@ module.exports = function (io){
 
                 socket.emit('send_tileInfo', tileInfo)
                 socket.emit('send_tileInfo2', tileInfo2)
-                socket.to(room).emit('send_tileInfo', tileInfo)
-                socket.to(room).emit('send_tileInfo2',tileInfo2)
+                //socket.to(room).emit('send_tileInfo', tileInfo)
+                //socket.to(room).emit('send_tileInfo2',tileInfo2)
+                socket.to("players").emit('send_tileInfo', tileInfo)
+                socket.to("players").emit('send_tileInfo2',tileInfo2)
             },
 
             'roll_dice' : (data) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                const room = userLogger("getRoom", socket.id)
-                socket.to(room).emit("set_dice", diceValue)
                 socket.emit("set_dice", diceValue)
             },
 
@@ -51,24 +52,12 @@ module.exports = function (io){
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
                 const moves = getMovesFromCoordinate(xPos, yPos, data.diceValue);
-                const formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`)
-                const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('update_valid_positions', formattedPositions);
+                let formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`);
                 socket.emit('update_valid_positions', formattedPositions);
             },
 
             'start_turn' : (data) => {
-                const room = modLogger('room', socket.id);
-                const strategy = modLogger('getPlayerTurn', socket.id)
-                const name = modLogger('getPlayerName', socket.id)
-                socket.emit('players_turn', strategy)
-                socket.emit('players_name', name)
-                socket.to(room).emit('players_turn', strategy)
-                socket.to(room).emit('players_name', name)
-
-                const roundInfo = modLogger('getRound', socket.id);
-                socket.to(room).emit('rounds', roundInfo);
-                socket.emit('rounds', roundInfo);
+                gameMethods.startRound(io,socket);
             },
 
             'get_pieces': (data) => {
@@ -83,7 +72,10 @@ module.exports = function (io){
                         break
                 }
                 const pieces = modLogger('getPieces', modID)
-                socket.emit('add_piece', pieces)
+                
+                
+                io.emit('add_piece', pieces)
+                
             }
         }
         Object.keys(socketHandlers).forEach(event => {

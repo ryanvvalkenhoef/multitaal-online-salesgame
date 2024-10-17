@@ -1,3 +1,4 @@
+const { log } = require('console');
 const { json } = require('express');
 const fs = require('fs');
 
@@ -61,7 +62,8 @@ const updateUser = (userId, newData) => {
 function getRoom(socketid) {
     let data = readData();
     if (!data) return null;
-
+    
+    
     const user = data.users.find(user => user.id === socketid);
     if (user) {
         return user.room;
@@ -115,11 +117,16 @@ function availability(socketid, userName, userRoom, userStrat) {
 }
 
 function getData(socketid) {
+    
     let data = readData();
     if (!data) return null;
-    const user = data.users.find(user => user.id === socketid);
-    const room = user.room;
-    const users = data.users.filter(user => user.room === room);
+    
+    // const user = data.users.find(user => user.id === socketid);
+    // const room = user.room;
+    // const users = data.users.filter(user => user.room === room);
+    //Dit werkt nu alleen wanneer de server maar 1 mod heeft
+    const users = data.users
+
     if (users) {
         return users
     } else {
@@ -127,6 +134,7 @@ function getData(socketid) {
         return null;
     }
 }
+
 function getStrategy(socketid) {
     let data = readData();
     if (!data) return null;
@@ -140,6 +148,7 @@ function getStrategy(socketid) {
                 break
             case 'jysk telepartner':
                 strategy = 'jysk'
+                
                 break
             case 'domino house':
                 strategy = 'domino'
@@ -190,6 +199,9 @@ function getColor(socketid) {
     }
 }
 
+
+
+
 function getReceiver(room, questionColor) {
     let data = readData();
     if (!data) return null;
@@ -218,8 +230,11 @@ function getReceiver(room, questionColor) {
                 color = 'red'
                 break
         }
-
+            
+            
         if (questionColor === color) {
+           
+            
             return user.id
         }
     }
@@ -228,7 +243,9 @@ function getPlayerName(socketid) {
     let data = readData();
     if (!data) return null;
     const user = data.users.find(user => user.id === socketid);
+    
     if (user) {
+        
         return user.name
     } else {
         console.error('User not found6.');
@@ -247,10 +264,36 @@ function getLanguage(socketid) {
     }
 }
 
+function resetHasFinishedTurn(){
+    let data = readData();
+    if (!data) return null;
+    const players = data.users;
+    if(players){
+        players.forEach(player => {
+            player.hasFinishedTurn = false;
+        });
+    }
+    else {
+        console.error('User not found7.');
+        return null;
+    }
+    writeData(data);
+}
+
+function getAllPlayers(){
+    let data = readData();
+    if (!data){
+        console.log("Can't read data: getAllPlayers()");
+        return null;
+    }
+
+    return data.users
+}
+
 function userLogger(method, socketid, info=""){
     switch(method){
         case 'log':
-            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:''})
+            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' })
             break
         case 'delete':
             deleteUser(socketid)
@@ -269,6 +312,8 @@ function userLogger(method, socketid, info=""){
             break
         case 'updateLanguage':
             updateUser(socketid, {language: info})
+        case 'addColorToPlayer':
+            updateUser(socketid, {color: info})    
         case 'getRoom':
             return getRoom(socketid)
         case 'getPoints':
@@ -289,7 +334,19 @@ function userLogger(method, socketid, info=""){
             return getPlayerName(socketid)
         case 'getLanguage':
             return getLanguage(socketid)
-    }
+        case 'updateHasFinishedTurn':
+            updateUser(socketid, {hasFinishedTurn: info});
+            break;
+        case 'resetHasFinishedTurn':
+            resetHasFinishedTurn();
+            break;     
+        case 'updatePlayerPosition':
+            updateUser(socketid, {playerPosition: info});
+            break;    
+        case 'getAllPlayers':{
+            return getAllPlayers()
+        }    
+    }   
 }
 
 module.exports=userLogger;

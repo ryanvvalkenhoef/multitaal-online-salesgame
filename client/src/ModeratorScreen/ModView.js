@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import '../PlayerScreen/GameStyle.css';
 import '../App.css';
 import {socket} from '../client'
@@ -21,35 +21,55 @@ export function ModView() {
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
     const [currentPlayer, setCurrentPlayer] = useState (0)
-    const [color, setColor] = useState('')
+    const [popupColor, setColor] = useState('')
     const [userColor, setUserColor] = useState('')
     const [playerName, setPlayerName] = useState('')
     const [selectedPawn , setSelectedPawn] = useState()
     const [showPopup, setShowPopup] = useState(false);
     const [position, setPosition] = useState("8-5")
-    const [submittedAnswer, setSubmittedAnswer] = useState(t("Game.modWait"))
     const [diceValue, setDiceValue] = useState(1);
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
+    const playerCountRef = useRef(0);
+    const currentQuestionRef = useRef(null);
+
+   
 
     const handleUpdatePoints = (points) => {
         setSelectedPoints(points);
     };
 
-    const handleSubmitPoints = () => {
-        if (submittedAnswer !== t("Game.modWait")) {
+    const reviewQuestion = (questionData) =>{
+        setShowPopup(true);
+        setQuestion(questionData.questionText);
+        setColor(questionData.questionColor);
+        setUserColor(questionData.playerColor);
+        setAnswer(questionData.answer);
+        currentQuestionRef.current = questionData;
+}
+
+    const submitPoints = () =>{
             setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor});
-            setSubmittedAnswer(t("Game.modWait"));
+            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId}, );
+            socket.emit('question_reviewed');
             setSelectedPoints([]);
+    }
+
+    const handleSubmitPoints = () => {
+       
+        if (currentQuestionRef.current.playerAnswer !== '') { 
+            submitPoints()
         }
+        
     };
 
-    useEffect(() => {
 
+
+    useEffect(() => {
+        
         const socketHandlers = {
             'set_dice': (data) => {
                 setDiceValue(data);
@@ -63,8 +83,9 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
+                console.log("update: " + JSON.stringify(jsonData));
+                
                 setData(jsonData)
-                socket.emit('get_current','mod')
             },
             'set_current_player': (data)=> {
                 try {
@@ -74,19 +95,14 @@ export function ModView() {
                     socket.emit('pawns_request_failed', '')
                 }
             },
-            'mod-pause': (data)=> {
-                setShowPopup(true);
-                setQuestion(data.questionText);
-                setColor(data.color);
-                setUserColor(data.userColor);
-                setAnswer(data.answer);
+            'receive_player_answer': (questionData)=> { //parameter is an object
+                    reviewQuestion(questionData)
             },
-            'receive_answer': (data)=> {
-                setAnswer(data);
-            },
-            'submitted_answer': (data)=> {
-                setSubmittedAnswer(data.text)
+
+            'player_count': (playerCount) => {
+                playerCountRef.current = playerCount;
             }
+
         }
 
         Object.keys(socketHandlers).forEach(event => {
@@ -128,11 +144,11 @@ export function ModView() {
             </div>
                 <ModeratorPopUps
                     answer={answer}
-                    color={color}
+                    popupColor={popupColor}
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     question={question}
-                    submittedAnswer={submittedAnswer}
+                    submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
                     selectedPoints={selectedPoints}
                     handleSubmitPoints={handleSubmitPoints}
                     handleUpdatePoints={handleUpdatePoints}

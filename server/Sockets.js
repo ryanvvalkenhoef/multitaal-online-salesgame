@@ -3,24 +3,31 @@ const databaseQuestion = require("./database");
 const userLogger = require("./userLogger");
 const databaseAnswer = require("./database");
 const getMovesFromCoordinate = require("./positionCalculator");
+const gameMethods = require('./gameMethods');
+const questionQueue = require("./questionQueue");
+const { json } = require("express");
+
 
 module.exports = function (io){
 
     io.on('connection', (socket) => {
-        userLogger('log', socket.id)
+       //userLogger('log', socket.id)
+        
 
         const socketHandlers = {
 
             'create_room': (data) => {
+                //modLogger('log', socket.id) 
                 const room = modLogger('log', socket.id, data);
+                socket.join("mod")
                 const playerNeeded = modLogger('getPlayerTotal', socket.id)
-                socket.join(room)
+                //socket.join(room)
                 socket.emit('send_gamepin', {room: room, playerTotal: playerNeeded});
             },
 
             'disconnect': (reason) => {
                 const room = userLogger("getRoom", socket.id)
-                const name = userLogger('getPlayerName', socket.id)
+                const name = userLogger('getPlayerNames', socket.id)
                 modLogger('removeUser', socket.id, {name: name, room: room})
                 socket.to(userLogger("getRoom", socket.id)).emit('delete_user', "deleting")
                 userLogger("delete", socket.id)
@@ -28,9 +35,11 @@ module.exports = function (io){
             },
 
             'join_room' : (data) => {
+                userLogger('log', socket.id)
                 var exists = modLogger('checkExists', socket.id, data.room)
                 if (exists === 'exists') {
-                    socket.join(data.room)
+                    //socket.join(data.room)
+                    //socket.join("players")
                     var availability = userLogger('checkAvailability', socket.id, data)
                 } else{
                     availability = 'Room does not exist'
@@ -43,24 +52,33 @@ module.exports = function (io){
                     availability = 'Room is full'
                 }
                 if (availability === 'available') {
-                    socket.join(data.room)
-                    socket.to(data.room).emit('add_user', "adding")
+                    //socket.join(data.room)
+                    socket.join("players")
+                    
+                    
+                    
+                    socket.to("mod").to("players").emit('add_user', "adding")  //socket.to(data.room).emit('add_user', "adding")  Dit was de orginele lijn
+                    
+                    
                     userLogger('updateName', socket.id, data.name)
                     userLogger('updateRoom', socket.id, data.room)
                     userLogger('updateStrategy', socket.id, data.strategy)
+                    const playerColor = userLogger('getColor',socket.id)
+                    userLogger('addColorToPlayer',socket.id,playerColor)
                     const modID = modLogger('getMod', socket.id, data.room)
-                    modLogger('addPlayer', modID, data.strategy.toLowerCase())
-                    modLogger('addPlayerName', modID, data.name)
+                    modLogger('addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
+                    modLogger('addPlayerName', socket.id, data.name) //socket.id was modID
+                    
                     const pieces = modLogger('getPieces', modID)
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
-                    socket.to(data.room).emit('add_piece', pieces);
+                    socket.to("players").emit('add_piece', pieces);
                 } else {
                     socket.emit('join_succes', availability);
                 }
             },
 
-            'send_question_request': async (data) => {
+            'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler gestuurd
                 const availableColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
                 const language = userLogger('getLanguage', socket.id)
                 const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
@@ -86,13 +104,22 @@ module.exports = function (io){
 
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger('getReceiver', socket.id, {color: data.questionColor, room: room})
-                    socket.to(room).emit('mod-pause', {questionText: question, color: popupColor, userColor: popupColor, answer: answer});
-                    io.to(receiver).emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor})
+                    io.to(receiver).emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer})
                 } else {
-                    socket.to(room).emit('mod-pause', {questionText: question, color: popupColor, userColor: data.userColor, answer: answer});
-                    socket.emit('receive_question', {questionText: question, color: popupColor, userColor: data.userColor});
+                    socket.emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer});
                 }
             },
+
+            'send_answer_to_server': (questionData) => {
+                const questionQueueLength = questionQueue.getQuestionQueueLenght();
+                const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
+                if (questionQueueLength === 0 && !isReviewingQuestion) { //checks if there is no question in que and mod is not reviewing
+                  gameMethods.sendAnswerToModerator(io,questionData);
+                  modLogger("setIsReviewingQuestion", "", true);
+                } else {
+                  questionQueue.addQuestionToQueue(questionData);
+                }
+              },
 
             'send_answer_request' :  async (data) => {
                 let answerText = await databaseAnswer(data.answerColor, 'answer');
@@ -111,27 +138,17 @@ module.exports = function (io){
             },
 
             'submit_points' : (data) => {
-                const room = modLogger('room', socket.id);
-                let name = modLogger('getPlayerName', socket.id)
-                const id = userLogger('getReceiver', socket.id, {color: data.color, room: room})
+                const id = data.playerId;
+                //const room = modLogger('room', socket.id);
+                //let name = userLogger('getPlayerName',id)
+                
                 const oldPoints = userLogger('getPoints', id, id);
                 const newPoints = Number(oldPoints) + Number(data.points);
+                console.log("punten: " + newPoints);
+                
                 userLogger('updatePoints', id, newPoints);
-
-                socket.to(room).emit('submitted_points', data.points);
-                socket.emit('players_name', name)
-                modLogger('nextTurn', socket.id)
-                name = modLogger('getPlayerName', socket.id);
-                const strategy = modLogger('getPlayerTurn', socket.id)
-                socket.emit('players_turn', strategy)
-
-                socket.emit('players_name', name)
-                socket.to(room).emit('players_turn', strategy)
-                socket.to(room).emit('players_name', name)
-
-                const roundInfo = modLogger('getRound', socket.id);
-                socket.to(room).emit('rounds', roundInfo);
-                socket.emit('rounds', roundInfo);
+                
+              
             },
 
             'settings' : (data) => {
@@ -139,13 +156,15 @@ module.exports = function (io){
             },
 
             'send_textbox_content' : (data) => {
-                const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('submitted_answer', data);
+                //const room = userLogger('getRoom', socket.id);
+                socket.to("mod").emit('submitted_answer', data);
             },
 
             'update_position' : (data) => {
-                const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('update_position', data);
+                // const room = userLogger('getRoom', socket.id);
+                // socket.to(room).emit('update_position', data);
+
+                io.emit('update_position', data);
             },
 
             'pawns_request_failed' : (data) => {
@@ -156,10 +175,14 @@ module.exports = function (io){
             },
 
             'get_data' : (userData) => {
-                const room = userLogger('getRoom', socket.id);
+                //const room = userLogger('getRoom', socket.id);
                 userData = userLogger('getData', socket.id);
-                socket.to(room).emit('data_leaderboard', userData);
-                socket.emit('data_leaderboard', userData);
+                //socket.to(room).emit('data_leaderboard', userData);
+                io.emit('data_leaderboard', userData);
+                
+                socket.to("mod").emit('data_leaderboard', userData)
+                //socket.emit('data_leaderboard', userData);
+                //socket.to("mod").emit('data_leaderboard',userData)
             },
 
             'get_playerstrategy' : (data) => {
@@ -171,7 +194,56 @@ module.exports = function (io){
             'get_current' : (data) => {
                 const strategy = modLogger('getPlayerTurn', socket.id)
                 socket.emit('set_current_player', strategy)
-            }
+            },
+
+            'get_player_count': ()=>{
+                gameMethods.sendPlayerCount(socket);
+            },
+
+            'updateHasFinishedTurn': (hasFinishedTurn)=>{
+                userLogger('updateHasFinishedTurn',socket.id,hasFinishedTurn);
+
+            },
+
+            'updatePlayerPosition': (playerPosition) =>{ // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
+                userLogger('updatePlayerPosition', socket.id,playerPosition);
+                
+                
+            },
+
+            // 'update_game_state' : () =>{
+            //     gameMethods.updateGameState(io,socket);
+            //     updateAllBoards();
+            // },
+
+            'question_reviewed': () => {
+                
+                questionQueueLength = questionQueue.getQuestionQueueLenght();
+                
+                if (questionQueueLength > 0) {
+                  const question = questionQueue.getQuestionFromQueue();
+                  gameMethods.sendAnswerToModerator(io, question);
+                }
+                // when queue is empty but not all players have submitted
+                else {
+                  modLogger("setIsReviewingQuestion", "", false);
+                }
+                const isReviewingQuestion = modLogger("checkIfReviewingQuestion");
+                const isRoundFinished = modLogger('checkIfRoundIsFinished');
+                if (isRoundFinished && !isReviewingQuestion) { //Next round  if round is finsihed and mod not reviewing question
+                    
+                    modLogger('resetRoundStatus');
+                    userLogger('resetHasFinishedTurn');
+                    gameMethods.updateGameState(io,socket);
+                    gameMethods.updateAllBoards(io);
+                    gameMethods.startRound(io,socket);
+        
+                }
+                
+              },
+            
+
+
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])})

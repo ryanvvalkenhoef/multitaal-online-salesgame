@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {socket} from '../client'
 import './GameStyle.css';
 import BoardGrid from "../GameScreen/BoardGrid";
@@ -17,11 +17,11 @@ export function Game() {
     const sortedUserData = data.sort((a, b) => b.points - a.points);
     const [question, setQuestion] = useState("")
     const [steps, setSteps] = useState(0)
-    const [moveMade, setMoveMade] = useState(true)
+    const [moveMade, setMoveMade] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState ('')
-    const [color, setColor] = useState('')
+    const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
     const [popupColor, setPopupColor] = useState('')
-    const [myTurn, setMyTurn] = useState(false)
+    const [myTurn, setMyTurn] = useState(true)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [gamePaused, setGamePaused] = useState(false)
@@ -32,6 +32,8 @@ export function Game() {
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
+    const currentQuestion = useRef(null);
+    
 
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
@@ -39,13 +41,17 @@ export function Game() {
 
     const handleSubmitAnswer = () => {
         setGamePaused(false);
-        socket.emit('send_textbox_content', {text: textBoxContent, color: color})
-        setTextBoxContent('')
-        setGamePaused2(true)
+        setTextBoxContent('');
+        setGamePaused2(true);
+        currentQuestion.current.playerAnswer = textBoxContent;
+        currentQuestion.current.playerId = socket.id;
+        socket.emit('send_answer_to_server', currentQuestion.current)
+        socket.emit('updateHasFinishedTurn',true);
     };
 
     useEffect(() =>{
-
+        
+        
         const socketHandlers = {
             'rounds': (data) => {
                 setTotalRounds(data.totalRounds)
@@ -54,39 +60,44 @@ export function Game() {
             },
             'players_name': (data) => {
                 setPlayerName(data)
+                
+                
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'data_leaderboard': (jsonData) => {
+                console.log("update" );
+                
                 setData(jsonData)
             },
             'receive_question': (data) => {
-                setPopupColor(data.color)
-                setQuestion(data.questionText);
+                currentQuestion.current = data;
+                setPopupColor(currentQuestion.current.questionColor)
+                setQuestion(currentQuestion.current.questionText);
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
                 setGamePaused2(false)
+                //socket.emit('get_data', 'leaderboard_update');
             },
-            'players_turn': (data) => {
+            'players_turn': (strategy) => {
                 try {
-                    const pawn = document.querySelector('#' + data)
+                    const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
                     const parentPosition = parent.getAttribute('pos')
+                    
                     setPosition(parentPosition)
+                    
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
-                    if (currentPlayer === data) {
-                        setMyTurn(true)
-                        setMoveMade(false)
-                    } else {
-                        setMyTurn(false)
-                        setMoveMade(true)
-                    }
-                    socket.emit('get_data', 'leaderboard_update');
+                    
+                   
                 } catch (TypeError) {
+                    
                     socket.emit('pawns_request_failed', '')
                 }
             }
+            
+            
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])
@@ -97,7 +108,7 @@ export function Game() {
                 socket.off(event, socketHandlers[event])
             })
         }
-    },[currentPlayer])
+    },[])//,[currentPlayer]
 
     return (
     <>
@@ -112,9 +123,11 @@ export function Game() {
                 setPosition={setPosition}
                 setCurrentPlayer={setCurrentPlayer}
                 currentPlayer={currentPlayer}
-                color={color}
-                setColor={setColor}
-                gameScreen={true}/>
+                playerColor={playerColor}
+                setPlayerColor={setPlayerColor}
+                gameScreen={true}
+                
+                />
             <DiceContainer
                 setSteps={setSteps}
                 setMoveMade={setMoveMade}
