@@ -101,6 +101,10 @@ export function ModView() {
 
             'player_count': (playerCount) => {
                 playerCountRef.current = playerCount;
+            },
+
+            'game_over': () => {
+                alert("game over");
             }
 
         }

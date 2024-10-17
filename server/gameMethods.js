@@ -13,12 +13,20 @@ const sendAnswerToModerator = (io, questionData) => {
 
 
 const updateGameState = (io,socket) => {
-  modLogger(socket.room, "nextRound", socket.id);
-  io.to("players").emit("submitted_points");
   const roundInfo = modLogger(socket.room, "getRound", socket.id);
-  io.emit("rounds", roundInfo);
-  userData = userLogger(socket.room, "getData", socket.id);
-  io.emit("data_leaderboard", userData);
+  if(checkIfGameOver(io,socket,roundInfo)){
+    io.emit('game_over');
+  }
+  else {
+    modLogger(socket.room, "nextRound", socket.id);
+    io.to("players").emit("submitted_points");
+
+    io.emit("rounds", roundInfo);
+    //socket.emit("rounds", roundInfo);
+
+    userData = userLogger(socket.room, "getData", socket.id);
+    io.emit("data_leaderboard", userData);
+  }
 }
 
 const startRound = (io,socket)=>{
@@ -45,6 +53,10 @@ const updateAllBoards = (io) =>{
   const players = userLogger('getAllPlayers');
   const playerPositions = players.map(player => player.playerPosition);
   io.emit('update_position',playerPositions);
+}
+
+const checkIfGameOver = (io,socket,roundInfo) =>{
+  return roundInfo.current_round === roundInfo.total_rounds;
 }
 
 module.exports = {

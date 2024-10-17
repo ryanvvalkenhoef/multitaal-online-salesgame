@@ -95,6 +95,10 @@ export function Game() {
                     
                     socket.emit('pawns_request_failed', '')
                 }
+            },
+
+            'game_over': () => {
+                alert("game over");
             }
             
             

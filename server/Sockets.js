@@ -39,13 +39,13 @@ module.exports = function (io){
 
             'join_room' : (data) => {
                 userLogger(data.room, 'log', socket.id,'')
-                console.log("");
+                console.log("data.gamepin: " + data.room);
 
                 var exists = modLogger(data.room, 'checkExists', socket.id,data.room)
                 if (exists === 'exists') {
-                    socket.join(data.gamepin);
-                    socket.join(`${data.gamepin}players`);
-                    socket.room = data.gamepin;
+                    socket.join(data.room);
+                    socket.join(`${data.room}players`);
+                    socket.room = data.room;
                     var availability = userLogger(socket.room,'checkAvailability', socket.id, data)
                     console.log('availablilty: ' + availability);
 
@@ -65,7 +65,7 @@ module.exports = function (io){
                     
                     socket.emit('add_user', "adding")  //socket.to(data.room).emit('add_user', "adding")  Dit was de orginele lijn
 
-                    
+                    console.log("socket.room: " + socket.room);
                     userLogger(socket.room, 'updateName', socket.id, data.name)
                     userLogger(socket.room, 'updateRoom', socket.id, data.room)
                     userLogger(socket.room, 'updateStrategy', socket.id, data.strategy)
@@ -75,7 +75,7 @@ module.exports = function (io){
                     modLogger(socket.room, 'addPlayer', socket.id, data.strategy.toLowerCase()) //socket.id was modID
                     modLogger(socket.room, 'addPlayerName', socket.id, data.name) //socket.id was modID
 
-                    const pieces = modLogger(socket.room, 'getPieces', modID)
+                    const pieces = modLogger(socket.room, 'getPieces')
                     socket.emit('join_succes', availability);
                     socket.emit('add_piece', pieces);
                     socket.to(`${socket.room}players`).emit('add_piece', pieces);

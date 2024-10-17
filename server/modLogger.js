@@ -50,7 +50,7 @@ const writeData = (jsonData,room) => {
   }
 };
 
-const deleteMods = (modsId) => {
+const deleteMods = (modsId,room) => {
   let data = readData(room);
   if (!data) return;
   data.mod = data.mod.filter((mods) => mods.id !== modsId);
@@ -140,7 +140,7 @@ const addPlayerToMod = (socketid, strategy,room) => {
 };
 //}
 
-const addPlayerNameToMod = (socketid, name) => {
+const addPlayerNameToMod = (socketid, name,room) => {
   let data = readData(room);
   if (!data) return null;
   for (let i = 0; i < data.mod.length; i++) {
@@ -151,7 +151,7 @@ const addPlayerNameToMod = (socketid, name) => {
 };
 
 
-const nextRound = (socketid,room) => {
+const nextRound = (room) => {
   const mod = getMod(room);
   mod.current_round += 1;
   writeData(data,room);
@@ -354,69 +354,69 @@ function modLogger(room,method, socketid, info = "temp") {
       return exists;
     case "getRoom":
       const roomCode = generateGamepin();
-      addMods(socketid);
-      updateMods(socketid, { room: roomCode });
+      addMods(socketid,room);
+      updateMods(socketid, { room: roomCode },room);
       return roomCode;
     case "getMod":
-      return modID(info);
+      return modID(room);
     case "addPlayer":
-      addPlayerToMod(socketid, info);
+      addPlayerToMod(socketid, info,room);
       break;
     case "getPieces":
-      getPieces(room);
+      return getPieces(room);
 
     // case "room":
     //   const room = readData(so).mods.find((mod) => mod.id === socketid).room;
     //   return room;
     case "nextRound":
-      nextRound(socketid);
+      nextRound(room);
       break;
     case "getPlayerTurn":
-      return getPlayerTurn(socketid);
+      return getPlayerTurn(socketid,room);
       break;
     case "addPlayerName":
-      addPlayerNameToMod(socketid, info);
+      addPlayerNameToMod(socketid, info,room);
       break;
     case "getPlayerNames":
-      return getPlayerNames(socketid);
+      return getPlayerNames(socketid,room);
       break;
     case "getRound":
-      return getRound(socketid);
+      return getRound(socketid,room);
       break;
     case "getPlayerTotal":
       return getPlayerTotal(room);
       break;
     case "checkFull":
-      return checkFull(info);
+      return checkFull(room);
       break;
     case "removeUser":
-      removeUserFromMod(info);
+      removeUserFromMod(info,room);
       break;
     case "getPlayersList":
-      return getPlayersList();
+      return getPlayersList(room);
     case "checkIfRoundIsFinished":
-      return checkIfRoundIsFinished();
+      return checkIfRoundIsFinished(room);
     case "resetRoundStatus":
-      resetRoundStatus();
+      resetRoundStatus(room);
       break;
     case "readData":
       return readData(room);
     case "writeData":
-      writeData(info);
+      writeData(info,room);
       break;
     case "getNumberOfQuestionsReviewed":
-      return getNumberOfQuestionsReviewed();
+      return getNumberOfQuestionsReviewed(room);
     case "resetNumberOfQuestionsReviewed":
-      resetNumberOfQuestionsReviewed();
+      resetNumberOfQuestionsReviewed(room);
       break;
     case "updateNumberOfQuestionsReviewed":
-      updateNumberOfQuestionsReviewed();
+      updateNumberOfQuestionsReviewed(room);
       break;
     case "setIsReviewingQuestion":
-      setIsReviewingQuestion(info);
+      setIsReviewingQuestion(info,room);
       break;
     case "checkIfReviewingQuestion":
-      return checkIfReviewingQuestion();
+      return checkIfReviewingQuestion(room);
   }
 }
 
