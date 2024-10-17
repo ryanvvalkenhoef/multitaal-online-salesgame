@@ -196,7 +196,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             socket.off('register_currentplayer');
             socket.off('update_position');
         };
-    }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setColor, color, gameScreen])
+    }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setPlayerColor, playerColor, gameScreen])
 
     if (tileInfo.length === 0 || tileInfo2.length === 0){
         socket.emit('get_tileInfo')
