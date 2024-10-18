@@ -4,8 +4,6 @@ const fs = require('fs');
 
 const readData = (room) => {
     try {
-        console.log("roooooom is:  " + room);
-        
       const data = fs.readFileSync(`${room}data.json`, "utf8");
       return JSON.parse(data);
     } catch (err) {

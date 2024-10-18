@@ -30,11 +30,13 @@ class GameManager{
     const roundInfo = this.modLogger(socket.room, "getRound", socket.id);
     if(this.checkIfGameOver(io,socket,roundInfo)){
       //io.emit('game_over');
-      this.socketManager.emitToRoom(socket,game_over);
+      this.socketManager.emitToRoom(socket,'game_over');
     }
     else {
       this.modLogger(socket.room, "nextRound", socket.id);
       //io.to("players").emit("submitted_points");
+        console.log('submitted points')
+        this.socketManager.emitToPlayers(socket,"submitted_points");
 
 
       //io.emit("rounds", roundInfo);
@@ -54,7 +56,6 @@ class GameManager{
     this.sendPlayerCount(socket);
 
     for(let i = 0; i < playersList.length; i++){
-
       const socketId = playersList[i].id;
       const strategy = strategies[i];
       const name = playersList[i].name;
@@ -68,14 +69,14 @@ class GameManager{
 
 
    updateAllBoards = (socket) =>{
-    const players = this.userLogger('getAllPlayers');
+    const players = this.userLogger(socket.room,'getAllPlayers');
     const playerPositions = players.map(player => player.playerPosition);
     //io.emit('update_position',playerPositions);
     this.socketManager.emitToRoom(socket,'update_position',playerPositions);
   }
 
   checkIfGameOver = (io,socket,roundInfo) =>{
-    return roundInfo.current_round === roundInfo.total_rounds;
+    return roundInfo.currentRound === roundInfo.totalRounds;
   }
 
 

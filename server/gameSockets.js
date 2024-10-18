@@ -2,15 +2,19 @@ const userLogger = require("./userLogger");
 const getMovesFromCoordinate = require("./positionCalculator");
 const modLogger = require("./modLogger");
 const socketMethods = require("./socketMethods");
-const gameMethods = require('./gameMethods');
+const GameManager = require('./gameMethods');
 const SocketManager = require("./socketMethods");
+const { log } = require("console");
 module.exports = function (io){
     io.on('connection', (socket) => {
 
         socketManager = new SocketManager(io);
+        gameManager = new GameManager(io,userLogger,modLogger,socketManager);
 
         const socketHandlers = {
             'get_tileInfo': (data) => {
+               
+                
                 const room = userLogger(socket.room, 'getRoom', socket.id);
 
                 //TILE_INFO FOR WHEN 2-6 PLAYERS JOIN
@@ -39,15 +43,17 @@ module.exports = function (io){
                     'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
                 ]
 
-                socket.emit('send_tileInfo', tileInfo)
-                socket.emit('send_tileInfo2', tileInfo2)
+                //socket.emit('send_tileInfo', tileInfo)
+                //socket.emit('send_tileInfo2', tileInfo2)
                 //socket.to(room).emit('send_tileInfo', tileInfo)
                 //socket.to(room).emit('send_tileInfo2',tileInfo2)
 
                 //socket.to("players").emit('send_tileInfo', tileInfo)
                 //socket.to("players").emit('send_tileInfo2',tileInfo2)
-                socketManager.emitToPlayers(socket,'send_tileInfo', tileInfo)
-                socketManager.emitToPlayers(socket,'send_tileInfo2', tileInfo)
+                 //socketManager.emitToPlayers(socket,'send_tileInfo', tileInfo)
+                //socketManager.emitToPlayers(socket,'send_tileInfo2', tileInfo2)
+                socketManager.emitBackToClient(socket,'send_tileInfo', tileInfo);
+                socketManager.emitBackToClient(socket,'send_tileInfo2', tileInfo2);
             },
 
             'roll_dice' : (data) => {
@@ -65,7 +71,8 @@ module.exports = function (io){
             },
 
             'start_turn' : (data) => {
-                gameMethods.startRound(io,socket);
+                gameManager.startRound(io,socket);
+
             },
 
             'get_pieces': (data) => {
@@ -82,7 +89,10 @@ module.exports = function (io){
                 const pieces = modLogger(socket.room, 'getPieces', modID)
                 
                 
-                io.emit('add_piece', pieces)
+                
+                
+                //io.emit('add_piece', pieces)
+                socketManager.emitToRoom(socket,"add_piece",pieces);
                 
             }
         }

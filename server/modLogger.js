@@ -131,12 +131,14 @@ const addPlayerToMod = (socketid, strategy,room) => {
   }
   let data = readData(room);
   if (!data) return null;
-  for (let i = 0; i < data.mod.length; i++) {
+  
+  
+  //for (let i = 0; i < data.mod.length; i++) {
     // if (data.mod[i].id === socketid) {
     data.mod.players_joined.push(strategy);
     writeData(data,room);
     return "added";
-  }
+ // }
 };
 //}
 
@@ -152,8 +154,8 @@ const addPlayerNameToMod = (socketid, name,room) => {
 
 
 const nextRound = (room) => {
-  const mod = getMod(room);
-  mod.current_round += 1;
+  const data = readData(room)
+  data.mod.current_round += 1;
   writeData(data,room);
 };
 

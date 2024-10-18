@@ -114,6 +114,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         }
 
         socket.on('send_tileInfo', (data) => {
+            
             setTileInfo(data)
         })
 
@@ -161,7 +162,6 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             })
 
         socket.on("update_position", (NewPositionData) => {
-            console.log("posities: "+ JSON.stringify(NewPositionData));
             
             NewPositionData.forEach(data =>{
 
@@ -235,6 +235,8 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         }
 
         const tileClass = `tile ${currentColor} ${isHighlighted ? 'blink' : ''}`
+        
+        
         if (tileInfo[i] === 'start') {
             tiles.push(
                 <div key={`tile-{position}`} className={tileClass} tile-id={i} pos={position}>

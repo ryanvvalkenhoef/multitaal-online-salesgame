@@ -38,6 +38,8 @@ class SocketManager {
     }
 
     emitBackToClient = (socket,event,data) =>{
+      
+        
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'client');
             this.io.to(room).emit(event,data);

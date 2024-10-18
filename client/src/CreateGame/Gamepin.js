@@ -29,6 +29,7 @@ export function Gamepin() {
             setPlayerNeeded(data.playerTotal);
         });
         socket.on('add_user', () => {
+            console.log('being added');
             
             setPlayerCount(prevCount => prevCount + 1);
         });

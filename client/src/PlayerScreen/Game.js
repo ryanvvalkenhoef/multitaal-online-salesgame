@@ -65,8 +65,6 @@ export function Game() {
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'data_leaderboard': (jsonData) => {
-                console.log("update" );
-                
                 setData(jsonData)
             },
             'receive_question': (data) => {
@@ -76,6 +74,7 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
+                console.log('sumbitted points')
                 setGamePaused2(false)
                 //socket.emit('get_data', 'leaderboard_update');
             },

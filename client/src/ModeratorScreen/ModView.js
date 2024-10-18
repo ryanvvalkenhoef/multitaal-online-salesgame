@@ -83,8 +83,7 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
-                console.log("update: " + JSON.stringify(jsonData));
-                
+            
                 setData(jsonData)
             },
             'set_current_player': (data)=> {
