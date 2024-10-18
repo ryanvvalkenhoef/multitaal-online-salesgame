@@ -8,7 +8,7 @@ class SocketManager {
     emitToPlayers = (socket, event, data) => {
 
         if (socket !== null && socket !== undefined) {
-            const room = `${socket.room}players`
+            const room = this.#getRoom(socket,'players');
             this.io.to(room).emit(event, data)
         } else {
             console.log("No connection with socket");
@@ -19,7 +19,7 @@ class SocketManager {
     emitToMod = (socket, event, data) => {
 
         if (socket !== null && socket !== undefined) {
-            const room = `${socket.room}mod`
+            const room = this.#getRoom(socket,'mod');
             this.io.to(room).emit(event, data)
         } else {
             console.log("No connection with socket");
@@ -30,10 +30,41 @@ class SocketManager {
     emitToRoom = (socket, event, data) => {
 
         if (socket !== null && socket !== undefined) {
-            emitToPlayers(socket, event, data);
-            emitToMod(socket, event, data);
+            const room = this.#getRoom(socket,'room');
+            this.io.to(room).emit(event,data);
         } else {
             console.log("No connection with socket");
+        }
+    }
+
+    emitBackToClient = (socket,event,data) =>{
+        if (socket !== null && socket !== undefined) {
+            const room = this.#getRoom(socket,'client');
+            this.io.to(room).emit(event,data);
+        } else {
+            console.log("No connection with socket");
+        }
+    }
+
+    emitToSpecificSocket = (socketId,event,data) => {
+        if (socketId !== null && socketId !== undefined) {
+            this.io.to(socketId).emit(event,data);
+        } else {
+            console.log("SocketId is null or undefined");
+        }
+    }
+
+    #getRoom = (socket,receiver) =>{
+        switch (receiver) {
+
+            case 'players':
+            return `${socket.room}players`
+            case 'mod':
+                return `${socket.room}mod`;
+            case 'room': //emits to players and mod
+                return socket.room;
+            case 'client': // emits back to the client that made connection with the server
+                return socket.id;
         }
     }
     

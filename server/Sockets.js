@@ -116,7 +116,9 @@ module.exports = function (io){
 
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger(socket.room, 'getReceiver', socket.id, {color: data.questionColor, room: room})
-                    io.to(receiver).emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer})
+                    //io.to(receiver).emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer})
+                    const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
+                    socketManager.emitToSpecificSocket(receiver,'receive_question',questionData);
                 } else {
                     socket.emit('receive_question', {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer});
                 }
@@ -126,7 +128,7 @@ module.exports = function (io){
                 const questionQueueLength = questionQueue.getQuestionQueueLenght();
                 const isReviewingQuestion = modLogger(socket.room, "checkIfReviewingQuestion");
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
-                  gameMethods.sendAnswerToModerator(io,questionData);
+                  gameMethods.sendAnswerToModerator(socket,questionData);
                   modLogger(socket.room, "setIsReviewingQuestion", "", true);
                 } else {
                   questionQueue.addQuestionToQueue(questionData);
@@ -244,7 +246,7 @@ module.exports = function (io){
                     modLogger(socket.room, 'resetRoundStatus');
                     userLogger(socket.room, 'resetHasFinishedTurn');
                     gameMethods.updateGameState(io,socket);
-                    gameMethods.updateAllBoards(io);
+                    gameMethods.updateAllBoards(socket);
                     gameMethods.startRound(io,socket);
         
                 }
