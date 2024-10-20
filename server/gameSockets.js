@@ -5,6 +5,7 @@ const socketMethods = require("./socketMethods");
 const GameManager = require('./gameMethods');
 const SocketManager = require("./socketMethods");
 const { log } = require("console");
+
 module.exports = function (io){
     io.on('connection', (socket) => {
 
@@ -13,10 +14,7 @@ module.exports = function (io){
 
         const socketHandlers = {
             'get_tileInfo': (data) => {
-               
                 
-                const room = userLogger(socket.room, 'getRoom', socket.id);
-
                 //TILE_INFO FOR WHEN 2-6 PLAYERS JOIN
                 const tileInfo = [
                     'sales', 'color1', 'color3', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color7', 'sales', 'rainbow', 'color12', 'megatrends', 'color10', 'color8',
@@ -42,16 +40,7 @@ module.exports = function (io){
                     'color5', 'blank', 'blank', 'blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank', 'megatrends',
                     'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
                 ]
-
-                //socket.emit('send_tileInfo', tileInfo)
-                //socket.emit('send_tileInfo2', tileInfo2)
-                //socket.to(room).emit('send_tileInfo', tileInfo)
-                //socket.to(room).emit('send_tileInfo2',tileInfo2)
-
-                //socket.to("players").emit('send_tileInfo', tileInfo)
-                //socket.to("players").emit('send_tileInfo2',tileInfo2)
-                 //socketManager.emitToPlayers(socket,'send_tileInfo', tileInfo)
-                //socketManager.emitToPlayers(socket,'send_tileInfo2', tileInfo2)
+                
                 socketManager.emitBackToClient(socket,'send_tileInfo', tileInfo);
                 socketManager.emitBackToClient(socket,'send_tileInfo2', tileInfo2);
             },
@@ -76,22 +65,18 @@ module.exports = function (io){
             },
 
             'get_pieces': (data) => {
+                const room = socket.room;
                 let modID;
                 switch (data){
                     case 'player':
-                        const room = userLogger(socket.room, 'getRoom', socket.id);
-                        modID = modLogger(socket.room, 'getMod', socket.id, room);
+                        modID = modLogger(room, 'getMod', socket.id, room);
                         break
                     case 'mod':
                         modID = socket.id
                         break
                 }
-                const pieces = modLogger(socket.room, 'getPieces', modID)
-                
-                
-                
-                
-                //io.emit('add_piece', pieces)
+                const pieces = modLogger(room, 'getPieces', modID)
+
                 socketManager.emitToRoom(socket,"add_piece",pieces);
                 
             }

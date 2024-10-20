@@ -74,7 +74,6 @@ export function Game() {
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {
-                console.log('sumbitted points')
                 setGamePaused2(false)
                 //socket.emit('get_data', 'leaderboard_update');
             },

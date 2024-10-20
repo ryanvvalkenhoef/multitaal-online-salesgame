@@ -6,7 +6,7 @@ const { get } = require("http");
 
 function createJsonfile(room){
     fs.writeFileSync(
-        `${room}data.json`,
+        `gameSaves/${room}data.json`,
         '{\n  "users": [],\n  "mod": {},\n "questionQueue": []\n }'
       );
 }
@@ -34,7 +34,7 @@ function generateGamepin() {
 const readData = (room) => {
   try {
     
-    const data = fs.readFileSync(`${room}data.json`, "utf8");
+    const data = fs.readFileSync(`gameSaves/${room}data.json`, "utf8");
     return JSON.parse(data);
   } catch (err) {
     console.error("Error reading file:", err);
@@ -44,7 +44,7 @@ const readData = (room) => {
 
 const writeData = (jsonData,room) => {
   try {
-    fs.writeFileSync(`${room}data.json`, JSON.stringify(jsonData, null, 2));
+    fs.writeFileSync(`gameSaves/${room}data.json`, JSON.stringify(jsonData, null, 2));
   } catch (err) {
     console.error("Error writing to file:", err);
   }
@@ -161,13 +161,12 @@ const nextRound = (room) => {
 
 const getPlayerTurn = (socketid,room) => {
   const mod = getMod(room);
-  if (!mod) return null;
-  const playerArray = mod.players_joined;
-  const turn = mod.turn;
-  if (typeof turn !== "number" || turn < 0 || turn >= playerArray.length)
+  if (!mod){
+    console.log("Can't find mod");
     return null;
- 
-  return playerArray;
+  }
+  return mod.players_joined;
+
 };
 
 const getPieces = (room) => {
@@ -330,8 +329,6 @@ function modLogger(room,method, socketid, info = "temp") {
   switch (method) {
     case "log":
       const gamepin = generateGamepin();
-     
-      
       createJsonfile(gamepin);
       addMods({
         id: socketid,
@@ -340,7 +337,6 @@ function modLogger(room,method, socketid, info = "temp") {
         player_names: [],
         players_joined: [],
         total_players: info.playerCount,
-        turn: 0,
         current_round: 1,
         total_rounds: info.roundsCount,
         isRoundFinished: false,
@@ -366,7 +362,6 @@ function modLogger(room,method, socketid, info = "temp") {
       break;
     case "getPieces":
       return getPieces(room);
-
     // case "room":
     //   const room = readData(so).mods.find((mod) => mod.id === socketid).room;
     //   return room;
@@ -375,22 +370,17 @@ function modLogger(room,method, socketid, info = "temp") {
       break;
     case "getPlayerTurn":
       return getPlayerTurn(socketid,room);
-      break;
     case "addPlayerName":
       addPlayerNameToMod(socketid, info,room);
       break;
     case "getPlayerNames":
       return getPlayerNames(socketid,room);
-      break;
     case "getRound":
       return getRound(socketid,room);
-      break;
     case "getPlayerTotal":
       return getPlayerTotal(room);
-      break;
     case "checkFull":
       return checkFull(room);
-      break;
     case "removeUser":
       removeUserFromMod(info,room);
       break;

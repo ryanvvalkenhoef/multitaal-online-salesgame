@@ -51,7 +51,7 @@ class GameManager{
    startRound = (io,socket)=>{
     console.log("Start round");
 
-    const strategies = this.modLogger(socket.room, "getPlayerTurn", socket.id); //is een array
+    const strategies = this.modLogger(socket.room, "getPlayerTurn",socket.id); //is een array
     const playersList = this.modLogger(socket.room, "getPlayersList");
     this.sendPlayerCount(socket);
 

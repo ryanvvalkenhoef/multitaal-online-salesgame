@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const readData = (room) => {
     try {
-      const data = fs.readFileSync(`${room}data.json`, "utf8");
+      const data = fs.readFileSync(`gameSaves/${room}data.json`, "utf8");
       return JSON.parse(data);
     } catch (err) {
       console.error("Error reading file:", err);
@@ -14,7 +14,7 @@ const readData = (room) => {
 
 const writeData = (jsonData,room) => {
     try {
-      fs.writeFileSync(`${room}data.json`, JSON.stringify(jsonData, null, 2));
+      fs.writeFileSync(`gameSaves/${room}data.json`, JSON.stringify(jsonData, null, 2));
     } catch (err) {
       console.error("Error writing to file:", err);
     }
@@ -283,8 +283,6 @@ function getAllPlayers(room){
 function userLogger(room,method, socketid, info=""){
     switch(method){
         case 'log':
-            console.log("dit is de room: "+room);
-            
             addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' },room)
             break
         case 'delete':

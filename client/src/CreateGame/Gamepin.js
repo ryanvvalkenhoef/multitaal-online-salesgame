@@ -21,11 +21,7 @@ export function Gamepin() {
     useEffect(() => {
       
         socket.on("send_gamepin", (data) => {
-            
-            
-            
             setGamepin(data.room);
-            
             setPlayerNeeded(data.playerTotal);
         });
         socket.on('add_user', () => {
