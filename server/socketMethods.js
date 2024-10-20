@@ -37,7 +37,7 @@ class SocketManager {
         }
     }
 
-    emitBackToClient = (socket,event,data) =>{
+    emitBackToClient = (socket,event,data) =>{ //emits back to the client that emitted to the server
 
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'client');
