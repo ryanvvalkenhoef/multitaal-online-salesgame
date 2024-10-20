@@ -14,7 +14,7 @@ const { json } = require("express");
 module.exports = function (io){
 
     io.on('connection', (socket) => {
-       //userLogger('log', socket.id)
+
         const socketManager = new SocketManager(io);
         const gameManager = new GameManager(io,userLogger,modLogger,socketManager)
         
