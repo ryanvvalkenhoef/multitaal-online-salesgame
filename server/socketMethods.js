@@ -38,8 +38,7 @@ class SocketManager {
     }
 
     emitBackToClient = (socket,event,data) =>{
-      
-        
+
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'client');
             this.io.to(room).emit(event,data);
@@ -58,7 +57,6 @@ class SocketManager {
 
     #getRoom = (socket,receiver) =>{
         switch (receiver) {
-
             case 'players':
             return `${socket.room}players`
             case 'mod':

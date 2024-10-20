@@ -31,7 +31,6 @@ class GameManager{
     }
     else {
       this.modLogger(socket.room, "nextRound", socket.id);
-        console.log('submitted points')
         this.socketManager.emitToPlayers(socket,"submitted_points");
       this.socketManager.emitToRoom(socket,"rounds",roundInfo);
       const userData = this.userLogger(socket.room, "getData", socket.id);
