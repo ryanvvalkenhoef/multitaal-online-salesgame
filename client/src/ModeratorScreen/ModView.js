@@ -59,11 +59,7 @@ export function ModView() {
     }
 
     const handleSubmitPoints = () => {
-       
-        if (currentQuestionRef.current.playerAnswer !== '') { 
             submitPoints()
-        }
-        
     };
 
 
