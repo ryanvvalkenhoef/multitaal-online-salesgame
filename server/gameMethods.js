@@ -15,7 +15,7 @@ class GameManager{
 
    sendPlayerCount(socket) {
       const playerCount = this.modLogger(socket.room, "getPlayerTotal", socket.id);
-      this.socketManager.emitBackToClient(socket,"player_count");
+      this.socketManager.emitBackToClient(socket,"player_count",playerCount);
   }
 
    sendAnswerToModerator = (socket, questionData) => {
@@ -38,7 +38,7 @@ class GameManager{
     }
   }
 
-   startRound = (io,socket)=>{
+   startRound = (socket)=>{
     console.log("Start round");
 
     const strategies = this.modLogger(socket.room, "getPlayerTurn",socket.id); //is een array

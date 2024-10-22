@@ -60,7 +60,7 @@ module.exports = function (io){
             },
 
             'start_turn' : (data) => {
-                gameManager.startRound(io,socket);
+                gameManager.startRound(socket);
 
             },
 

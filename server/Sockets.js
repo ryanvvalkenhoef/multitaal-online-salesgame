@@ -120,9 +120,9 @@ module.exports = function (io){
                 
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
                     gameManager.sendAnswerToModerator(socket,questionData);
-                  modLogger(room, "setIsReviewingQuestion", "", true);
+                    modLogger(room, "setIsReviewingQuestion", "", true);
                 } else {
-                  questionQueue.addQuestionToQueue(questionData,room);
+                    questionQueue.addQuestionToQueue(questionData,room);
                 }
               },
 
@@ -217,7 +217,7 @@ module.exports = function (io){
                 questionQueueLength = questionQueue.getQuestionQueueLenght(room);
                 
                 if (questionQueueLength > 0) {
-                  const question = questionQueue.getQuestionFromQueue(room);
+                    const question = questionQueue.getQuestionFromQueue(room);
                     gameManager.sendAnswerToModerator(socket, question);
                 }
                 // when queue is empty but not all players have submitted
@@ -231,9 +231,9 @@ module.exports = function (io){
                     
                     modLogger(room, 'resetRoundStatus');
                     userLogger(room, 'resetHasFinishedTurn');
-                      gameManager.updateGameState(io,socket);
-                      gameManager.updateAllBoards(socket);
-                      gameManager.startRound(io,socket);
+                    gameManager.updateGameState(io,socket);
+                    gameManager.updateAllBoards(socket);
+                    gameManager.startRound(socket);
         
                 }
                 
