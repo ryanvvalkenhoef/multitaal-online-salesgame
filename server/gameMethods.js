@@ -31,7 +31,7 @@ class GameManager{
     }
     else {
       this.modLogger(socket.room, "nextRound", socket.id);
-        this.socketManager.emitToPlayers(socket,"submitted_points");
+      this.socketManager.emitToPlayers(socket,"submitted_points");
       this.socketManager.emitToRoom(socket,"rounds",roundInfo);
       const userData = this.userLogger(socket.room, "getData", socket.id);
       this.socketManager.emitToRoom(socket,"data_leaderboard",userData);
@@ -66,6 +66,8 @@ class GameManager{
   checkIfGameOver = (io,socket,roundInfo) =>{
     return roundInfo.currentRound === roundInfo.totalRounds;
   }
+
+
 
 
 

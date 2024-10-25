@@ -32,7 +32,7 @@ export function Game() {
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
-    const currentQuestion = useRef(null);
+    const currentQuestionRef = useRef(null);
     
 
     const handleTextBoxChange = (event) => {
@@ -43,9 +43,9 @@ export function Game() {
         setGamePaused(false);
         setTextBoxContent('');
         setGamePaused2(true);
-        currentQuestion.current.playerAnswer = textBoxContent;
-        currentQuestion.current.playerId = socket.id;
-        socket.emit('send_answer_to_server', currentQuestion.current)
+        currentQuestionRef.current.playerAnswer = textBoxContent;
+        currentQuestionRef.current.playerId = socket.id;
+        socket.emit('send_answer_to_server', currentQuestionRef.current)
         socket.emit('updateHasFinishedTurn',true);
     };
 
@@ -68,9 +68,9 @@ export function Game() {
                 setData(jsonData)
             },
             'receive_question': (data) => {
-                currentQuestion.current = data;
-                setPopupColor(currentQuestion.current.questionColor)
-                setQuestion(currentQuestion.current.questionText);
+                currentQuestionRef.current = data;
+                setPopupColor(currentQuestionRef.current.questionColor)
+                setQuestion(currentQuestionRef.current.questionText);
                 setGamePaused(true);
             },
             'submitted_points' : (data) => {

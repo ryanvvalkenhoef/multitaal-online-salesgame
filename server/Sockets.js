@@ -124,6 +124,7 @@ module.exports = function (io){
                 } else {
                     questionQueue.addQuestionToQueue(questionData,room);
                 }
+
               },
 
             'send_answer_request' :  async (data) => {
