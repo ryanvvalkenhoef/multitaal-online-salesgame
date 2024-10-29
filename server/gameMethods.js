@@ -26,7 +26,7 @@ class GameManager{
 
   updateGameState = (io,socket) => {
     const roundInfo = this.modLogger(socket.room, "getRound", socket.id);
-    if(this.checkIfGameOver(io,socket,roundInfo)){
+    if(this.checkIfGameOver(roundInfo)){
       this.socketManager.emitToRoom(socket,'game_over');
     }
     else {
@@ -63,8 +63,13 @@ class GameManager{
     this.socketManager.emitToRoom(socket,'update_position',playerPositions);
   }
 
-  checkIfGameOver = (io,socket,roundInfo) =>{
+  checkIfGameOver = (roundInfo) =>{
     return roundInfo.currentRound === roundInfo.totalRounds;
+  }
+
+  checkIfPlayerIsAnsweringQuestion = (socket,playerId) =>{
+    const isAnsweringQuestion = this.userLogger(socket.room, 'checkIfPlayerIsAnsweringQuestion', playerId);
+    return isAnsweringQuestion;
   }
 
 

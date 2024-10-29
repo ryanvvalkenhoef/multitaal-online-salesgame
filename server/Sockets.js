@@ -112,15 +112,23 @@ module.exports = function (io){
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger(room, 'getReceiver', socket.id, {color: data.questionColor, room: room})
-                    socketManager.emitToSpecificSocket(receiver,'receive_question',questionData);
+                    const playerIsAnsweringQuestion = userLogger(room,'checkIfPlayerIsAnsweringQuestion',receiver);
+                    if(playerIsAnsweringQuestion){
+                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData)
+                    }
+                    else {
+                        socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
+                        userLogger(room, 'setIsAnsweringQuestion', receiver, 'true');
+                    }
                 } else {
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
+                    userLogger(room,'setIsAnsweringQuestion',socket.id,'true');
                 }
             },
 
             'send_answer_to_server': (questionData) => {
                 const room = socket.room;
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLenght(socket);
+                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
                 const isReviewingQuestion = modLogger(room, "checkIfReviewingQuestion");
                 
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
@@ -128,6 +136,18 @@ module.exports = function (io){
                     modLogger(room, "setIsReviewingQuestion", "", true);
                 } else {
                     modQuestionQueue.addQuestionToQueue(socket,questionData);
+                }
+
+                if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
+                    console.log('test')
+                    const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
+                    socketManager.emitBackToClient(socket,'receive_question',questionData);
+                    playerQuestionQueue.removeQuestionFromQueue(socket);
+
+                }
+                else{
+
+                    userLogger(room,'setIsAnsweringQuestion',socket.id,'false');
                 }
 
               },
@@ -220,7 +240,8 @@ module.exports = function (io){
 
             'question_reviewed': () => {
                 const room = socket.room;
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLenght(socket);
+                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+                modLogger(room,'updateNumberOfQuestionsReviewed');
                 
                 if (questionQueueLength > 0) {
                     const question = modQuestionQueue.getQuestionFromQueue(socket);
@@ -235,9 +256,9 @@ module.exports = function (io){
                 const isReviewingQuestion = modLogger(room,"checkIfReviewingQuestion");
                 const isRoundFinished = modLogger(room,'checkIfRoundIsFinished');
                 if (isRoundFinished && !isReviewingQuestion) { //update Game state and next round
-                    
-                    modLogger(room, 'resetRoundStatus');
-                    userLogger(room, 'resetHasFinishedTurn');
+                    modLogger(room,'resetNumberOfQuestionsReviewed');
+                    modLogger(room,'resetRoundStatus');
+                    userLogger(room,'resetHasFinishedTurn'); // is waarschijnlijk niet meer nodig
                     gameManager.updateGameState(io,socket);
                     gameManager.updateAllBoards(socket);
                     gameManager.startRound(socket);

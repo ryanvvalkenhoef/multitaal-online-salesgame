@@ -42,7 +42,7 @@ export function Game() {
     const handleSubmitAnswer = () => {
         setGamePaused(false);
         setTextBoxContent('');
-        setGamePaused2(true);
+        //setGamePaused2(true);
         currentQuestionRef.current.playerAnswer = textBoxContent;
         currentQuestionRef.current.playerId = socket.id;
         socket.emit('send_answer_to_server', currentQuestionRef.current)

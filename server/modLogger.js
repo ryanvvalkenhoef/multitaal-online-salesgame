@@ -246,18 +246,20 @@ const checkIfRoundIsFinished = (room) => {
     console.log("Can't read data: checkIfRoundIsFinished()");
     return null;
   }
+  //
+  // const playerCount = data.mod.total_players;
+  //
+  // for (let i = 0; i < playerCount; i++) {
+  //   const hasFinishedTurn = data.users[i].hasFinishedTurn;
+  //   if (!hasFinishedTurn) {
+  //     return false;
+  //   }
+  // }
+  // data.mod.isRoundFinished = true;
+  // writeData(data,room);
+  // return true;
 
-  const playerCount = data.mod.total_players;
-
-  for (let i = 0; i < playerCount; i++) {
-    const hasFinishedTurn = data.users[i].hasFinishedTurn;
-    if (!hasFinishedTurn) {
-      return false;
-    }
-  }
-  data.mod.isRoundFinished = true;
-  writeData(data,room);
-  return true;
+  return data.mod.total_players === data.mod.numberOfQuestionsReviewed;
 };
 
 const resetRoundStatus = (room) => {

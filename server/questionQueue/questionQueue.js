@@ -15,7 +15,7 @@ class QuestionQueue {
     throw new Error(`Abstract method ${functionName} must be implemented by subclasses`);
   }
 
-  getQuestionQueueLenght(socket) {
+  getQuestionQueueLength(socket) {
     this.#throwError('getQuestionQueueLengh');
   }
 

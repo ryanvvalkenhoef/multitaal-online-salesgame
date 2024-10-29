@@ -124,18 +124,18 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
 
         socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is an string array of coordinates
             
-            const opponentColors = joinedColors.filter(color => color !== playerColor)
-            let filteredValidPositionsArray = validPositionsArray;
-
-            opponentColors.forEach(color =>{
-                filteredValidPositionsArray = filteredValidPositionsArray.filter(validPosition =>{ //Tile gets filtered out if it's an opponent's tile
-                        return !tilesColorAndPositionRef.current[color].includes(validPosition)
-                    })
-                
-
-            })
+            // const opponentColors = joinedColors.filter(color => color !== playerColor)
+            // let filteredValidPositionsArray = validPositionsArray;
+            //
+            // opponentColors.forEach(color =>{
+            //     filteredValidPositionsArray = filteredValidPositionsArray.filter(validPosition =>{ //Tile gets filtered out if it's an opponent's tile
+            //             return !tilesColorAndPositionRef.current[color].includes(validPosition)
+            //         })
+            //
+            //
+            // })
        
-        setValidPositions(filteredValidPositionsArray)
+        setValidPositions(validPositionsArray)
     })
 
             socket.on("add_piece", (strategies) => {

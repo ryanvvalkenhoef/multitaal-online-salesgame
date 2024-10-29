@@ -280,10 +280,39 @@ function getAllPlayers(room){
     return data.users
 }
 
+function setIsAnsweringQuestion(boolean,socketid,room){
+    boolean = JSON.parse(boolean);
+    let data = readData(room);
+    if (!data){
+        console.log("Can't read data: isAnsweringQuestion()");
+        return null;
+    }
+    const player = data.users.find(player =>{
+        return player.id === socketid;
+    })
+
+    player.isAnsweringQuestion = boolean;
+    writeData(data,room);
+}
+
+function checkIfPlayerIsAnsweringQuestion(socketid,room){
+    let data = readData(room);
+    if (!data){
+        console.log("Can't read data: checkIfPlayerIsAnsweringQuestion()");
+        return null;
+    }
+
+    const player = data.users.find(player =>{
+        return player.id === socketid;
+    })
+
+    return player.isAnsweringQuestion;
+}
+
 function userLogger(room,method, socketid, info=""){
     switch(method){
         case 'log':
-            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', hasFinishedTurn: false, playerPosition: '' },room)
+            addUser({id: socketid, language: 'en', room: '', name: '', points: 0, strategy:'', isAnsweringQuestion: false,hasFinishedTurn: false, playerPosition: '' },room)
             break
         case 'delete':
             deleteUser(socketid,room)
@@ -335,8 +364,17 @@ function userLogger(room,method, socketid, info=""){
             break;    
         case 'getAllPlayers':{
             return getAllPlayers(room)
-        }    
-    }   
+        }
+        case 'setIsAnsweringQuestion':
+            setIsAnsweringQuestion(info,socketid,room);
+            break;
+        case 'checkIfPlayerIsAnsweringQuestion':
+            return checkIfPlayerIsAnsweringQuestion(socketid,room);
+
+
+    }
+
+
 }
 
 module.exports=userLogger;

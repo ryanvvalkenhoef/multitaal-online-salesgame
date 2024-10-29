@@ -8,7 +8,7 @@ class ModQuestionQueue extends QuestionQueue {
     }
 
 
-    getQuestionQueueLenght(socket) {
+    getQuestionQueueLength(socket) {
         const room = socket.room;
         // try{
         //     this.#checkIfRoomExists(room);
