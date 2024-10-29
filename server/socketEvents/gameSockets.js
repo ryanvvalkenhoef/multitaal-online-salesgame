@@ -1,9 +1,9 @@
-const userLogger = require("./userLogger");
-const getMovesFromCoordinate = require("./positionCalculator");
-const modLogger = require("./modLogger");
-const socketMethods = require("./socketMethods");
-const GameManager = require('./gameMethods');
-const SocketManager = require("./socketMethods");
+const userLogger = require("../Loggers/userLogger");
+const getMovesFromCoordinate = require("../positionCalculator");
+const modLogger = require("../Loggers/modLogger");
+const socketMethods = require("../Socket/SocketManager");
+const GameManager = require('../GameManager');
+const SocketManager = require("../Socket/SocketManager");
 const { log } = require("console");
 
 module.exports = function (io){

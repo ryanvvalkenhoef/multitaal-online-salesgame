@@ -1,13 +1,13 @@
-const modLogger = require("./modLogger");
-const databaseQuestion = require("./database");
-const userLogger = require("./userLogger");
-const databaseAnswer = require("./database");
-const getMovesFromCoordinate = require("./positionCalculator");
-const GameManager = require('./gameMethods');
+const modLogger = require("../Loggers/modLogger");
+const databaseQuestion = require("../database");
+const userLogger = require("../Loggers/userLogger");
+const databaseAnswer = require("../database");
+const getMovesFromCoordinate = require("../positionCalculator");
+const GameManager = require('../GameManager');
 // const questionQueue = require("./questionQueue/questionQueue");
-const SocketManager = require("./socketMethods");
-const PlayerQuestionQueue = require('./questionQueue/PlayerQuestionQueue');
-const ModQuestionQueue = require("./questionQueue/ModQuestionQueue");
+const SocketManager = require("../Socket/SocketManager");
+const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
+const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
 
 const { json } = require("express");
 
@@ -138,6 +138,7 @@ module.exports = function (io){
                     modQuestionQueue.addQuestionToQueue(socket,questionData);
                 }
 
+                //is for checking player queue
                 if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     console.log('test')
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
@@ -146,7 +147,6 @@ module.exports = function (io){
 
                 }
                 else{
-
                     userLogger(room,'setIsAnsweringQuestion',socket.id,'false');
                 }
 

@@ -1,4 +1,4 @@
-const modLogger = require("../modLogger");
+const modLogger = require("../Loggers/modLogger");
 
 class QuestionQueue {
 
