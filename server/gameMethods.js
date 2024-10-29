@@ -13,18 +13,18 @@ class GameManager{
 
 
 
-   sendPlayerCount(socket) {
+  sendPlayerCount(socket) {
       const playerCount = this.modLogger(socket.room, "getPlayerTotal", socket.id);
       this.socketManager.emitBackToClient(socket,"player_count",playerCount);
   }
 
-   sendAnswerToModerator = (socket, questionData) => {
+  sendAnswerToModerator = (socket, questionData) => {
     this.socketManager.emitToMod(socket,"receive_player_answer",questionData);
   };
 
 
 
-   updateGameState = (io,socket) => {
+  updateGameState = (io,socket) => {
     const roundInfo = this.modLogger(socket.room, "getRound", socket.id);
     if(this.checkIfGameOver(io,socket,roundInfo)){
       this.socketManager.emitToRoom(socket,'game_over');
@@ -38,7 +38,7 @@ class GameManager{
     }
   }
 
-   startRound = (socket)=>{
+  startRound = (socket)=>{
     console.log("Start round");
 
     const strategies = this.modLogger(socket.room, "getPlayerTurn",socket.id); //is een array
@@ -57,7 +57,7 @@ class GameManager{
   }
 
 
-   updateAllBoards = (socket) =>{
+  updateAllBoards = (socket) =>{
     const players = this.userLogger(socket.room,'getAllPlayers');
     const playerPositions = players.map(player => player.playerPosition);
     this.socketManager.emitToRoom(socket,'update_position',playerPositions);

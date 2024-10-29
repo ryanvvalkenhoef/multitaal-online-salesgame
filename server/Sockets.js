@@ -4,8 +4,11 @@ const userLogger = require("./userLogger");
 const databaseAnswer = require("./database");
 const getMovesFromCoordinate = require("./positionCalculator");
 const GameManager = require('./gameMethods');
-const questionQueue = require("./questionQueue");
+// const questionQueue = require("./questionQueue/questionQueue");
 const SocketManager = require("./socketMethods");
+const PlayerQuestionQueue = require('./questionQueue/PlayerQuestionQueue');
+const ModQuestionQueue = require("./questionQueue/ModQuestionQueue");
+
 const { json } = require("express");
 
 
@@ -13,11 +16,13 @@ const { json } = require("express");
 
 module.exports = function (io){
 
+    const playerQuestionQueue = new PlayerQuestionQueue();
+    const modQuestionQueue = new ModQuestionQueue();
+
     io.on('connection', (socket) => {
 
         const socketManager = new SocketManager(io);
         const gameManager = new GameManager(io,userLogger,modLogger,socketManager)
-        
 
         const socketHandlers = {
 
@@ -115,14 +120,14 @@ module.exports = function (io){
 
             'send_answer_to_server': (questionData) => {
                 const room = socket.room;
-                const questionQueueLength = questionQueue.getQuestionQueueLenght(room);
+                const questionQueueLength = modQuestionQueue.getQuestionQueueLenght(socket);
                 const isReviewingQuestion = modLogger(room, "checkIfReviewingQuestion");
                 
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
                     gameManager.sendAnswerToModerator(socket,questionData);
                     modLogger(room, "setIsReviewingQuestion", "", true);
                 } else {
-                    questionQueue.addQuestionToQueue(questionData,room);
+                    modQuestionQueue.addQuestionToQueue(socket,questionData);
                 }
 
               },
@@ -215,10 +220,11 @@ module.exports = function (io){
 
             'question_reviewed': () => {
                 const room = socket.room;
-                questionQueueLength = questionQueue.getQuestionQueueLenght(room);
+                const questionQueueLength = modQuestionQueue.getQuestionQueueLenght(socket);
                 
                 if (questionQueueLength > 0) {
-                    const question = questionQueue.getQuestionFromQueue(room);
+                    const question = modQuestionQueue.getQuestionFromQueue(socket);
+                    modQuestionQueue.removeQuestionFromQueue(socket);
                     gameManager.sendAnswerToModerator(socket, question);
                 }
                 // when queue is empty but not all players have submitted
