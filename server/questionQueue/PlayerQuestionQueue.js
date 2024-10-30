@@ -10,18 +10,10 @@ class PlayerQuestionQueue extends QuestionQueue{
         const room = socket.room;
         const playerId = socket.id;
 
-        // try{
-        //     this.#checkIfRoomExists(room);
-        //     this.#checkIfQueueExists(room,playerId)
-        // }catch (error){
-        //     console.error(error.message)
-        //     return null;
-        // }
-        if(!this.queues[room]){
-            this.queues[room] = {};
+        if(!this.queues[room]){ // None of the players have a queue so it returns length of 0
+            return 0;
         }
-        if (!this.queues[room][playerId]) {
-            console.error(`Room '${room}' doesn't exist in player queue object: can't get queue length`);
+        if (!this.queues[room][playerId]) { // The player doesn't have a queue, so it returns a length of 0
             return 0;
         }
 
@@ -30,22 +22,13 @@ class PlayerQuestionQueue extends QuestionQueue{
 
     addQuestionToQueue(socket,receiverId,question) {
         const room = socket.room;
-        //const playerId = socket.id;
 
-        // try{
-        //     this.#checkIfRoomExists(room);
-        // }catch (error){
-        //     console.error(error.message);
-        //     return null;
-        // }
-        if(!this.queues[room]){
+        if(!this.queues[room]){ // check if rooms already has an object to hold the queues and makes one if not.
             this.queues[room] = {};
         }
 
-        const currentQueue = this.queues[room][receiverId] || [];  // Initialize as empty array if player's queue is missing
+        const currentQueue = this.queues[room][receiverId] || [];  // Initialize an empty array (queue) if player's queue is missing
         this.queues[room][receiverId] = [...currentQueue,question];
-        console.log(this.queues[room])
-        console.log(JSON.stringify(this.queues))
         return true;
     }
 
@@ -53,12 +36,10 @@ class PlayerQuestionQueue extends QuestionQueue{
         const room = socket.room;
         const playerId = socket.id;
 
-        try{
-            this.#checkIfRoomExists(room);
-            this.#checkIfQueueExists(room,playerId);
-            this.#checkIfQueueIsEmpty(room,playerId);
-        }catch (error){
-            console.error(error.message);
+        if(!this.queues[room]){ // None of the players have a queue
+            return null;
+        }
+        if (!this.queues[room][playerId]) { // The player doesn't have a queue
             return null;
         }
 
@@ -69,7 +50,9 @@ class PlayerQuestionQueue extends QuestionQueue{
         const room = socket.room;
         const playerId = socket.id;
         if (!this.queues[room]) {
-            console.error(`Room '${room}' doesn't exist in mod queue object: can't remove question from queue`);
+            return null;
+        }
+        if (!this.queues[room][playerId]) { // The player doesn't have a queue
             return null;
         }
 
@@ -77,22 +60,6 @@ class PlayerQuestionQueue extends QuestionQueue{
     }
 
 
-    #checkIfRoomExists(room){
-        if(!this.queues[room]){
-            throw new Error(`Room '${room}' doesn't exist in player queue object`)
-        }
-    }
-    #checkIfQueueExists(room,playerId){
-        if(!this.queues[room][playerId]){
-            throw new Error("Player doesn't have a queue")
-        }
-    }
-
-    #checkIfQueueIsEmpty(room,playerId){
-        if(this.queues[room][playerId].length < 1){
-            throw new Error("player's queue is empty")
-        }
-    }
 
 }
 

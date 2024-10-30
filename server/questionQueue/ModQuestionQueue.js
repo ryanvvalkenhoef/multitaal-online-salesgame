@@ -10,15 +10,8 @@ class ModQuestionQueue extends QuestionQueue {
 
     getQuestionQueueLength(socket) {
         const room = socket.room;
-        // try{
-        //     this.#checkIfRoomExists(room);
-        // }catch (error){
-        //     console.error(error.message)
-        //     return null;
-        // }
 
-        if (!this.queues[room]) {
-            console.error(`Room '${room}' doesn't exist in mod queue object: can't get queue length`);
+        if(!this.queues[room]){ // Mod doesn't have a queue so it returns length of 0.
             return 0;
         }
 
@@ -27,12 +20,10 @@ class ModQuestionQueue extends QuestionQueue {
 
     addQuestionToQueue(socket, question) {
         const room = socket.room;
-        // try{
-        //     this.#checkIfRoomExists(room);
-        // }catch (error){
-        //     console.error(error.message);
-        //     return null;
-        // }
+
+        if(!this.queues[room]){ // check if mod already has an object to hold the queues and makes one if not.
+            this.queues[room] = {};
+        }
 
         const currentQueue = this.queues[room] || [];  // Initialize as empty array if player's queue is missing
         this.queues[room] = [...currentQueue,question];
@@ -41,27 +32,18 @@ class ModQuestionQueue extends QuestionQueue {
 
     getQuestionFromQueue(socket) {
         const room = socket.room;
-        //
-        // try{
-        //     this.#checkIfRoomExists(room);
-        //     this.#checkIfQueueIsEmpty(room);
-        // }catch (error){
-        //     console.error(error.message);
-        //     return null;
-        // }
 
-        if (!this.queues[room]) {
-            console.error(`Room '${room}' doesn't exist in mod queue object: can't get question from queue`);
+        if(!this.queues[room]){ // Mod doesn't have a queue
             return null;
         }
-        console.log('get question')
+
         return this.queues[room][0];
     }
 
     removeQuestionFromQueue(socket){
         const room = socket.room;
+
         if (!this.queues[room]) {
-            console.error(`Room '${room}' doesn't exist in mod queue object: can't remove question from queue`);
             return null;
         }
 

@@ -133,14 +133,13 @@ module.exports = function (io){
                 
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
                     gameManager.sendAnswerToModerator(socket,questionData);
-                    modLogger(room, "setIsReviewingQuestion", "", true);
+                    modLogger(room, "setIsReviewingQuestion", "", 'true');
                 } else {
                     modQuestionQueue.addQuestionToQueue(socket,questionData);
                 }
 
-                //is for checking player queue
+                //checking player question queue
                 if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
-                    console.log('test')
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     playerQuestionQueue.removeQuestionFromQueue(socket);
@@ -250,10 +249,10 @@ module.exports = function (io){
                 }
                 // when queue is empty but not all players have submitted
                 else {
-                  modLogger(room, "setIsReviewingQuestion", "", false);
+                  modLogger(room, 'setIsReviewingQuestion', '', 'false');
                 }
 
-                const isReviewingQuestion = modLogger(room,"checkIfReviewingQuestion");
+                const isReviewingQuestion = modLogger(room,'checkIfReviewingQuestion');
                 const isRoundFinished = modLogger(room,'checkIfRoundIsFinished');
                 if (isRoundFinished && !isReviewingQuestion) { //update Game state and next round
                     modLogger(room,'resetNumberOfQuestionsReviewed');

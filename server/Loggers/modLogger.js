@@ -307,6 +307,7 @@ const updateNumberOfQuestionsReviewed = (room) => {
 };
 
 const setIsReviewingQuestion = (boolean,room) => {
+  boolean = JSON.parse(boolean);
   const data = readData(room);
 
   if (!data) {
