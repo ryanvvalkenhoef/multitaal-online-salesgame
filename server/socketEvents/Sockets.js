@@ -8,6 +8,9 @@ const GameManager = require('../GameManager');
 const SocketManager = require("../Socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
+const ModLoggerManager = require('../Loggers/ModLoggerManager');
+import createRoom from '../roomGenerator/roomGenerator';
+import createJsonFile from "../jsonFileGenerator/jsonFileGenerator";
 
 const { json } = require("express");
 
@@ -18,16 +21,20 @@ module.exports = function (io){
 
     const playerQuestionQueue = new PlayerQuestionQueue();
     const modQuestionQueue = new ModQuestionQueue();
+    const modLoggerManager = new ModLoggerManager();
 
     io.on('connection', (socket) => {
 
         const socketManager = new SocketManager(io);
         const gameManager = new GameManager(io,userLogger,modLogger,socketManager)
+        let modLogger;
 
         const socketHandlers = {
 
-            'create_room': (data) => {
-                const room = modLogger('', 'log', socket.id, data);
+            'create_room': (data) => { // data is object consisting of playercount and roundscount
+                const room = createRoom();
+                createJsonFile(room);
+                modLogger = modLoggerManager.getModLogger(room);
                 const playersNeeded = modLogger(room, 'getPlayerTotal', socket.id,'',room);
                 socket.emit('send_gamepin', {room: room, playerTotal: playersNeeded});
                 socket.room = room; // adds room code as property to socket object
