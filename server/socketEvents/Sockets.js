@@ -76,7 +76,7 @@ module.exports = function (io){
                 if (roomIsFull === 'full') {
                     availability = 'Room is full'
                 }
-                if (availability === 'available') {
+                if (availability === 'available') { // All info is valid player can join the game.
                     GameStateTracker = GameStateTrackerManager.getGameStateTracker(room);
                     socketManager.emitToMod(socket,'add_user',"adding");
                     userLogger(room, 'updateName', socket.id, data.name)
@@ -93,7 +93,6 @@ module.exports = function (io){
 
 
                     const pieces = GameStateTracker. getStrategies();
-                    GameStateTracker.
                     socketManager.emitBackToClient(socket,'join_succes',availability);
                     socketManager.emitBackToClient(socket,'add_piece',pieces);
                     socketManager.emitToPlayers(socket,'add_piece',pieces);
@@ -145,7 +144,7 @@ module.exports = function (io){
             'send_answer_to_server': (questionData) => {
                 const room = socket.room;
                 const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                const isReviewingQuestion = modLogger(room, "checkIfReviewingQuestion");
+                const isReviewingQuestion = ModLogger.
                 
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
                     gameManager.sendAnswerToModerator(socket,questionData);
