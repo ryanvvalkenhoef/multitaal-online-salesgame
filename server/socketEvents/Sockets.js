@@ -9,11 +9,10 @@ const SocketManager = require("../Socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
 const ModLoggerManager = require('../Loggers/ModLoggerManager');
-import createRoom from '../roomGenerator/roomGenerator';
-import createJsonFile from "../jsonFileGenerator/jsonFileGenerator";
-
-const { json } = require("express");
-
+const RoomGenerator = require('../roomGenerator/RoomGenerator');
+const PreGameManager = require('../preGameManager/PreGameManager')
+const GameStateTrackerManager = require("../gameState/GameStateTrackerManager");
+import {createJsonFile} from "../jsonFileGenerator/jsonFileGenerator";
 
 
 
@@ -21,22 +20,26 @@ module.exports = function (io){
 
     const playerQuestionQueue = new PlayerQuestionQueue();
     const modQuestionQueue = new ModQuestionQueue();
-    const modLoggerManager = new ModLoggerManager();
+
 
     io.on('connection', (socket) => {
 
         const socketManager = new SocketManager(io);
         const gameManager = new GameManager(io,userLogger,modLogger,socketManager)
-        let modLogger;
+        let ModLogger;
+        let GameStateTracker;
+
 
         const socketHandlers = {
 
-            'create_room': (data) => { // data is object consisting of playercount and roundscount
-                const room = createRoom();
+            'create_room': (data) => { // data is an object consisting of playercount and roundscount
+                const room = RoomGenerator.createRoom();
                 createJsonFile(room);
-                modLogger = modLoggerManager.getModLogger(room);
-                const playersNeeded = modLogger(room, 'getPlayerTotal', socket.id,'',room);
-                socket.emit('send_gamepin', {room: room, playerTotal: playersNeeded});
+                ModLogger = ModLoggerManager.getModLogger(room);
+                ModLogger.addMod(socket.id,data);
+                GameStateTracker = GameStateTrackerManager.getGameStateTracker(room);
+                PreGameManager.setTotalPlayers(data.playerCount);
+                socket.emit('send_gamepin', {room: room, playerTotal: data.playerCount});
                 socket.room = room; // adds room code as property to socket object
                 socket.join(`${room}mod`);
                 socket.join(room);
@@ -53,15 +56,15 @@ module.exports = function (io){
 
             'join_room' : (data) => {
                 let room;
+                let availability;
                 userLogger(data.room, 'log', socket.id,'')
-                var exists = modLogger(data.room, 'checkExists', socket.id,data.room)
-                if (exists === 'exists') {
+                const existingRooms = RoomGenerator.getRoomList();
+                const validRoom = PreGameManager.checkIfValidRoom(data.room, existingRooms)
+                if (validRoom) {
                     socket.join(data.room);
                     socket.join(`${data.room}players`);
                     socket.room = data.room;
                     room = socket.room;
-                    var availability = userLogger(room,'checkAvailability', socket.id, data)
-                   
 
                 } else{
                     availability = 'Room does not exist'
@@ -69,11 +72,12 @@ module.exports = function (io){
                 if(data.strategy === ''){
                     availability = 'Choose a strategy'
                 }
-                var roomIsFull = modLogger(room, 'checkFull', socket.id, data.room)
+                var roomIsFull = PreGameManager.checkIfRoomFull(room)
                 if (roomIsFull === 'full') {
                     availability = 'Room is full'
                 }
                 if (availability === 'available') {
+                    GameStateTracker = GameStateTrackerManager.getGameStateTracker(room);
                     socketManager.emitToMod(socket,'add_user',"adding");
                     userLogger(room, 'updateName', socket.id, data.name)
                     userLogger(room, 'updateRoom', socket.id, data.room)
@@ -81,10 +85,15 @@ module.exports = function (io){
 
                     const playerColor = userLogger(room, 'getColor',socket.id)
                     userLogger(room, 'addColorToPlayer',socket.id,playerColor)
-                    modLogger(room, 'addPlayer', socket.id, data.strategy.toLowerCase())
-                    modLogger(room, 'addPlayerName', socket.id, data.name)
+                    // modLogger(room, 'addPlayer', socket.id, data.strategy.toLowerCase())
+                    // modLogger(room, 'addPlayerName', socket.id, data.name)
+                    PreGameManager.addStrategy(data.strategy.toLowerCase(),room);
+                    PreGameManager.addPlayerName(data.name,room);
 
-                    const pieces = modLogger(room, 'getPieces');
+
+
+                    const pieces = GameStateTracker. getStrategies();
+                    GameStateTracker.
                     socketManager.emitBackToClient(socket,'join_succes',availability);
                     socketManager.emitBackToClient(socket,'add_piece',pieces);
                     socketManager.emitToPlayers(socket,'add_piece',pieces);

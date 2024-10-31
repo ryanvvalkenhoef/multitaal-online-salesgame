@@ -1,14 +1,14 @@
 const ModLogger2 = require('./ModLogger2');
 
 class ModLoggerManager{
-    #modLoggers
+   static #modLoggers
     constructor() {
         this.#modLoggers = new Map();
     }
 
-    getModLogger (room){
+   static getModLogger (room){
 
-        if(!this.#modLoggers.has(room)){
+        if(!this.#modLoggers.has(room)){ // makes modlogger if room doesn't have one
             this.#modLoggers.set(room, new ModLogger2(room))
         }
 

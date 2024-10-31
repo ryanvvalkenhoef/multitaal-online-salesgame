@@ -1,5 +1,4 @@
-const fs = require("fs");
-
+import {readData,writeData}  from '../jsonFileGenerator/readAndWrite'
 class ModLogger2 {
     
     #room
@@ -8,41 +7,6 @@ class ModLogger2 {
         this.#room = room;
     }
 
-
-
-
-
-    readData() {
-        try {
-            const data = fs.readFileSync(`gameSaves/${this.#room}data.json`, "utf8");
-            return JSON.parse(data);
-        } catch (err) {
-            console.error("Error reading file:", err);
-            return null;
-        }
-    }
-
-    writeData(jsonData) {
-        try {
-            fs.writeFileSync(
-                `gameSaves/${this.#room}data.json`,
-                JSON.stringify(jsonData, null, 2)
-            );
-        } catch (err) {
-            console.error("Error writing to file:", err);
-        }
-    }
-
-    generateGamepin() {
-        const characters = "01234A5S678T9M";
-        const length = 5;
-        let pin = "";
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            pin += characters[randomIndex];
-        }
-        return pin;
-    }
 
     getRoom(){
         return this.#room;
@@ -54,7 +18,7 @@ class ModLogger2 {
 
 
     getMod() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (!data) {
             console.log("Can't find mod");
             return null;
@@ -63,59 +27,65 @@ class ModLogger2 {
     }
 
     deleteMods(modsId) {
-        let data = this.readData();
+        let data = readData(this.#room)();
         if (!data) return;
         data.mod = data.mod.filter((mods) => mods.id !== modsId);
-        this.writeData(data);
+        writeData(data,this.#room);
     }
 
-    addMods(mod) {
-        let data = this.readData();
+    addMod(socketid) {
+        let data = readData(this.#room)();
         if (!data) return;
-        data.mod = mod;
-        this.writeData(data);
+        data.mod = {  // creates mod object for json file.
+            id: socketid,
+            language: "NL",
+            room: this.#room,
+            numberOfQuestionsReviewed: 0,
+            isReviewingQuestion: false,
+        }
+        writeData(data,this.#room);
     }
 
     updateMods(modsId, newData) {
-        let data = this.readData();
+        let data = readData(this.#room)();
         if (!data) return;
 
         const mod = data.mod;
         if (mod && mod.id === modsId) {
             data.mod = { ...mod, ...newData };
-            this.writeData(data);
+            writeData(data,this.#room);
         } else {
             console.error("Mod not found.");
         }
     }
 
     checkRoom(roomcode) {
-        let data = this.readData();
+        let data = readData(this.#room)();
         if (!data) return null;
         return data.mod.room === roomcode ? "exists" : "does not exist";
     }
 
     modID() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         return data && data.mod && data.mod.id ? data.mod.id : null;
     }
 
     addPlayerToMod(socketid, strategy) {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (!data) return null;
 
         strategy = this.convertStrategy(strategy);
         data.mod.players_joined.push(strategy);
-        this.writeData(data);
+        writeData(data,this.#room);
         return "added";
     }
 
     addPlayerNameToMod(socketid, name) {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (!data) return null;
 
         data.mod.player_names.push(name);
-        this.writeData(data);
+        writeData(data,this.#room);
         return "added";
     }
 
@@ -133,10 +103,10 @@ class ModLogger2 {
     }
 
     nextRound() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (data && data.mod) {
             data.mod.current_round += 1;
-            this.writeData(data);
+            writeData(data,this.#room);
         }
     }
 
@@ -146,7 +116,7 @@ class ModLogger2 {
     }
 
     getPieces() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         return data && data.mod ? data.mod.players_joined : "No players found";
     }
 
@@ -172,7 +142,7 @@ class ModLogger2 {
     }
 
     removeUserFromMod(info) {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (!data || !data.mod) return null;
 
         const { player_names, players_joined } = data.mod;
@@ -180,59 +150,59 @@ class ModLogger2 {
         if (index !== -1) {
             player_names.splice(index, 1);
             players_joined.splice(index, 1);
-            this.writeData(data);
+            writeData(data,this.#room);
         }
     }
 
     getPlayersList() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         return data ? data.users : null;
     }
 
     checkIfRoundIsFinished() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         return data ? data.mod.total_players === data.mod.numberOfQuestionsReviewed : null;
     }
 
     resetRoundStatus() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (data && data.mod) {
             data.mod.isRoundFinished = false;
-            this.writeData(data);
+            writeData(data,this.#room);
         }
     }
 
     getNumberOfQuestionsReviewed() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         return data && data.mod ? data.mod.numberOfQuestionsReviewed : null;
     }
 
     resetNumberOfQuestionsReviewed() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (data && data.mod) {
             data.mod.numberOfQuestionsReviewed = 0;
-            this.writeData(data);
+            writeData(data,this.#room);
         }
     }
 
     updateNumberOfQuestionsReviewed() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (data && data.mod) {
             data.mod.numberOfQuestionsReviewed += 1;
-            this.writeData(data);
+            writeData(data,this.#room);
         }
     }
 
     setIsReviewingQuestion(boolean) {
-        const data = this.readData();
+        const data = readData(this.#room)();
         if (data && data.mod) {
             data.mod.isReviewingQuestion = boolean;
-            this.writeData(data);
+            writeData(data,this.#room);
         }
     }
 
     checkIfReviewingQuestion() {
-        const data = this.readData();
+        const data = readData(this.#room)();
         return data && data.mod ? data.mod.isReviewingQuestion : null;
     }
 }
