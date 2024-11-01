@@ -1,11 +1,11 @@
-import fs from "fs";
+const fs = require("fs");
 
-export const createJsonFile = (room) => {
+const createJsonFile = (room) => {
 
     const gameStateObject ={
         totalPlayers: 0,
         totalRounds : 0,
-        currentRound : 0,
+        currentRound : 1,
         strategies : [],
         playerNames: [],
         isRoundFinished: false,
@@ -23,3 +23,4 @@ export const createJsonFile = (room) => {
     );
 }
 
+module.exports = createJsonFile;

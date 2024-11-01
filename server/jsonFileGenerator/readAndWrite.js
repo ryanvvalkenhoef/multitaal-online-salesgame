@@ -1,6 +1,6 @@
-import fs from "fs";
+const fs = require("fs");
 
-export const readData = (room) => {
+const readData = (room) => {
     try {
         const data = fs.readFileSync(`gameSaves/${room}data.json`, "utf8");
         return JSON.parse(data);
@@ -10,7 +10,7 @@ export const readData = (room) => {
     }
 }
 
-export const writeData = (jsonData,room) =>{
+const writeData = (jsonData,room) =>{
     try {
         fs.writeFileSync(
             `gameSaves/${room}data.json`,
@@ -21,3 +21,7 @@ export const writeData = (jsonData,room) =>{
     }
 }
 
+module.exports = {
+    readData,
+    writeData
+}

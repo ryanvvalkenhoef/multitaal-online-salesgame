@@ -1,9 +1,6 @@
 class RoomGenerator {
 
-   static #rooms
-    constructor() {
-        this.#rooms = [];
-    }
+   static #rooms = [];
 
     static createRoom  ()  {
         const characters = "01234A5S678T9M";
@@ -24,4 +21,4 @@ class RoomGenerator {
 
 }
 
-export default RoomGenerator
+module.exports =  RoomGenerator;

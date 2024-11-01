@@ -1,31 +1,31 @@
-import {readData,writeData}  from '../jsonFileGenerator/readAndWrite'
+const {readData,writeData}  = require('../jsonFileGenerator/readAndWrite')
 
-class PreGameManager{  //This class sets the game configuration
+class PreGameManager {  //This class sets the game configuration
 
 
-   static setTotalPlayers (totalPlayers,room) {
+    static setTotalPlayers(totalPlayers, room) {
         const data = readData(room);
-        if(!data) return null;
-        if(!totalPlayers){
+        if (!data) return null;
+        if (!totalPlayers) {
             console.warn("total players is: " + totalPlayers);
             return null;
         }
         data.gameState.totalPlayers = totalPlayers;
-        writeData(data,room);
+        writeData(data, room);
     }
 
-    static setTotalRounds(totalRounds, room){
+    static setTotalRounds(totalRounds, room) {
         const data = readData(room);
-        if(!data) return null;
-        if(!totalRounds){
+        if (!data) return null;
+        if (!totalRounds) {
             console.warn("total rounds is: " + totalRounds);
             return null;
         }
         data.gameState.totalRounds = totalRounds;
-        writeData(data,room);
+        writeData(data, room);
     }
 
-    static addStrategy  (strategy,room)  {
+    static addStrategy(strategy, room) {
         switch (strategy) {
             case "top of the world":
                 strategy = "world";
@@ -43,15 +43,15 @@ class PreGameManager{  //This class sets the game configuration
         const data = readData(room);
         if (!data) return null;
         data.gameState.strategies.push(strategy);
-        writeData(data,room);
+        writeData(data, room);
 
     }
 
-    static addPlayerName (playerName,room){
+    static addPlayerName(playerName, room) {
         const data = readData(room);
         if (!data) return null;
-        data.gameState.strategies.push(playerName);
-        writeData(data,room);
+        data.gameState.playerNames.push(playerName);
+        writeData(data, room);
 
     }
 
@@ -61,11 +61,9 @@ class PreGameManager{  //This class sets the game configuration
         return data.gameState.strategies.length >= data.gameState.totalPlayers ? "full" : "space";
     }
 
-    static checkIfValidRoom(room,roomList){
+    static checkIfValidRoom(room, roomList) {
         const validRoom = roomList.includes(room)
         return validRoom ? true : false;
     }
-
 }
-
-export default  PreGameManager;
+module.exports = PreGameManager;

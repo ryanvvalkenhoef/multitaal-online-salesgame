@@ -2,10 +2,8 @@ const GamesStateTracker = require("../gameState/GameStateTracker");
 
 class GameStateTrackerManager{
 
-    static #gameStateTrackers
-    constructor() {
-        this.#gameStateTrackers = new Map();
-    }
+    static #gameStateTrackers = new Map();
+
 
     /**
      * Retrieves the GameStateTracker for the specified room.
@@ -24,4 +22,4 @@ class GameStateTrackerManager{
     }
 }
 
-export default  GameStateTrackerManager;
+module.exports =  GameStateTrackerManager;

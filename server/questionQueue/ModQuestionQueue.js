@@ -2,6 +2,7 @@ const QuestionQueue = require('./questionQueue');
 
 class ModQuestionQueue extends QuestionQueue {
 
+
     constructor() {
         super();
 
@@ -21,11 +22,11 @@ class ModQuestionQueue extends QuestionQueue {
     addQuestionToQueue(socket, question) {
         const room = socket.room;
 
-        if(!this.queues[room]){ // check if mod already has an object to hold the queues and makes one if not.
-            this.queues[room] = {};
+        if(!this.queues[room]){ // check if mod already has a queue
+            this.queues[room] = [];
         }
 
-        const currentQueue = this.queues[room] || [];  // Initialize as empty array if player's queue is missing
+        const currentQueue = this.queues[room];  // Initialize as empty array if player's queue is missing
         this.queues[room] = [...currentQueue,question];
         return true;
     }

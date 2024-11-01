@@ -1,20 +1,18 @@
-// const SocketManager = require("./socketMethods");
-// const modLogger = require("./modLogger");
-// const userLogger = require("./userLogger");
 
 class GameManager{
 
-  constructor(io,userLogger,modLogger,socketManager) {
+  constructor(io,userLogger,modLogger,socketManager,gameStateTracker) {
     this.io = io;
     this.userLogger = userLogger;
     this.modLogger = modLogger;
     this.socketManager = socketManager
+    this.gameStateTracker = gameStateTracker;
   }
 
 
 
   sendPlayerCount(socket) {
-      const playerCount = this.modLogger(socket.room, "getPlayerTotal", socket.id);
+      const playerCount = this.gameStateTracker.getPlayerTotal();
       this.socketManager.emitBackToClient(socket,"player_count",playerCount);
   }
 
@@ -25,15 +23,18 @@ class GameManager{
 
 
   updateGameState = (io,socket) => {
-    const roundInfo = this.modLogger(socket.room, "getRound", socket.id);
-    if(this.checkIfGameOver(roundInfo)){
+    const roundInfo = this.gameStateTracker.getRound();
+    const userData = this.userLogger.getData();
+    const isGameFinished = this.gameStateTracker.checkIfGameOver(roundInfo)
+    if(isGameFinished){
+      this.socketManager.emitToRoom(socket,"data_leaderboard",userData);
+      this.socketManager.emitToRoom(socket,"rounds",roundInfo);
       this.socketManager.emitToRoom(socket,'game_over');
     }
     else {
-      this.modLogger(socket.room, "nextRound", socket.id);
+      this.gameStateTracker.nextRound();
       this.socketManager.emitToPlayers(socket,"submitted_points");
       this.socketManager.emitToRoom(socket,"rounds",roundInfo);
-      const userData = this.userLogger(socket.room, "getData", socket.id);
       this.socketManager.emitToRoom(socket,"data_leaderboard",userData);
     }
   }
@@ -41,36 +42,29 @@ class GameManager{
   startRound = (socket)=>{
     console.log("Start round");
 
-    const strategies = this.modLogger(socket.room, "getPlayerTurn",socket.id); //is een array
-    const playersList = this.modLogger(socket.room, "getPlayersList");
+    const strategies = this.gameStateTracker.getStrategies(); //is een array
+    const playerNames = this.gameStateTracker.getPlayersList()
     this.sendPlayerCount(socket);
 
-    for(let i = 0; i < playersList.length; i++){
-      const socketId = playersList[i].id;
+    for(let i = 0; i < playerNames.length; i++){
+      const socketId = playerNames[i].id;
       const strategy = strategies[i];
-      const name = playersList[i].name;
+      const name = playerNames[i].name;
       this.socketManager.emitToSpecificSocket(socketId,'players_turn',strategy);
       this.socketManager.emitToSpecificSocket(socketId,'players_name',name);
     }
-    const roundInfo = this.modLogger(socket.room, "getRound", socket.id);
+    const roundInfo = this.gameStateTracker.getRound();
     this.socketManager.emitToRoom(socket,'rounds',roundInfo);
   }
 
 
   updateAllBoards = (socket) =>{
-    const players = this.userLogger(socket.room,'getAllPlayers');
+    const players = this.userLogger.getAllPlayers();
     const playerPositions = players.map(player => player.playerPosition);
     this.socketManager.emitToRoom(socket,'update_position',playerPositions);
   }
 
-  checkIfGameOver = (roundInfo) =>{
-    return roundInfo.currentRound === roundInfo.totalRounds;
-  }
 
-  checkIfPlayerIsAnsweringQuestion = (socket,playerId) =>{
-    const isAnsweringQuestion = this.userLogger(socket.room, 'checkIfPlayerIsAnsweringQuestion', playerId);
-    return isAnsweringQuestion;
-  }
 
 
 

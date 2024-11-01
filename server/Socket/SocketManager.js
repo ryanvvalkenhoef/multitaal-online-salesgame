@@ -11,7 +11,7 @@ class SocketManager {
             const room = this.#getRoom(socket,'players');
             this.io.to(room).emit(event, data)
         } else {
-            console.log("No connection with socket");
+            console.log("Socket object in null or undefined");
         }
     }
 
@@ -22,7 +22,7 @@ class SocketManager {
             const room = this.#getRoom(socket,'mod');
             this.io.to(room).emit(event, data)
         } else {
-            console.log("No connection with socket");
+            console.log("Socket object in null or undefined");
         }
     }
 
@@ -33,7 +33,7 @@ class SocketManager {
             const room = this.#getRoom(socket,'room');
             this.io.to(room).emit(event,data);
         } else {
-            console.log("No connection with socket");
+            console.log("Socket object in null or undefined");
         }
     }
 
@@ -43,7 +43,7 @@ class SocketManager {
             const room = this.#getRoom(socket,'client');
             this.io.to(room).emit(event,data);
         } else {
-            console.log("No connection with socket");
+            console.log("Socket object in null or undefined");
         }
     }
 

@@ -1,5 +1,5 @@
 
-import {readData,writeData}  from '../jsonFileGenerator/readAndWrite'
+const {readData,writeData}  = require('../jsonFileGenerator/readAndWrite')
 
 class GameStateTracker {
 
@@ -13,19 +13,6 @@ class GameStateTracker {
     getRoom(){
         return this.#room;
     }
-
-    setRoom(room){
-        this.#room = room;
-    }
-
-
-
-    // checkRoom(roomcode) {
-    //     let data = readData(this.#room);
-    //     if (!data) return null;
-    //     return data.gameState.room === roomcode ? "exists" : "does not exist";
-    // }
-
 
 
     getStrategies() {  // is also used to get the pieces
@@ -47,7 +34,7 @@ class GameStateTracker {
 
     getRound() {
         const data = readData(this.#room);
-        return data ? { currentRound: data.currentRound, totalRounds: data.totalRounds } : null;
+        return data ? { currentRound: data.gameState.currentRound, totalRounds: data.gameState.totalRounds } : null;
     }
 
 
@@ -64,7 +51,7 @@ class GameStateTracker {
 
     checkIfRoundIsFinished() {
         const data = readData(this.#room);
-        return data ? data.gameState.totalPlayers === data.gameState.numberOfQuestionsReviewed : null;
+        return data ? data.gameState.totalPlayers === data.mod.numberOfQuestionsReviewed : null;
     }
 
     resetRoundStatus() {
@@ -73,6 +60,10 @@ class GameStateTracker {
             data.gameState.isRoundFinished = false;
             writeData(data,this.#room);
         }
+    }
+
+    checkIfGameOver = (roundInfo) =>{
+        return roundInfo.currentRound === roundInfo.totalRounds;
     }
 
 

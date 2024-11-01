@@ -27,35 +27,35 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
 
     //EMPTY ARRAY NECESSARY FOR RENDERING TILES
     const tiles = []
-
-    useEffect(() =>{// need to find other solution. 
-        const getTilesColorAndPosition = () =>{  // returns an object where the key is a color and the value is an array consisting of the tile positions
-            let tilesColorAndPostionObject = {};
-            
-            joinedColors.forEach(color =>{
-                        
-                document.querySelectorAll(`.tile.${color} `).forEach(tile =>{
-                    
-                    const tilePostion = tile.getAttribute("pos");
-                
-                    if(!tilesColorAndPostionObject[color]){
-                        tilesColorAndPostionObject[color] = [];
-                    }
-                    
-                    tilesColorAndPostionObject[color] = [...tilesColorAndPostionObject[color], tilePostion];
-                    
-                })
-            })
-            
-            
-            return tilesColorAndPostionObject
-        }
-
-        tilesColorAndPositionRef.current = getTilesColorAndPosition();
-        
-        
-        
-    },[joinedColors])
+    //
+    // useEffect(() =>{// need to find other solution.
+    //     const getTilesColorAndPosition = () =>{  // returns an object where the key is a color and the value is an array consisting of the tile positions
+    //         let tilesColorAndPostionObject = {};
+    //
+    //         joinedColors.forEach(color =>{
+    //
+    //             document.querySelectorAll(`.tile.${color} `).forEach(tile =>{
+    //
+    //                 const tilePostion = tile.getAttribute("pos");
+    //
+    //                 if(!tilesColorAndPostionObject[color]){
+    //                     tilesColorAndPostionObject[color] = [];
+    //                 }
+    //
+    //                 tilesColorAndPostionObject[color] = [...tilesColorAndPostionObject[color], tilePostion];
+    //
+    //             })
+    //         })
+    //
+    //
+    //         return tilesColorAndPostionObject
+    //     }
+    //
+    //     tilesColorAndPositionRef.current = getTilesColorAndPosition();
+    //
+    //
+    //
+    // },[joinedColors])
 
     const renderStartPieces = () => {
         if (!updatedPieces) {

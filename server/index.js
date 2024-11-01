@@ -14,7 +14,7 @@ const { instrument } = require("@socket.io/admin-ui");
 
 const io = socketInit(server);
 sockets(io);
-gameSockets(io);
+//gameSockets(io);
 
 app.use(cors());
 instrument(io, {
