@@ -1,10 +1,7 @@
-const modLogger = require("../Loggers/modLogger");
 const databaseQuestion = require("../database");
-//const userLogger = require("../Loggers/userLogger");
 const databaseAnswer = require("../database");
 const getMovesFromCoordinate = require("../positionCalculator");
 const GameManager = require('../GameManager');
-// const questionQueue = require("./questionQueue/questionQueue");
 const SocketManager = require("../Socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
@@ -27,13 +24,12 @@ module.exports = function (io){
     io.on('connection', (socket) => {
 
         const socketManager = new SocketManager(io);
-        //const gameManager = new GameManager(io,userLogger,modLogger,socketManager)
         /** @type {GameManager} */
         let gameManager;
         /** @type {ModLogger} */
-        let ModLogger;
+        let modLogger;
         /** @type {GameStateTracker} */
-        let GameStateTracker;
+        let gameStateTracker;
         /** @type {UserLogger} */
         let userLogger;
 
@@ -43,16 +39,15 @@ module.exports = function (io){
             'create_room': (data) => { // data is an object consisting of playercount and roundscount
                 const room = RoomGenerator.createRoom();
                 createJsonFile(room);
-                ModLogger = ModLoggerManager.getModLogger(room);
-                ModLogger.addMod(socket.id,data);
 
+                modLogger = ModLoggerManager.getModLogger(room);
                 userLogger = UserLoggerManager.getModLogger(room);
+                gameStateTracker = GameStateTrackerManager.getGameStateTracker(room); //Get a GameStateTracker for current room
+                gameManager = new GameManager(io,userLogger,modLogger,socketManager,gameStateTracker);
+                modLogger.addMod(socket.id,data);
 
-                GameStateTracker = GameStateTrackerManager.getGameStateTracker(room); //Get a GameStateTracker for current room
                 PreGameManager.setTotalPlayers(data.playerCount,room);
                 PreGameManager.setTotalRounds(data.roundsCount,room);
-
-                gameManager = new GameManager(io,userLogger,ModLogger,socketManager,GameStateTracker);
 
                 socket.emit('send_gamepin', {room: room, playerTotal: data.playerCount});
                 socket.room = room; // adds room code as property to socket object
@@ -76,11 +71,9 @@ module.exports = function (io){
                 const existingRooms = RoomGenerator.getRoomList();
                 const validRoom = PreGameManager.checkIfValidRoom(data.room, existingRooms)
                 if (validRoom) {
-                    console.log("valid room");
                     socket.join(data.room);
                     socket.join(`${data.room}players`);
                     socket.room = data.room;
-                    console.log("socket id in sockets: " + socket.id);
                     room = socket.room;
                     availability = 'available';
 
@@ -96,12 +89,12 @@ module.exports = function (io){
                 }
                 if (availability === 'available') { // All info is valid player can join the game.
 
-                    GameStateTracker = GameStateTrackerManager.getGameStateTracker(room);//Get a GameStateTracker for current room
-                    gameManager = new GameManager(io,userLogger,ModLogger,socketManager,GameStateTracker);
-                    ModLogger = ModLoggerManager.getModLogger(room);
+                    gameStateTracker = GameStateTrackerManager.getGameStateTracker(room);//Get a GameStateTracker for current room
+                    gameManager = new GameManager(io,userLogger,modLogger,socketManager,gameStateTracker);
+                    modLogger = ModLoggerManager.getModLogger(room);
                     userLogger = UserLoggerManager.getModLogger(room);
-                    userLogger.createUser(socket.id);
 
+                    userLogger.createUser(socket.id);
                     userLogger.updateUser(socket.id,{name :data.name});
                     userLogger.updateUser(socket.id,{room:room});
                     userLogger.updateUser(socket.id,{strategy: data.strategy});
@@ -114,8 +107,7 @@ module.exports = function (io){
 
 
 
-                    const pieces = GameStateTracker. getStrategies();
-                    console.log("pieces: " + pieces);
+                    const pieces = gameStateTracker. getStrategies();
                     socketManager.emitToMod(socket,'add_user',"adding");
                     socketManager.emitBackToClient(socket,'join_succes',availability);
                     socketManager.emitBackToClient(socket,'add_piece',pieces);
@@ -148,6 +140,7 @@ module.exports = function (io){
                     default:
                         popupColor = data.questionColor;
                 }
+
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){
                     const receiver = userLogger.getReceiver(data.questionColor);
@@ -169,16 +162,16 @@ module.exports = function (io){
                 const room = socket.room;
 
 ;               const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                const isReviewingQuestion = ModLogger.checkIfReviewingQuestion();
-
+                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
+                // Check if mod queue contains any questions and if the mod is able to review.
                 if (questionQueueLength === 0 && !isReviewingQuestion) {
                     gameManager.sendAnswerToModerator(socket,questionData);
-                    ModLogger.setIsReviewingQuestion(true);
+                    modLogger.setIsReviewingQuestion(true);
                 } else {
                     modQuestionQueue.addQuestionToQueue(socket,questionData);
                 }
 
-                //checking player question queue
+                // Check if the question queue of the player who sent the question to the server contains any questions.
                 if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
@@ -212,10 +205,6 @@ module.exports = function (io){
                 userLogger.updateUser(id,{points : newPoints})
             },
 
-            // 'settings' : (data) => {
-            //     const room = socket.room;
-            //     modLogger(room, 'updateSettings', socket.id, data)
-            // },
 
             'send_textbox_content' : (data) => {
                 socketManager.emitToMod(socket,'submitted_answer',data);
@@ -227,13 +216,13 @@ module.exports = function (io){
 
             'pawns_request_failed' : (data) => { // werkt nu  niet correct omdat method nu array geeft ipv een strategie
                 const room = socket.room;
-                const strategy = GameStateTracker.getStrategies()
+                const strategy = gameStateTracker.getStrategies()
                 socketManager.emitBackToClient(socket,'players_turn', strategy);
             },
 
             'get_data' : (userData) => { // event wordt niet gebruikt
                 const room = socket.room;
-                userData = userLogger.getData();
+                userData = userLogger.getAllPlayerObjects();
                 io.emit('data_leaderboard', userData);
                 socket.to("mod").emit('data_leaderboard', userData)
 
@@ -248,7 +237,7 @@ module.exports = function (io){
 
             'get_current' : (data) => { // // werkt nu  niet correct omdat method nu array geeft ipv een strategie
                 const room = socket.room;
-                const strategy = GameStateTracker.getStrategies();
+                const strategy = gameStateTracker.getStrategies();
                 socketManager.emitBackToClient(socket,'set_current_player', strategy);
             },
 
@@ -268,7 +257,7 @@ module.exports = function (io){
             'question_reviewed': () => {
                 const room = socket.room;
                 const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                ModLogger.updateNumberOfQuestionsReviewed();
+                modLogger.updateNumberOfQuestionsReviewed();
 
                 if (questionQueueLength > 0) {
                     const question = modQuestionQueue.getQuestionFromQueue(socket);
@@ -277,15 +266,14 @@ module.exports = function (io){
                 }
                 // when queue is empty but not all players have submitted
                 else {
-                  ModLogger.setIsReviewingQuestion(false);
+                  modLogger.setIsReviewingQuestion(false);
                 }
 
-                const isReviewingQuestion = ModLogger.checkIfReviewingQuestion();
-                const isRoundFinished = GameStateTracker.checkIfRoundIsFinished();
+                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
+                const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
                 if (isRoundFinished && !isReviewingQuestion) { //update Game state and next round
-                    console.log("update round");
-                    ModLogger.resetNumberOfQuestionsReviewed();
-                    GameStateTracker.resetRoundStatus();
+                    modLogger.resetNumberOfQuestionsReviewed();
+                    gameStateTracker.resetRoundStatus();
                     userLogger.resetHasFinishedTurn(); // is waarschijnlijk niet meer nodig
                     gameManager.updateGameState(io,socket);
                     gameManager.updateAllBoards(socket);
@@ -294,6 +282,7 @@ module.exports = function (io){
                 }
 
               },
+
             /////// Events staan tijdelijk in dit bestand
             'get_tileInfo': (data) => {
 
@@ -346,8 +335,7 @@ module.exports = function (io){
             },
 
             'get_pieces': (data) => {
-                const pieces = GameStateTracker.getStrategies();
-                console.log("pieces gamesocket: " + pieces);
+                const pieces = gameStateTracker.getStrategies();
                 socketManager.emitToRoom(socket,"add_piece",pieces);
 
             }

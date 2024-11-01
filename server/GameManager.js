@@ -12,7 +12,7 @@ class GameManager{
 
 
   sendPlayerCount(socket) {
-      const playerCount = this.gameStateTracker.getPlayerTotal();
+      const playerCount = this.gameStateTracker.getPlayerCount();
       this.socketManager.emitBackToClient(socket,"player_count",playerCount);
   }
 
@@ -24,7 +24,7 @@ class GameManager{
 
   updateGameState = (io,socket) => {
     const roundInfo = this.gameStateTracker.getRound();
-    const userData = this.userLogger.getData();
+    const userData = this.userLogger.getAllPlayerObjects();
     const isGameFinished = this.gameStateTracker.checkIfGameOver(roundInfo)
     if(isGameFinished){
       this.socketManager.emitToRoom(socket,"data_leaderboard",userData);
@@ -59,7 +59,7 @@ class GameManager{
 
 
   updateAllBoards = (socket) =>{
-    const players = this.userLogger.getAllPlayers();
+    const players = this.userLogger.getAllPlayerObjects();
     const playerPositions = players.map(player => player.playerPosition);
     this.socketManager.emitToRoom(socket,'update_position',playerPositions);
   }

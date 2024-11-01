@@ -104,18 +104,6 @@ class UserLogger {
         return 'available';
     }
 
-     getData() {
-        let data = readData(this.#room);
-        if (!data) return null;
-
-        const users = data.users;
-        if (users) {
-            return users;
-        } else {
-            console.error('User not found4.');
-            return null;
-        }
-    }
 
      getStrategy(socketid) {
         let data = readData(this.#room);
@@ -252,10 +240,10 @@ class UserLogger {
         writeData(data,this.#room)
     }
 
-     getAllPlayers() {
+     getAllPlayerObjects() {
         let data = readData(this.#room);
         if (!data) {
-            console.log("Can't read data: getAllPlayers()");
+            console.log("Can't read data: getAllPlayerObjects()");
             return null;
         }
         return data.users;

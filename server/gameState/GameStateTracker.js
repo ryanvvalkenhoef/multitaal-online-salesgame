@@ -22,7 +22,7 @@ class GameStateTracker {
 
     getPlayerNames() {
         const data = readData(this.#room);
-        return data ? data.player_names : null;
+        return data ? data.gameState.playerNames : null;
     }
 
     nextRound(){
@@ -38,9 +38,9 @@ class GameStateTracker {
     }
 
 
-    getPlayerTotal() {
+    getPlayerCount() {
         const data = readData(this.#room);
-        return data ? data.totalPlayers : null;
+        return data ? data.gameState.totalPlayers : null;
     }
 
 
