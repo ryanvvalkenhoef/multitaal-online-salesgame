@@ -24,8 +24,8 @@ export function Game() {
     const [myTurn, setMyTurn] = useState(true)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
-    const [isPopUpEnabled, setisPopUpEnabled] = useState(false)
-    const [isWaitingScreenEnabled, setisWaitingScreenEnabled] = useState(false)
+    const [isPopUpEnabled, setIsPopUpEnabled] = useState(false)
+    const [isWaitingScreenEnabled, setIsWaitingScreenEnabled] = useState(false)
     const [textBoxContent, setTextBoxContent] = useState('')
     const [playerName, setPlayerName] = useState('')
     const [turnText, setTurnText] = useState(t("Game.wait"))
@@ -40,9 +40,9 @@ export function Game() {
     };
 
     const handleSubmitAnswer = () => {
-        setisPopUpEnabled(false);
+        setIsPopUpEnabled(false);
         setTextBoxContent('');
-        //setisWaitingScreenEnabled(true);
+        //setIsWaitingScreenEnabled(true);
         currentQuestionRef.current.playerAnswer = textBoxContent;
         currentQuestionRef.current.playerId = socket.id;
         socket.emit('send_answer_to_server', currentQuestionRef.current)
@@ -60,8 +60,6 @@ export function Game() {
             },
             'player_names': (data) => {
                 setPlayerName(data)
-                
-                
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'update_leaderboard': (jsonData) => {
@@ -71,10 +69,10 @@ export function Game() {
                 currentQuestionRef.current = data;
                 setPopupColor(currentQuestionRef.current.questionColor)
                 setQuestion(currentQuestionRef.current.questionText);
-                setisPopUpEnabled(true);
+                setIsPopUpEnabled(true);
             },
             'disable_waiting_screen' : (data) => {
-                setisWaitingScreenEnabled(false)
+                setIsWaitingScreenEnabled(false)
                 //socket.emit('get_data', 'leaderboard_update');
             },
             'players_turn': (strategy) => {
@@ -84,13 +82,9 @@ export function Game() {
                     const parentPosition = parent.getAttribute('pos')
                     
                     setPosition(parentPosition)
-                    
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
-                    
-                   
                 } catch (TypeError) {
-                    
                     socket.emit('pawns_request_failed', '')
                 }
             },
