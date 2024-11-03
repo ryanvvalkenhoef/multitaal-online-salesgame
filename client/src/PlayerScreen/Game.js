@@ -24,8 +24,8 @@ export function Game() {
     const [myTurn, setMyTurn] = useState(true)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
-    const [gamePaused, setGamePaused] = useState(false)
-    const [gamePaused2, setGamePaused2] = useState(false)
+    const [isPopUpEnabled, setisPopUpEnabled] = useState(false)
+    const [isWaitingScreenEnabled, setisWaitingScreenEnabled] = useState(false)
     const [textBoxContent, setTextBoxContent] = useState('')
     const [playerName, setPlayerName] = useState('')
     const [turnText, setTurnText] = useState(t("Game.wait"))
@@ -40,9 +40,9 @@ export function Game() {
     };
 
     const handleSubmitAnswer = () => {
-        setGamePaused(false);
+        setisPopUpEnabled(false);
         setTextBoxContent('');
-        //setGamePaused2(true);
+        //setisWaitingScreenEnabled(true);
         currentQuestionRef.current.playerAnswer = textBoxContent;
         currentQuestionRef.current.playerId = socket.id;
         socket.emit('send_answer_to_server', currentQuestionRef.current)
@@ -58,23 +58,23 @@ export function Game() {
                 setCurrentRound(data.currentRound)
                 setRoundText(t("Game.setRoundText", {data}))
             },
-            'players_name': (data) => {
+            'player_names': (data) => {
                 setPlayerName(data)
                 
                 
                 setTurnText(t("Game.setTurnText", { data }))
             },
-            'data_leaderboard': (jsonData) => {
+            'update_leaderboard': (jsonData) => {
                 setData(jsonData)
             },
             'receive_question': (data) => {
                 currentQuestionRef.current = data;
                 setPopupColor(currentQuestionRef.current.questionColor)
                 setQuestion(currentQuestionRef.current.questionText);
-                setGamePaused(true);
+                setisPopUpEnabled(true);
             },
-            'submitted_points' : (data) => {
-                setGamePaused2(false)
+            'disable_waiting_screen' : (data) => {
+                setisWaitingScreenEnabled(false)
                 //socket.emit('get_data', 'leaderboard_update');
             },
             'players_turn': (strategy) => {
@@ -114,7 +114,7 @@ export function Game() {
 
     return (
     <>
-        <div className={gamePaused || gamePaused2 ? 'appBlurred' : 'playboard'}>
+        <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
             <div className='roundscounter'>{roundText}</div>
             <BoardGrid
                 steps={steps}
@@ -147,8 +147,8 @@ export function Game() {
             <PlayerPopUps
                 setPopupColor={setPopupColor}
                 popupColor={popupColor}
-                gamePaused={gamePaused}
-                gamePaused2={gamePaused2}
+                isPopUpEnabled={isPopUpEnabled}
+                isWaitingScreenEnabled={isWaitingScreenEnabled}
                 question={question}
                 textBoxContent={textBoxContent}
                 handleTextBoxChange={handleTextBoxChange}

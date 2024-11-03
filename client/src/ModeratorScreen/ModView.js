@@ -75,10 +75,10 @@ export function ModView() {
                 setCurrentRound(data.currentRound)
                 setRoundText(t("Game.setRoundText", {data}))
             },
-            'players_name': (data) => {
+            'player_names': (data) => {
                 setPlayerName(data)
             },
-            'data_leaderboard': (jsonData) => {
+            'update_leaderboard': (jsonData) => {
             
                 setData(jsonData)
             },

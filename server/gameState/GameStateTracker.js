@@ -44,7 +44,7 @@ class GameStateTracker {
     }
 
 
-    getPlayersList() {
+    getPlayerList() {
         const data = readData(this.#room);
         return data ? data.users : null;
     }

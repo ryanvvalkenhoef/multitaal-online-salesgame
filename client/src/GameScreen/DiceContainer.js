@@ -42,11 +42,11 @@ const DiceContainer = (props) => {
         };
 
         socket.on("set_dice", setDice);
-        socket.on("players_name", setPlayerName);
+        socket.on("player_names", setPlayerName);
 
         return () => {
             socket.off("set_dice", setDice);
-            socket.off("players_name", setPlayerName);
+            socket.off("player_names", setPlayerName);
         };
     }, [position]);
 

@@ -220,13 +220,13 @@ module.exports = function (io){
                 socketManager.emitBackToClient(socket,'players_turn', strategy);
             },
 
-            'get_data' : (userData) => { // event wordt niet gebruikt
-                const room = socket.room;
-                userData = userLogger.getAllPlayerObjects();
-                io.emit('data_leaderboard', userData);
-                socket.to("mod").emit('data_leaderboard', userData)
-
-            },
+            // 'get_data' : (userData) => { // event wordt niet gebruikt
+            //     const room = socket.room;
+            //     userData = userLogger.getAllPlayerObjects();
+            //     io.emit('update_leaderboard', userData);
+            //     socket.to("mod").emit('update_leaderboard', userData)
+            //
+            // },
 
             'get_playerstrategy' : (data) => {
                 const room = socket.room;
@@ -271,7 +271,7 @@ module.exports = function (io){
 
                 const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
-                if (isRoundFinished && !isReviewingQuestion) { //update Game state and next round
+                if (isRoundFinished && !isReviewingQuestion) { //update Game state and go to next round
                     modLogger.resetNumberOfQuestionsReviewed();
                     gameStateTracker.resetRoundStatus();
                     userLogger.resetHasFinishedTurn(); // is waarschijnlijk niet meer nodig

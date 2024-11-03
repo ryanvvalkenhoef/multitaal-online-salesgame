@@ -27,35 +27,6 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
 
     //EMPTY ARRAY NECESSARY FOR RENDERING TILES
     const tiles = []
-    //
-    // useEffect(() =>{// need to find other solution.
-    //     const getTilesColorAndPosition = () =>{  // returns an object where the key is a color and the value is an array consisting of the tile positions
-    //         let tilesColorAndPostionObject = {};
-    //
-    //         joinedColors.forEach(color =>{
-    //
-    //             document.querySelectorAll(`.tile.${color} `).forEach(tile =>{
-    //
-    //                 const tilePostion = tile.getAttribute("pos");
-    //
-    //                 if(!tilesColorAndPostionObject[color]){
-    //                     tilesColorAndPostionObject[color] = [];
-    //                 }
-    //
-    //                 tilesColorAndPostionObject[color] = [...tilesColorAndPostionObject[color], tilePostion];
-    //
-    //             })
-    //         })
-    //
-    //
-    //         return tilesColorAndPostionObject
-    //     }
-    //
-    //     tilesColorAndPositionRef.current = getTilesColorAndPosition();
-    //
-    //
-    //
-    // },[joinedColors])
 
     const renderStartPieces = () => {
         if (!updatedPieces) {
@@ -122,20 +93,8 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             setTileInfo2(data)
         })
 
-        socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is an string array of coordinates
-            
-            // const opponentColors = joinedColors.filter(color => color !== playerColor)
-            // let filteredValidPositionsArray = validPositionsArray;
-            //
-            // opponentColors.forEach(color =>{
-            //     filteredValidPositionsArray = filteredValidPositionsArray.filter(validPosition =>{ //Tile gets filtered out if it's an opponent's tile
-            //             return !tilesColorAndPositionRef.current[color].includes(validPosition)
-            //         })
-            //
-            //
-            // })
-       
-        setValidPositions(validPositionsArray)
+        socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is a string array of coordinates
+            setValidPositions(validPositionsArray)
     })
 
             socket.on("add_piece", (strategies) => {
