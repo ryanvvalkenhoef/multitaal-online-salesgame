@@ -61,7 +61,6 @@ module.exports = function (io){
 
             'start_turn' : (data) => {
                 gameManager.startRound(socket);
-
             },
 
             'get_pieces': (data) => {

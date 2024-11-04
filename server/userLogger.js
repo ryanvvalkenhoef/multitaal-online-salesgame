@@ -40,6 +40,19 @@ const addUser = (user,room) => {
     writeData(data,room);
 };
 
+const getPlayerStatus = (room) => {
+    let data = readData(room);
+    if (!data) return;
+
+    const playerArray = data.users;
+    let playerStatusArray = [];
+    playerArray.forEach(player => {
+        playerStatusArray.push({[player.strategy]:player.hasFinishedTurn})
+    })
+
+    return playerStatusArray;
+}
+
 // Update user by ID
 const updateUser = (userId, newData,room) => {
     let data = readData(room);
@@ -335,6 +348,9 @@ function userLogger(room,method, socketid, info=""){
             break;    
         case 'getAllPlayers':{
             return getAllPlayers(room)
+        }
+        case 'getPlayerStatus':{
+            return getPlayerStatus(room)
         }    
     }   
 }

@@ -67,6 +67,11 @@ class GameManager{
     return roundInfo.currentRound === roundInfo.totalRounds;
   }
 
+  sendPlayerStatusToMod = (socket) =>{
+    const playerStatus = this.userLogger(socket.room, 'getPlayerStatus')
+    this.socketManager.emitToMod(socket, 'get_player_status', playerStatus)
+  }
+
 
 
 }
