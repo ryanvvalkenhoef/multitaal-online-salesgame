@@ -83,7 +83,6 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
-                console.log("update: " + JSON.stringify(jsonData));
 
                 setData(jsonData)
             },
@@ -101,6 +100,10 @@ export function ModView() {
 
             'player_count': (playerCount) => {
                 playerCountRef.current = playerCount;
+            },
+
+            'game_over': () => {
+                alert("game over");
             }
 
         }

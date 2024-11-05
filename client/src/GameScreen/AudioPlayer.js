@@ -37,8 +37,8 @@ const AudioPlayer = () => {
             <button className="Qbutton2" onClick={handleGuide}>?</button>
             <button onClick={toggleAudio} className="audioButton">
                 <img className="audioImage"
-                    src={isPlaying ? musicOn : musicOff}
-                    alt={isPlaying ? musicOn : musicOff}
+                     src={isPlaying ? musicOn : musicOff}
+                     alt={isPlaying ? musicOn : musicOff}
                 />
             </button>
             <div>

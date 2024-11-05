@@ -3,7 +3,7 @@ export const saveGameProgress = async (gameSave) => {
         const response = await fetch('http://localhost:3000/save-game', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'GameSave/json'
             },
             body: JSON.stringify(gameSave)
         });

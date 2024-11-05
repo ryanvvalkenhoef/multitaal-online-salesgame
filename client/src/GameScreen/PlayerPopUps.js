@@ -6,21 +6,21 @@ const PlayerPopUps = ({ gamePaused, gamePaused2, question, textBoxContent, handl
     const { t, i18n } = useTranslation('global');
 
     useEffect(() => { //prevents copying/pasting
-        const disableActions = (e) => e.preventDefault(); 
-        
-    
+        const disableActions = (e) => e.preventDefault();
+
+
         document.addEventListener('copy', disableActions);
         document.addEventListener('paste', disableActions);
         document.addEventListener('cut', disableActions);
-        document.addEventListener('contextmenu', disableActions);  
-    
+        document.addEventListener('contextmenu', disableActions);
+
         return () => {
-          document.removeEventListener('copy', disableActions);
-          document.removeEventListener('paste', disableActions);
-          document.removeEventListener('cut', disableActions);
-          document.removeEventListener('contextmenu', disableActions);
+            document.removeEventListener('copy', disableActions);
+            document.removeEventListener('paste', disableActions);
+            document.removeEventListener('cut', disableActions);
+            document.removeEventListener('contextmenu', disableActions);
         };
-      }, []);
+    }, []);
     return (
         <>
             {gamePaused && (
@@ -45,10 +45,10 @@ const PlayerPopUps = ({ gamePaused, gamePaused2, question, textBoxContent, handl
                                             popupColor === 'purple' ? 'Klaphatten' :
                                                 popupColor === 'red' ? 'Safeline' :
                                                     popupColor === 'orange' ? 'Jysk Telepartner' :
-                                                            popupColor === 'black1' ? 'Chance':
-                                                                popupColor === 'black2' ? 'Sales' :
-                                                                    popupColor === 'black3' ? 'Megatrends' :
-                                                        'strategy'} </div>
+                                                        popupColor === 'black1' ? 'Chance':
+                                                            popupColor === 'black2' ? 'Sales' :
+                                                                popupColor === 'black3' ? 'Megatrends' :
+                                                                    'strategy'} </div>
                         </div>
                         <div className='questionLabel'> <br/> {t("PopUps.question")} </div>
                         <div className="questionWhiteBox">{question}</div>
