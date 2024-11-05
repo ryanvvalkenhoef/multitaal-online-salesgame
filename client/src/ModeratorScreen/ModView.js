@@ -36,7 +36,7 @@ export function ModView() {
     const playerCountRef = useRef(0);
     const currentQuestionRef = useRef(null);
 
-
+   
 
     const handleUpdatePoints = (points) => {
         setSelectedPoints(points);
@@ -49,27 +49,27 @@ export function ModView() {
         setUserColor(questionData.playerColor);
         setAnswer(questionData.answer);
         currentQuestionRef.current = questionData;
-    }
+}
 
     const submitPoints = () =>{
-        setShowPopup(false)
-        socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId}, );
-        socket.emit('question_reviewed');
-        setSelectedPoints([]);
+            setShowPopup(false)
+            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId}, );
+            socket.emit('question_reviewed');
+            setSelectedPoints([]);
     }
 
     const handleSubmitPoints = () => {
-
-        if (currentQuestionRef.current.playerAnswer !== '') {
+       
+        if (currentQuestionRef.current.playerAnswer !== '') { 
             submitPoints()
         }
-
+        
     };
 
 
 
     useEffect(() => {
-
+        
         const socketHandlers = {
             'set_dice': (data) => {
                 setDiceValue(data);
@@ -83,7 +83,7 @@ export function ModView() {
                 setPlayerName(data)
             },
             'data_leaderboard': (jsonData) => {
-
+            
                 setData(jsonData)
             },
             'set_current_player': (data)=> {
@@ -95,7 +95,7 @@ export function ModView() {
                 }
             },
             'receive_player_answer': (questionData)=> { //parameter is an object
-                reviewQuestion(questionData)
+                    reviewQuestion(questionData)
             },
 
             'player_count': (playerCount) => {
@@ -145,17 +145,17 @@ export function ModView() {
                 <div><img className='flagImg7' id='EN' src={uk_flag} alt='English' onClick={() => handleChangeLanguage('en')} /></div>
                 <div><img className='flagImg8' id='NL' src={nl_flag} alt='Dutch' onClick={() => handleChangeLanguage('nl')} /></div>
             </div>
-            <ModeratorPopUps
-                answer={answer}
-                popupColor={popupColor}
-                showPopup={showPopup}
-                setShowPopup={setShowPopup}
-                question={question}
-                submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
-                selectedPoints={selectedPoints}
-                handleSubmitPoints={handleSubmitPoints}
-                handleUpdatePoints={handleUpdatePoints}
-            />
+                <ModeratorPopUps
+                    answer={answer}
+                    popupColor={popupColor}
+                    showPopup={showPopup}
+                    setShowPopup={setShowPopup}
+                    question={question}
+                    submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
+                    selectedPoints={selectedPoints}
+                    handleSubmitPoints={handleSubmitPoints}
+                    handleUpdatePoints={handleUpdatePoints}
+                />
         </>
     );
 }

@@ -33,7 +33,7 @@ export function Game() {
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const currentQuestion = useRef(null);
-
+    
 
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
@@ -50,8 +50,8 @@ export function Game() {
     };
 
     useEffect(() =>{
-
-
+        
+        
         const socketHandlers = {
             'rounds': (data) => {
                 setTotalRounds(data.totalRounds)
@@ -60,8 +60,8 @@ export function Game() {
             },
             'players_name': (data) => {
                 setPlayerName(data)
-
-
+                
+                
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'data_leaderboard': (jsonData) => {
@@ -82,15 +82,15 @@ export function Game() {
                     const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
                     const parentPosition = parent.getAttribute('pos')
-
+                    
                     setPosition(parentPosition)
-
+                    
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
-
-
+                    
+                   
                 } catch (TypeError) {
-
+                    
                     socket.emit('pawns_request_failed', '')
                 }
             },
@@ -98,8 +98,8 @@ export function Game() {
             'game_over': () => {
                 alert("game over");
             }
-
-
+            
+            
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])
@@ -113,36 +113,36 @@ export function Game() {
     },[])//,[currentPlayer]
 
     return (
-        <>
-            <div className={gamePaused || gamePaused2 ? 'appBlurred' : 'playboard'}>
-                <div className='roundscounter'>{roundText}</div>
-                <BoardGrid
-                    steps={steps}
-                    moveMade={moveMade}
-                    setMoveMade={setMoveMade}
-                    selectedPawn={selectedPawn}
-                    setSelectedPawn={setSelectedPawn}
-                    setPosition={setPosition}
-                    setCurrentPlayer={setCurrentPlayer}
-                    currentPlayer={currentPlayer}
-                    playerColor={playerColor}
-                    setPlayerColor={setPlayerColor}
-                    gameScreen={true}
-
+    <>
+        <div className={gamePaused || gamePaused2 ? 'appBlurred' : 'playboard'}>
+            <div className='roundscounter'>{roundText}</div>
+            <BoardGrid
+                steps={steps}
+                moveMade={moveMade}
+                setMoveMade={setMoveMade}
+                selectedPawn={selectedPawn}
+                setSelectedPawn={setSelectedPawn}
+                setPosition={setPosition}
+                setCurrentPlayer={setCurrentPlayer}
+                currentPlayer={currentPlayer}
+                playerColor={playerColor}
+                setPlayerColor={setPlayerColor}
+                gameScreen={true}
+                
                 />
-                <DiceContainer
-                    setSteps={setSteps}
-                    setMoveMade={setMoveMade}
-                    position={position}
-                    myTurn={myTurn}
-                    setMyTurn={setMyTurn}/>
-                <LeaderBoard
-                    sortedUserData={sortedUserData}
-                    playerName={playerName}/>
-                <PlayerTurns
-                    turnText={turnText}/>
-            </div>
-            <AudioPlayer
+            <DiceContainer
+                setSteps={setSteps}
+                setMoveMade={setMoveMade}
+                position={position}
+                myTurn={myTurn}
+                setMyTurn={setMyTurn}/>
+            <LeaderBoard
+                sortedUserData={sortedUserData}
+                playerName={playerName}/>
+            <PlayerTurns
+                turnText={turnText}/>
+        </div>
+        <AudioPlayer
             />
             <PlayerPopUps
                 setPopupColor={setPopupColor}

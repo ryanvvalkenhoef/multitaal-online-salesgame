@@ -9,32 +9,32 @@ const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, s
     return (
         <>
             {showPopup && (
-
+                
                 <div className='scorePopup'>
                     <div className={`questionColorBox ${popupColor}`} >
                         <div className='rowpopup'>
                             <img className={`${
                                 popupColor === 'red' ? 'popupsafeline' :
-                                    popupColor === 'yellow' ? 'popuplunar' :
-                                        popupColor === 'blue' ? 'popupdomino' :
-                                            popupColor === 'purple' ? 'popupklaphatten' :
-                                                popupColor === 'green' ? 'popupworld' :
-                                                    popupColor === 'orange' ? 'popupjysk' :
-                                                        popupColor === 'black1'? 'chance' :
-                                                            popupColor === 'black2'? 'sales' :
-                                                                popupColor === 'black3'? 'megatrends' : ''}`}
+                                popupColor === 'yellow' ? 'popuplunar' :
+                                popupColor === 'blue' ? 'popupdomino' :
+                                popupColor === 'purple' ? 'popupklaphatten' :
+                                popupColor === 'green' ? 'popupworld' :
+                                popupColor === 'orange' ? 'popupjysk' : 
+                                popupColor === 'black1'? 'chance' :
+                                popupColor === 'black2'? 'sales' :
+                                popupColor === 'black3'? 'megatrends' : ''}`}
                                  alt="" />
                             <div className='strategyName2'>
                                 {popupColor === 'yellow' ? 'Lunar':
-                                    popupColor === 'green' ? 'Top of the World' :
-                                        popupColor === 'blue' ? 'Domino House' :
-                                            popupColor === 'purple' ? 'Klaphatten' :
-                                                popupColor === 'red' ? 'Safeline' :
-                                                    popupColor === 'orange' ? 'Jysk Telepartner' :
-                                                        popupColor === 'black1' ? 'Chance':
-                                                            popupColor === 'black2' ? 'Sales' :
-                                                                popupColor === 'black3' ? 'Megatrends' :
-                                                                    'strategy'}</div>
+                                 popupColor === 'green' ? 'Top of the World' :
+                                 popupColor === 'blue' ? 'Domino House' :
+                                 popupColor === 'purple' ? 'Klaphatten' :
+                                 popupColor === 'red' ? 'Safeline' :
+                                 popupColor === 'orange' ? 'Jysk Telepartner' :
+                                 popupColor === 'black1' ? 'Chance':
+                                 popupColor === 'black2' ? 'Sales' :
+                                 popupColor === 'black3' ? 'Megatrends' :
+                                'strategy'}</div>
                         </div>
                         <div className='questionLabel2'> {t("PopUps.question")}</div>
                         <div className='questionWhiteBox2'> {question} </div>
@@ -79,8 +79,8 @@ const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, s
                         </button>
                     </div>
                 </div>
-            )}
-        </>
+                )}
+                </>
     )
 }
 export default ModeratorPopUps;

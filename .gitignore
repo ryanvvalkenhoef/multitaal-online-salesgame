@@ -5,3 +5,4 @@
 /.vs
 /.idea
 /server/data.json
+/server/gameSaves

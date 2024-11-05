@@ -19,11 +19,14 @@ export function Gamepin() {
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
 
     useEffect(() => {
+      
         socket.on("send_gamepin", (data) => {
             setGamepin(data.room);
             setPlayerNeeded(data.playerTotal);
         });
         socket.on('add_user', () => {
+            console.log('being added');
+            
             setPlayerCount(prevCount => prevCount + 1);
         });
         socket.on("delete_user", () => {
@@ -38,7 +41,9 @@ export function Gamepin() {
     const handleGame = () => {
         if (playerCount <= playerNeeded) {
             socket.emit('start_turn', 'data')
+            
             navigate('/modview');
+            
         } else if (playerCount < playerNeeded) {
             setErrorCode('Not enough players')
         } else {

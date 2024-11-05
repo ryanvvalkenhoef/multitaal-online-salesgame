@@ -1,12 +1,20 @@
 const userLogger = require("./userLogger");
 const getMovesFromCoordinate = require("./positionCalculator");
 const modLogger = require("./modLogger");
+const socketMethods = require("./socketMethods");
+const GameManager = require('./gameMethods');
+const SocketManager = require("./socketMethods");
+const { log } = require("console");
+
 module.exports = function (io){
     io.on('connection', (socket) => {
+
+        socketManager = new SocketManager(io);
+        gameManager = new GameManager(io,userLogger,modLogger,socketManager);
+
         const socketHandlers = {
             'get_tileInfo': (data) => {
-                const room = userLogger('getRoom', socket.id);
-
+                
                 //TILE_INFO FOR WHEN 2-6 PLAYERS JOIN
                 const tileInfo = [
                     'sales', 'color1', 'color3', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color7', 'sales', 'rainbow', 'color12', 'megatrends', 'color10', 'color8',
@@ -32,17 +40,13 @@ module.exports = function (io){
                     'color5', 'blank', 'blank', 'blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank', 'megatrends',
                     'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
                 ]
-
-                socket.emit('send_tileInfo', tileInfo)
-                socket.emit('send_tileInfo2', tileInfo2)
-                socket.to(room).emit('send_tileInfo', tileInfo)
-                socket.to(room).emit('send_tileInfo2',tileInfo2)
+                
+                socketManager.emitBackToClient(socket,'send_tileInfo', tileInfo);
+                socketManager.emitBackToClient(socket,'send_tileInfo2', tileInfo2);
             },
 
             'roll_dice' : (data) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                const room = userLogger("getRoom", socket.id)
-                socket.to(room).emit("set_dice", diceValue)
                 socket.emit("set_dice", diceValue)
             },
 
@@ -51,39 +55,30 @@ module.exports = function (io){
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
                 const moves = getMovesFromCoordinate(xPos, yPos, data.diceValue);
-                const formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`)
-                const room = userLogger('getRoom', socket.id);
-                socket.to(room).emit('update_valid_positions', formattedPositions);
+                let formattedPositions = moves.map(pos => `${pos.x}-${pos.y}`);
                 socket.emit('update_valid_positions', formattedPositions);
             },
 
             'start_turn' : (data) => {
-                const room = modLogger('room', socket.id);
-                const strategy = modLogger('getPlayerTurn', socket.id)
-                const name = modLogger('getPlayerName', socket.id)
-                socket.emit('players_turn', strategy)
-                socket.emit('players_name', name)
-                socket.to(room).emit('players_turn', strategy)
-                socket.to(room).emit('players_name', name)
+                gameManager.startRound(socket);
 
-                const roundInfo = modLogger('getRound', socket.id);
-                socket.to(room).emit('rounds', roundInfo);
-                socket.emit('rounds', roundInfo);
             },
 
             'get_pieces': (data) => {
+                const room = socket.room;
                 let modID;
                 switch (data){
                     case 'player':
-                        const room = userLogger('getRoom', socket.id);
-                        modID = modLogger('getMod', socket.id, room);
+                        modID = modLogger(room, 'getMod', socket.id, room);
                         break
                     case 'mod':
                         modID = socket.id
                         break
                 }
-                const pieces = modLogger('getPieces', modID)
-                socket.emit('add_piece', pieces)
+                const pieces = modLogger(room, 'getPieces', modID)
+
+                socketManager.emitToRoom(socket,"add_piece",pieces);
+                
             }
         }
         Object.keys(socketHandlers).forEach(event => {

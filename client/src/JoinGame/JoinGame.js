@@ -23,30 +23,30 @@ export function JoinGame() {
             setInformation("Please enter a name");
             return;
         }
-
-
-
+        
+      
+        
         socket.emit("join_room", { name: username, room: gamepin, strategy: strategy});
     };
 
 
-    useEffect(() =>{
-        socket.on('join_succes', (data) => {
-            if (data === 'available'){
-                handleGame()
-            } else {
-                setInformation(data)
-            }
-        })
+  useEffect(() =>{
+    socket.on('join_succes', (data) => {
+        if (data === 'available'){
+            handleGame()
+        } else {
+            setInformation(data)
+        }
     })
+  })
 
-    const handleGame = () => {
-        navigate('/game');
-    };
+  const handleGame = () => {
+      navigate('/game');
+  };
 
-    const handleHome = () => {
-        navigate('/home')
-    }
+  const handleHome = () => {
+    navigate('/home')
+  }
     return (
         <div className="parent-container-joingame">
             <button className="Qbutton" onClick={handleGuide}>?</button>
@@ -83,7 +83,7 @@ export function JoinGame() {
             <div className="nameJoingame">
                 <label className='joingameLabel nameJoingameLabel' htmlFor="fullName">{t("JoinGame.username")}</label>
                 <input type="text" id="fullName" className='inputJoingame nameJoingameInput' name="fullName" value={username}
-                       placeholder={t("JoinGame.namePlaceholder")} onChange={event => setUsername(event.target.value)}/>
+                    placeholder={t("JoinGame.namePlaceholder")} onChange={event => setUsername(event.target.value)}/>
             </div>
             <div className="buttonRowJoingame">
                 <button type="submit" className="startgame button" onClick={() => setName(username, gamepin, strategy)}>{t("JoinGame.start")}</button>
