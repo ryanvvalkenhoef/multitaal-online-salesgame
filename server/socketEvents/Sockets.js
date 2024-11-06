@@ -42,7 +42,7 @@ module.exports = function (io){
                 jsonFileHandler = new JsonFileHandler(room);
                 jsonFileHandler.createJsonFile();
                 modLogger = ModLoggerManager.getModLogger(room,jsonFileHandler);
-                userLogger = UserLoggerManager.getModLogger(room,jsonFileHandler);
+                userLogger = UserLoggerManager.getUserLogger(room,jsonFileHandler);
                 gameStateTracker = GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler); //Get a GameStateTracker for current room
                 gameManager = new GameManager(io,userLogger,modLogger,socketManager,gameStateTracker);
                 modLogger.createMod(socket.id,data);
@@ -56,7 +56,7 @@ module.exports = function (io){
                 socket.join(room);
             },
 
-            'disconnect': (reason) => {
+            'disconnect': (reason) => { // Moet later naar gekeken worden
                 // const room = userLogger(room, "getRoom", socket.id)
                 // const name = userLogger(room, 'getPlayerNames', socket.id)
                 // modLogger(room, 'removeUser', socket.id, {name: name, room: room})
@@ -87,7 +87,7 @@ module.exports = function (io){
                     gameStateTracker = GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler);//Get a GameStateTracker for current room
                     gameManager = new GameManager(io,userLogger,modLogger,socketManager,gameStateTracker);
                     modLogger = ModLoggerManager.getModLogger(room,jsonFileHandler);
-                    userLogger = UserLoggerManager.getModLogger(room,jsonFileHandler);
+                    userLogger = UserLoggerManager.getUserLogger(room,jsonFileHandler);
 
                     //user is being created and values assigned to properties of user object
                     userLogger.createUser(socket.id);

@@ -1,5 +1,34 @@
 const fs = require('fs');
 
+/**
+ * Class representing the players state and management in the game.
+ *
+ * This class provides methods to interact with and modify player data stored in a JSON file. It includes functionalities
+ * for creating, updating, and deleting user records, retrieving specific player properties such as name, points, and strategy,
+ * and managing player actions like answering questions and completing turns.
+ *
+ * The data is stored in a JSON file handled by the provided `JsonFileHandler`. The player data includes properties like
+ * `id`, `name`, `room`, `points`, `strategy`, and flags for turn completion and answering questions. The class also
+ * manages user-specific game behaviors such as strategy assignments, color associations, and checking if a player is answering
+ * a question or has finished their turn.
+ *
+ * Methods include:
+ * - `createUser`: Adds a new player to the JSON file.
+ * - `deleteUser`: Removes a player from the JSON file.
+ * - `updateUser`: Updates a player's information.
+ * - `getUserIDByName`: Retrieves a player's ID by their name.
+ * - `getPoints`: Gets a player's points.
+ * - `getStrategy`: Returns a player's game strategy.
+ * - `getColor`: Retrieves the player's color based on strategy.
+ * - `getReceiver`: Determines which player receives a question based on the color.
+ * - `resetHasFinishedTurn`: Resets the turn completion flag for all players.
+ * - `setIsAnsweringQuestion`: Sets whether a player is answering a question.
+ * - `checkIfPlayerIsAnsweringQuestion`: Checks if a player is currently answering a question.
+ *
+ *
+ * @class UserLogger
+ */
+
 class UserLogger {
     
     #room;
@@ -91,20 +120,6 @@ class UserLogger {
         }
     }
 
-     availability(socketid, userName, userRoom, userStrat) {
-        let data = this.#jsonFileHandler.readData()
-        if (!data) return 'available';
-
-        for (let user of data.users) {
-            if (user.name === userName && user.room === userRoom) {
-                return 'Name already in use';
-            }
-            if (user.strategy === userStrat && user.room === userRoom) {
-                return 'Strategy already in use';
-            }
-        }
-        return 'available';
-    }
 
 
      getStrategy(socketid) {
@@ -148,7 +163,7 @@ class UserLogger {
 
     }
 
-     getReceiver(questionColor) {
+     getReceiver(questionColor) { // hoort eigenlijk niet in deze class
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 

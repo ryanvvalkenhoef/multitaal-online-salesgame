@@ -1,4 +1,24 @@
-class PreGameManager {  //This class sets the game configuration
+/**
+ * Class responsible for managing the game configuration and pre-game setup.
+ *
+ * This class provides static methods for setting game parameters such as total players, total rounds, player strategies, and player names
+ * that are being stored in the gameState object in the JSON file.
+ * It also handles checking if a room is full, and validating room availability.
+ *
+ * Methods include:
+ * - `setTotalPlayers(totalPlayers, jsonFileHandler)`: Sets the total number of players for the game.
+ * - `setTotalRounds(totalRounds, jsonFileHandler)`: Sets the total number of rounds for the game.
+ * - `addStrategy(strategy, jsonFileHandler)`: Adds a strategy.
+ * - `addPlayerName(playerName, jsonFileHandler)`: Adds a player name.
+ * - `getColor(socketid, jsonFileHandler)`: Returns the color a player should get based on their strategy.
+ * - `checkIfRoomFull(jsonFileHandler)`: Checks if the room is full by comparing the number of strategies to the total number of players.
+ * - `checkIfValidRoom(room, roomList)`: Checks if a room is valid by matching it against a list of available rooms.
+ *
+ * @class PreGameManager
+ */
+
+
+class PreGameManager { 
 
 
     static setTotalPlayers(totalPlayers, jsonFileHandler) {

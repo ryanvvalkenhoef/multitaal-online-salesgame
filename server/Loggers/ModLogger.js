@@ -1,3 +1,25 @@
+/**
+ * Class representing a moderator's state in the game.
+ *
+ * The `ModLogger` class is used to manage the moderator's state, including their properties, and interact
+ * with the corresponding data stored in the JSON file. It provides methods for creating, updating, and deleting
+ * the moderator's information, as well as checking their current status, such as the number of questions they
+ * have reviewed or whether they are currently reviewing a question.
+ *
+ * Key Methods:
+ * - `createMod`: Creates a new moderator entry in the JSON file (if one doesn't already exist).
+ * - `getMod`: Retrieves the current moderator object stored in the JSON file.
+ * - `deleteMod`: Removes a moderator from the game by their ID.
+ * - `updateMod`: Updates the moderator's properties with new data.
+ * - `resetNumberOfQuestionsReviewed`: Resets the number of questions the moderator has reviewed to zero.
+ * - `updateNumberOfQuestionsReviewed`: Increments the number of questions reviewed by the moderator by one.
+ * - `setIsReviewingQuestion`: Sets the status of whether the moderator is currently reviewing a question.
+ * - `checkIfReviewingQuestion`: Checks if the moderator is currently reviewing a question.
+ *
+ * @class ModLogger
+ */
+
+
 class ModLogger {
     
     #room;

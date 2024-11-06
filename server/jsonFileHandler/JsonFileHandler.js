@@ -21,7 +21,6 @@ class JsonFileHandler {
                currentRound: 1,
                strategies: [],
                playerNames: [],
-               isRoundFinished: false,
            }
 
            const jsonFile = {

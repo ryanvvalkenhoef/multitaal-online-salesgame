@@ -1,3 +1,21 @@
+/**
+ * Class representing the game state for a specific room in the game.
+ *
+ * This class is responsible for tracking and managing the current state of the game, such as the
+ * strategies, player names, rounds, and player count, which are stored in a JSON file. It provides
+ * methods for retrieving game data and updating the round. The primary data modification this class
+ * handles is the `currentRound` property.
+ *
+ * Methods include:
+ * - `getStrategies`: Retrieves the current game strategies (pieces).
+ * - `getRound`: Retrieves the current round and total rounds.
+ * - `nextRound`: Increments the round and updates the JSON file.
+ * - `checkIfRoundIsFinished`: Checks if the round is finished based on number of players' reviewed.
+ * - `checkIfGameOver`: Determines if the game is over based on the round information.
+ *
+ * @class GameStateTracker
+ */
+
 class GameStateTracker {
 
     #room
@@ -53,13 +71,6 @@ class GameStateTracker {
         return data ? data.gameState.totalPlayers === data.mod.numberOfQuestionsReviewed : null;
     }
 
-    resetRoundStatus() {
-        const data = this.#jsonFileHandler.readData()
-        if (data && data.gameState) {
-            data.gameState.isRoundFinished = false;
-            this.#jsonFileHandler.writeData(data);
-        }
-    }
 
     checkIfGameOver = (roundInfo) =>{
         return roundInfo.currentRound === roundInfo.totalRounds;
