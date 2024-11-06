@@ -107,8 +107,10 @@ module.exports = function (io){
                     socketManager.emitBackToClient(socket,'join_succes',joinStatus);
                     const pieces = gameStateTracker.getStrategies();
                     socketManager.emitToRoom(socket,'add_piece',pieces); //adds pawn to the board
-                } else { // checks if joinStatus is undefined to prevent overwriting previous assignment
-                    joinStatus = !isValidRoom && !joinStatus ? 'Room does not exist' : joinStatus;
+                } else {
+                    // checks if joinStatus is undefined to prevent overwriting previous assignment.
+                    // The conditions are checked in a specific order.
+                    joinStatus = !isValidRoom ? 'Room does not exist' : joinStatus;
                     joinStatus = !isStrategyAssigned && !joinStatus ? 'Choose a strategy' : joinStatus;
                     joinStatus = isRoomFull && !joinStatus ? 'Room is full' : joinStatus;
                     socketManager.emitBackToClient(socket,'join_succes',joinStatus);
@@ -251,14 +253,11 @@ module.exports = function (io){
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
                 if (isRoundFinished && !isReviewingQuestion) { // Update Game state and go to next round
                     modLogger.resetNumberOfQuestionsReviewed();
-                    gameStateTracker.resetRoundStatus();
                     userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
                     gameManager.updateGameState(socket);
                     gameManager.updateAllBoards(socket);
                     gameManager.startRound(socket);
-
                 }
-
               },
 
             /////// Events staan tijdelijk in dit bestand
