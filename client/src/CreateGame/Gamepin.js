@@ -26,7 +26,6 @@ export function Gamepin() {
         });
         socket.on('add_user', () => {
             console.log('being added');
-            
             setPlayerCount(prevCount => prevCount + 1);
         });
         socket.on("delete_user", () => {

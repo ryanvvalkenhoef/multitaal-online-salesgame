@@ -1,11 +1,11 @@
-const { readData,writeData } = require('../jsonFileGenerator/readAndWrite');
-
 class ModLogger {
     
-    #room
+    #room;
+    #jsonFileHandler;
     
-    constructor(room) {
+    constructor(room,jsonFileHandler) {
         this.#room = room;
+        this.#jsonFileHandler = jsonFileHandler;
     }
 
 
@@ -14,7 +14,7 @@ class ModLogger {
     }
 
     getMod() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if (!data) {
             console.log("Can't find mod");
             return null;
@@ -22,16 +22,24 @@ class ModLogger {
         return data.mod;
     }
 
-    deleteMods(modsId) {
-        let data = readData(this.#room);
+    deleteMod(modsId) {
+        let data = this.#jsonFileHandler.readData()
         if (!data) return;
         data.mod = data.mod.filter((mods) => mods.id !== modsId);
-        writeData(data,this.#room);
+        this.#jsonFileHandler.writeData(data);
     }
 
-    addMod(socketid) {
-        let data = readData(this.#room);
+    createMod(socketid) {
+        let data = this.#jsonFileHandler.readData()
         if (!data) return;
+
+        const gameHasMod = Object.keys(data.mod).length > 0; //checks if mod object in json file is empty;
+        console.log("boolean: " + gameHasMod)
+        if(gameHasMod){
+            console.log("Game already has a moderator assigned");
+            return null;
+        }
+
         data.mod = {  // creates mod object for json file.
             id: socketid,
             language: "NL",
@@ -39,53 +47,48 @@ class ModLogger {
             numberOfQuestionsReviewed: 0,
             isReviewingQuestion: false,
         }
-        writeData(data,this.#room);
+        this.#jsonFileHandler.writeData(data);
     }
 
-    updateMods(modsId, newData) {
-        let data = readData(this.#room);
+    updateMod(modsId, newData) {
+        let data = this.#jsonFileHandler.readData()
         if (!data) return;
 
         const mod = data.mod;
         if (mod && mod.id === modsId) {
             data.mod = { ...mod, ...newData };
-            writeData(data,this.#room);
+            this.#jsonFileHandler.writeData(data);
         } else {
             console.error("Mod not found.");
         }
     }
 
-    getNumberOfQuestionsReviewed() {
-        const data = readData(this.#room);
-        return data && data.mod ? data.mod.numberOfQuestionsReviewed : null;
-    }
-
     resetNumberOfQuestionsReviewed() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if (data && data.mod) {
             data.mod.numberOfQuestionsReviewed = 0;
-            writeData(data,this.#room);
+            this.#jsonFileHandler.writeData(data);
         }
     }
 
     updateNumberOfQuestionsReviewed() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if (data && data.mod) {
             data.mod.numberOfQuestionsReviewed += 1;
-            writeData(data,this.#room);
+            this.#jsonFileHandler.writeData(data);
         }
     }
 
     setIsReviewingQuestion(boolean) {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if (data && data.mod) {
             data.mod.isReviewingQuestion = boolean;
-            writeData(data,this.#room);
+            this.#jsonFileHandler.writeData(data);
         }
     }
 
     checkIfReviewingQuestion() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data && data.mod ? data.mod.isReviewingQuestion : null;
     }
 }

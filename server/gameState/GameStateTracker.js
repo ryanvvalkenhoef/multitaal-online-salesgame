@@ -1,12 +1,11 @@
-
-const {readData,writeData}  = require('../jsonFileGenerator/readAndWrite')
-
 class GameStateTracker {
 
     #room
+    #jsonFileHandler
 
-    constructor(room) {
+    constructor(room,jsonFileHandler) {
         this.#room = room;
+        this.#jsonFileHandler = jsonFileHandler;
     }
 
     
@@ -16,49 +15,49 @@ class GameStateTracker {
 
 
     getStrategies() {  // is also used to get the pieces
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data && data.gameState ? data.gameState.strategies : "No players found";
     }
 
     getPlayerNames() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data ? data.gameState.playerNames : null;
     }
 
     nextRound(){
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if(!data) return null;
         data.gameState.currentRound ++;
-        writeData(data,this.#room);
+        this.#jsonFileHandler.writeData(data);
     }
 
     getRound() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data ? { currentRound: data.gameState.currentRound, totalRounds: data.gameState.totalRounds } : null;
     }
 
 
     getPlayerCount() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data ? data.gameState.totalPlayers : null;
     }
 
 
     getPlayerList() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data ? data.users : null;
     }
 
     checkIfRoundIsFinished() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         return data ? data.gameState.totalPlayers === data.mod.numberOfQuestionsReviewed : null;
     }
 
     resetRoundStatus() {
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if (data && data.gameState) {
             data.gameState.isRoundFinished = false;
-            writeData(data,this.#room);
+            this.#jsonFileHandler.writeData(data);
         }
     }
 

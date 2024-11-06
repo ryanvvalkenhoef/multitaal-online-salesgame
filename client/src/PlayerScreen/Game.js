@@ -63,6 +63,7 @@ export function Game() {
                 setTurnText(t("Game.setTurnText", { data }))
             },
             'update_leaderboard': (jsonData) => {
+                console.log("leaderbord update")
                 setData(jsonData)
             },
             'receive_question': (data) => {
@@ -90,6 +91,7 @@ export function Game() {
             },
 
             'game_over': () => {
+                console.log('game over');
                 alert("game over");
             }
             

@@ -1,31 +1,29 @@
-const {readData,writeData}  = require('../jsonFileGenerator/readAndWrite')
-
 class PreGameManager {  //This class sets the game configuration
 
 
-    static setTotalPlayers(totalPlayers, room) {
-        const data = readData(room);
+    static setTotalPlayers(totalPlayers, jsonFileHandler) {
+        const data = jsonFileHandler.readData();
         if (!data) return null;
         if (!totalPlayers) {
             console.warn("total players is: " + totalPlayers);
             return null;
         }
         data.gameState.totalPlayers = totalPlayers;
-        writeData(data, room);
+        jsonFileHandler.writeData(data);
     }
 
-    static setTotalRounds(totalRounds, room) {
-        const data = readData(room);
+    static setTotalRounds(totalRounds, jsonFileHandler) {
+        const data = jsonFileHandler.readData();
         if (!data) return null;
         if (!totalRounds) {
             console.warn("total rounds is: " + totalRounds);
             return null;
         }
         data.gameState.totalRounds = totalRounds;
-        writeData(data, room);
+        jsonFileHandler.writeData(data);
     }
 
-    static addStrategy(strategy, room) {
+    static addStrategy(strategy, jsonFileHandler) {
         switch (strategy) {
             case "top of the world":
                 strategy = "world";
@@ -40,30 +38,66 @@ class PreGameManager {  //This class sets the game configuration
                 strategy = strategy;
                 break;
         }
-        const data = readData(room);
+        const data = jsonFileHandler.readData();
         if (!data) return null;
         data.gameState.strategies.push(strategy);
-        writeData(data, room);
+        jsonFileHandler.writeData(data);
 
     }
 
-    static addPlayerName(playerName, room) {
-        const data = readData(room);
+    static addPlayerName(playerName, jsonFileHandler) {
+        const data = jsonFileHandler.readData();
         if (!data) return null;
         data.gameState.playerNames.push(playerName);
-        writeData(data, room);
+        jsonFileHandler.writeData(data);
 
     }
-
-    static checkIfRoomFull(room) {
-        const data = readData(room);
+    
+    static getColor(socketid,jsonFileHandler){ // returns the color a player should get based on their strategy
+        let data = jsonFileHandler.readData()
         if (!data) return null;
-        return data.gameState.strategies.length >= data.gameState.totalPlayers ? "full" : "space";
+
+        const user = data.users.find(user => user.id === socketid);
+        if (user) {
+            const strategy = user.strategy.toLowerCase();
+            let color = '';
+            switch (strategy) {
+                case 'top of the world':
+                    color = 'green';
+                    break;
+                case 'jysk telepartner':
+                    color = 'orange';
+                    break;
+                case 'domino house':
+                    color = 'blue';
+                    break;
+                case 'lunar':
+                    color = 'yellow';
+                    break;
+                case 'klaphatten':
+                    color = 'purple';
+                    break;
+                case 'safeline':
+                    color = 'red';
+                    break;
+                default:
+                    break;
+            }
+            return color;
+        } else {
+            console.error('User not found5.');
+            return null;
+        }
+    }
+
+    static checkIfRoomFull(jsonFileHandler) {
+        const data = jsonFileHandler.readData();
+        if (!data) return null;
+        return data.gameState.strategies.length >= data.gameState.totalPlayers;
     }
 
     static checkIfValidRoom(room, roomList) {
-        const validRoom = roomList.includes(room)
-        return validRoom ? true : false;
+        return roomList.includes(room)
     }
 }
 module.exports = PreGameManager;

@@ -1,4 +1,3 @@
-
 class GameManager{
 
   constructor(io,userLogger,modLogger,socketManager,gameStateTracker) {
@@ -20,17 +19,15 @@ class GameManager{
   };
 
 
+  updateGameState = (socket) => { // Sends newest game state to the client
+    this.#updateRounds(socket);
+    this.#updateLeaderboard(socket);
 
-  updateGameState = (io,socket) => { // Sends newest game state to the client
     const roundInfo = this.gameStateTracker.getRound();
-    const userData = this.userLogger.getAllPlayerObjects();
     const isGameFinished = this.gameStateTracker.checkIfGameOver(roundInfo)
-
-    this.socketManager.emitToRoom(socket,"update_leaderboard",userData);
-    this.socketManager.emitToRoom(socket,"rounds",roundInfo);
-
     if(isGameFinished){
       this.socketManager.emitToRoom(socket,'game_over');
+
     }
     else {
       this.gameStateTracker.nextRound();
@@ -52,8 +49,8 @@ class GameManager{
       this.socketManager.emitToSpecificSocket(socketId,'players_turn',strategy);
       this.socketManager.emitToSpecificSocket(socketId,'player_names',name);
     }
-    const roundInfo = this.gameStateTracker.getRound();
-    this.socketManager.emitToRoom(socket,'rounds',roundInfo);
+    this.#updateRounds(socket)
+    this.#updateLeaderboard(socket);
   }
 
 
@@ -64,9 +61,15 @@ class GameManager{
   }
 
 
+  #updateLeaderboard = (socket) => {
+    const userData = this.userLogger.getAllPlayerObjects();
+    this.socketManager.emitToRoom(socket, "update_leaderboard", userData);
+  }
 
-
-
+  #updateRounds = (socket) => {
+    const roundInfo = this.gameStateTracker.getRound();
+    this.socketManager.emitToRoom(socket, "rounds", roundInfo);
+  }
 
 
 }

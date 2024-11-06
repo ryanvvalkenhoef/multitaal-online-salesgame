@@ -8,12 +8,13 @@ class ModLoggerManager{
      * If it doesn't exist, a new instance will be created.
      *
      * @param {string} room - The identifier for the game room.
+     * @param {JsonFileHandler} jsonFileHandler - Object reads and writes to jsonfile
      * @returns {ModLogger} The GameStateTracker instance for the room.
      */
-    static getModLogger (room){
+    static getModLogger (room,jsonFileHandler){
 
         if(!this.#modLoggers.has(room)){ // makes modlogger if room doesn't have one
-            this.#modLoggers.set(room, new ModLogger(room))
+            this.#modLoggers.set(room, new ModLogger(room,jsonFileHandler))
         }
 
         return this.#modLoggers.get(room);

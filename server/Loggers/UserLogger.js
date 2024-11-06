@@ -1,25 +1,27 @@
 const fs = require('fs');
-const { readData,writeData } = require('../jsonFileGenerator/readAndWrite');
 
 class UserLogger {
     
-    #room
-    constructor(room) {
+    #room;
+    #jsonFileHandler;
+
+    constructor(room,jsonFileHandler) {
         this.#room = room;
+        this.#jsonFileHandler = jsonFileHandler;
     }
   
 
     deleteUser(userId) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return;
 
         data.users = data.users.filter(user => user.id !== userId);
 
-        writeData(data,this.#room)
+        this.#jsonFileHandler.writeData(data)
     }
 
     createUser(socketid){
-        const data = readData(this.#room);
+        const data = this.#jsonFileHandler.readData()
         if(!data) return;
 
         const user = {
@@ -34,24 +36,24 @@ class UserLogger {
             playerPosition: '' }
 
         data.users.push(user);
-        writeData(data,this.#room);
+        this.#jsonFileHandler.writeData(data);
     }
 
      updateUser(userId, newData) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return;
 
         const index = data.users.findIndex(user => user.id === userId);
         if (index !== -1) {
             data.users[index] = { ...data.users[index], ...newData };
-            writeData(data,this.#room)
+            this.#jsonFileHandler.writeData(data)
         } else {
             console.error('User not found1.');
         }
     }
 
      getRoom(socketid) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const user = data.users.find(user => user.id === socketid);
@@ -64,7 +66,7 @@ class UserLogger {
     }
 
      getUserIDByName(name) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const user = data.users.find(user => user.name === name);
@@ -77,7 +79,7 @@ class UserLogger {
     }
 
      getPoints(id) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const user = data.users.find(user => user.id === id);
@@ -90,7 +92,7 @@ class UserLogger {
     }
 
      availability(socketid, userName, userRoom, userStrat) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return 'available';
 
         for (let user of data.users) {
@@ -106,7 +108,7 @@ class UserLogger {
 
 
      getStrategy(socketid) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const user = data.users.find(user => user.id === socketid);
@@ -132,45 +134,22 @@ class UserLogger {
         }
     }
 
-     getColor(socketid) {
-        let data = readData(this.#room);
+    getColor(socketid){
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
-        const user = data.users.find(user => user.id === socketid);
-        if (user) {
-            const strategy = user.strategy.toLowerCase();
-            let color = '';
-            switch (strategy) {
-                case 'top of the world':
-                    color = 'green';
-                    break;
-                case 'jysk telepartner':
-                    color = 'orange';
-                    break;
-                case 'domino house':
-                    color = 'blue';
-                    break;
-                case 'lunar':
-                    color = 'yellow';
-                    break;
-                case 'klaphatten':
-                    color = 'purple';
-                    break;
-                case 'safeline':
-                    color = 'red';
-                    break;
-                default:
-                    break;
-            }
-            return color;
-        } else {
-            console.error('User not found5.');
-            return null;
-        }
+        const players = data.users;
+        const player = players.find(player =>{
+            return player.id === socketid;
+        })
+
+        return player.color;
+
+
     }
 
      getReceiver(questionColor) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const users = data.users;
@@ -207,7 +186,7 @@ class UserLogger {
     }
 
      getPlayerName(socketid) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const user = data.users.find(user => user.id === socketid);
@@ -220,7 +199,7 @@ class UserLogger {
     }
 
      getLanguage(socketid) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         const user = data.users.find(user => user.id === socketid);
@@ -233,15 +212,15 @@ class UserLogger {
     }
 
      resetHasFinishedTurn() {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
         data.users.forEach(player => (player.hasFinishedTurn = false));
-        writeData(data,this.#room)
+        this.#jsonFileHandler.writeData(data)
     }
 
      getAllPlayerObjects() {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) {
             console.log("Can't read data: getAllPlayerObjects()");
             return null;
@@ -250,8 +229,7 @@ class UserLogger {
     }
 
      setIsAnsweringQuestion(boolean, socketid) {
-        boolean = JSON.parse(boolean);
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) {
             console.log("Can't read data: isAnsweringQuestion()");
             return null;
@@ -259,11 +237,11 @@ class UserLogger {
 
         const player = data.users.find(player => player.id === socketid);
         player.isAnsweringQuestion = boolean;
-        writeData(data,this.#room)
+        this.#jsonFileHandler.writeData(data)
     }
 
      checkIfPlayerIsAnsweringQuestion(socketid) {
-        let data = readData(this.#room);
+        let data = this.#jsonFileHandler.readData()
         if (!data) {
             console.log("Can't read data: checkIfPlayerIsAnsweringQuestion()");
             return null;
