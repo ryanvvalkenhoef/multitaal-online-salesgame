@@ -1,7 +1,9 @@
 class SocketManager {
-
+    
+    #io
+    
     constructor(io) {
-        this.io = io;
+        this.#io = io;
     }
 
 
@@ -9,7 +11,7 @@ class SocketManager {
 
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'players');
-            this.io.to(room).emit(event, data)
+            this.#io.to(room).emit(event, data)
         } else {
             console.log("Socket object in null or undefined");
         }
@@ -20,7 +22,7 @@ class SocketManager {
 
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'mod');
-            this.io.to(room).emit(event, data)
+            this.#io.to(room).emit(event, data)
         } else {
             console.log("Socket object in null or undefined");
         }
@@ -31,7 +33,7 @@ class SocketManager {
 
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'room');
-            this.io.to(room).emit(event,data);
+            this.#io.to(room).emit(event,data);
         } else {
             console.log("Socket object in null or undefined");
         }
@@ -41,7 +43,7 @@ class SocketManager {
 
         if (socket !== null && socket !== undefined) {
             const room = this.#getRoom(socket,'client');
-            this.io.to(room).emit(event,data);
+            this.#io.to(room).emit(event,data);
         } else {
             console.log("Socket object in null or undefined");
         }
@@ -50,7 +52,7 @@ class SocketManager {
     emitToSpecificSocket = (socketId,event,data) => {
 
         if (socketId !== null && socketId !== undefined) {
-            this.io.to(socketId).emit(event,data);
+            this.#io.to(socketId).emit(event,data);
         } else {
             console.log("SocketId is null or undefined");
         }

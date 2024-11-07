@@ -76,7 +76,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                         //setMoveMade(true)
                         document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
                         //socket.emit("update_position", {newPosition: newPosition, selectedPawn: selectedPawn.id})
-                        socket.emit('updatePlayerPosition', {newPosition: newPosition, selectedPawn: selectedPawn.id});
+                        socket.emit('update_PlayerPosition', {newPosition: newPosition, selectedPawn: selectedPawn.id});
                     } else {
                         console.error("Selected pawn is not a valid DOM element")
                     }

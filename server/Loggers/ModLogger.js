@@ -55,8 +55,7 @@ class ModLogger {
         let data = this.#jsonFileHandler.readData()
         if (!data) return;
 
-        const gameHasMod = Object.keys(data.mod).length > 0; //checks if mod object in json file is empty;
-        console.log("boolean: " + gameHasMod)
+        const gameHasMod = Object.keys(data.mod).length > 0; //Checks if mod object in json file is empty;
         if(gameHasMod){
             console.log("Game already has a moderator assigned");
             return null;

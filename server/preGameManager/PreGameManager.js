@@ -18,7 +18,7 @@
  */
 
 
-class PreGameManager { 
+class PreGameManager {
 
 
     static setTotalPlayers(totalPlayers, jsonFileHandler) {

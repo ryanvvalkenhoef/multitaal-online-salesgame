@@ -46,7 +46,7 @@ export function Game() {
         currentQuestionRef.current.playerAnswer = textBoxContent;
         currentQuestionRef.current.playerId = socket.id;
         socket.emit('send_answer_to_server', currentQuestionRef.current)
-        socket.emit('updateHasFinishedTurn',true);
+        socket.emit('update_hasFinishedTurn',true);
     };
 
     useEffect(() =>{
