@@ -37,16 +37,13 @@ export function Gamepin() {
         };
     }, []);
 
-    const handleGame = () => {
-        if (playerCount <= playerNeeded) {
+    const handleGame = () => { 
+        if (playerCount === playerNeeded) {
             socket.emit('start_turn', 'data')
-            
             navigate('/modview');
             
-        } else if (playerCount < playerNeeded) {
-            setErrorCode('Not enough players')
         } else {
-            setErrorCode('Too many players')
+            setErrorCode(`Not all players have joined`);
         }
 
     };
