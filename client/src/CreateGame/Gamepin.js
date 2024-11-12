@@ -37,11 +37,10 @@ export function Gamepin() {
         };
     }, []);
 
-    const handleGame = () => { 
+    const handleGame = () => {
         if (playerCount === playerNeeded) {
             socket.emit('start_turn', 'data')
             navigate('/modview');
-            
         } else {
             setErrorCode(`Not all players have joined`);
         }
