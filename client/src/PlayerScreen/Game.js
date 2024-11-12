@@ -90,6 +90,10 @@ export function Game() {
                 }
             },
 
+            'set_turn_true': () => {
+                setMyTurn(true);
+            },
+
             'game_over': () => {
                 console.log('game over');
                 alert("game over");

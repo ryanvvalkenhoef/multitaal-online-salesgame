@@ -50,6 +50,7 @@ class GameManager{
       const name = playerNames[i].name;
       this.#socketManager.emitToSpecificSocket(socketId,'players_turn',strategy);
       this.#socketManager.emitToSpecificSocket(socketId,'player_names',name);
+      this.#socketManager.emitToSpecificSocket(socketId, 'set_turn_true');
     }
     this.#updateRounds(socket)
     this.#updateLeaderboard(socket);
