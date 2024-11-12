@@ -1,5 +1,3 @@
-const modLogger = require("../Loggers/modLogger");
-
 class QuestionQueue {
 
   constructor() {
