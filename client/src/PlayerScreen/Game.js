@@ -21,7 +21,7 @@ export function Game() {
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
     const [popupColor, setPopupColor] = useState('')
-    const [myTurn, setMyTurn] = useState(true)
+    const [playerRollDice, setPlayerRollDice] = useState(false)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [isPopUpEnabled, setIsPopUpEnabled] = useState(false)
@@ -89,9 +89,10 @@ export function Game() {
                     socket.emit('pawns_request_failed', '')
                 }
             },
-
-            'set_turn_true': () => {
-                setMyTurn(true);
+            //mmmm
+            'set_roll_dice': (boolean) => {
+                setPlayerRollDice(boolean)
+                console.log('can roll dice', playerRollDice);
             },
 
             'game_over': () => {
@@ -134,8 +135,8 @@ export function Game() {
                 setSteps={setSteps}
                 setMoveMade={setMoveMade}
                 position={position}
-                myTurn={myTurn}
-                setMyTurn={setMyTurn}/>
+                playerRollDice={playerRollDice}
+                setPlayerRollDice={setPlayerRollDice}/>
             <LeaderBoard
                 sortedUserData={sortedUserData}
                 playerName={playerName}/>

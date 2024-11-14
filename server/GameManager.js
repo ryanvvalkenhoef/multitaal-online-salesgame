@@ -50,19 +50,38 @@ class GameManager{
       const name = playerNames[i].name;
       this.#socketManager.emitToSpecificSocket(socketId,'players_turn',strategy);
       this.#socketManager.emitToSpecificSocket(socketId,'player_names',name);
-      this.#socketManager.emitToSpecificSocket(socketId, 'set_turn_true');
+      this.#userLogger.setCanRollDice(socketId, true);
+      this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
     }
     this.#updateRounds(socket)
     this.#updateLeaderboard(socket);
   }
 
+  // enableRollDice = (socketId) => {
+  //   if (!this.#userLogger) {
+  //     console.error("userLogger is not initialized");
+  //     return;
+  //   }
+  //   console.log("whyyyyyyy", this.#userLogger);
+  //   this.#userLogger.setCanRollDice(socketId, true);
+  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
+  // }
 
-  updateAllBoards = (socket) =>{
+  // disableRollDice = (socketId) => {
+  //   if (!this.#userLogger) {
+  //     console.error("userLogger is not initialized22222");
+  //     return;
+  //   }
+  //   console.log("whyyyyyyy2", this.#userLogger);
+  //   this.#userLogger.setCanRollDice(socketId, false);
+  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', false);
+  // }
+
+  updateAllBoards = (socket) => {
     const players = this.#userLogger.getAllPlayerObjects();
     const playerPositions = players.map(player => player.playerPosition);
-    this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+    this.#socketManager.emitToRoom(socket,'update_position', playerPositions);
   }
-
 
   #updateLeaderboard = (socket) => {
     const userData = this.#userLogger.getAllPlayerObjects();

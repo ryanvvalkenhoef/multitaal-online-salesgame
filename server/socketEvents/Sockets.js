@@ -292,9 +292,17 @@ module.exports = function (io){
                 socketManager.emitBackToClient(socket,'send_tileInfo2', tileInfo2);
             },
 
-            'roll_dice' : (data) => {
+            'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
                 socket.emit("set_dice", diceValue)
+                const canRollDice = userLogger.getCanRollDice(socket.id);
+                console.log('userlogger is prolly not defined' + userLogger);
+
+                if (canRollDice && playerRollDice) { //if its truly players turn do this
+                        userLogger.setCanRollDice(socket.id, false);
+                        socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
+                        console.log('canRollDice vergelijken' + canRollDice + ' en ' + playerRollDice);
+                }
             },
 
             'send_dice_roll_and_position': (data) => {
