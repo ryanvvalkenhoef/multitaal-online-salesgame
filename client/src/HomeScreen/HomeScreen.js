@@ -39,7 +39,7 @@ export function HomeScreen() {
                 </button>
             </div>
             <div className="homeButtonRow">
-                <button type="submit" className="homeGameButton homeButtonCenter" onClick={handleLoadGame} >
+                <button type="submit" className="homeGameButton homeButtonLeft" onClick={handleLoadGame} >
                     {t("Load Save Game")}
                 </button>
             </div>
