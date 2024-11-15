@@ -5,7 +5,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const fs = require("fs");
-const socketInit = require("./Socket/socketInit");
+const socketInit = require("./socket/socketInit");
 const sockets = require("./socketEvents/Sockets");
 const gameSockets = require("./socketEvents/gameSockets");
 
