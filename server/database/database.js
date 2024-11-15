@@ -56,16 +56,16 @@ async function modulePopUp(color, sort = 'en') {
     let queryMod;
     switch (sort) {
         case 'en':
-            queryMod = 'SELECT QEnglish AS question, AEnglish AS answer FROM situatievragenzrb WHERE ID=?';
+            queryMod = 'SELECT QEnglish AS question, AEnglish AS answer FROM questionstable WHERE ID=?';
             break;
         case 'dk':
-            queryMod = 'SELECT QDanish AS question, ADanish AS answer FROM situatievragenzrb WHERE ID=?';
+            queryMod = 'SELECT QDanish AS question, ADanish AS answer FROM questionstable WHERE ID=?';
             break;
         case 'nl':
-            queryMod = 'SELECT QDutch AS question, ADutch AS answer FROM situatievragenzrb WHERE ID=?';
+            queryMod = 'SELECT QDutch AS question, ADutch AS answer FROM questionstable WHERE ID=?';
             break;
         default:
-            queryMod = 'SELECT QEnglish AS question, AEnglish AS answer FROM situatievragenzrb WHERE ID=?';
+            queryMod = 'SELECT QEnglish AS question, AEnglish AS answer FROM questionstable WHERE ID=?';
             break;
     }
 
