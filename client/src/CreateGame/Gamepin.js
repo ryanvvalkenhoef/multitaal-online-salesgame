@@ -26,7 +26,6 @@ export function Gamepin() {
         });
         socket.on('add_user', () => {
             console.log('being added');
-            
             setPlayerCount(prevCount => prevCount + 1);
         });
         socket.on("delete_user", () => {
@@ -39,15 +38,11 @@ export function Gamepin() {
     }, []);
 
     const handleGame = () => {
-        if (playerCount <= playerNeeded) {
+        if (playerCount === playerNeeded) {
             socket.emit('start_turn', 'data')
-            
             navigate('/modview');
-            
-        } else if (playerCount < playerNeeded) {
-            setErrorCode('Not enough players')
         } else {
-            setErrorCode('Too many players')
+            setErrorCode(`Not all players have joined`);
         }
 
     };

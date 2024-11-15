@@ -1,4 +1,4 @@
-**How to run ENG:**
+g**How to run ENG:**
 First split the terminal or open a second terminal window.
 The files are split in a client side and a server side, to run both (so you can start the application correctly):
 - Type "cd server" in the first console window
@@ -17,11 +17,9 @@ To start and run the database, (skip this step if you already did this)
 5. Then click on "Admin" behind 'MySQL'
 After it takes you to 'phpMyAdmin' you'll see a button called "new" on the left side of the screen, 
 6. When you click the button it will ask you for a name, type in "thebestseller" and click on create
-*Congratulations, you just made a database!*
-7. Standby the .CSV file that you can find seperately in the filestructure under "database"
-IMPORTANT: do not change the name of any file within this project unless you know what you are doing!
 In the phpMyAdmin you will see that the database you just named "thebestseller" is now standing at the bottom of a row of some other automatically created databases
-8. Click on the new database and on the almost top of your screen you will see some options, one of them is called import, click on it
+7. Click on the new database and on the almost top of your screen you will see some options, one of them is called import, click on it
+8. Pick one of the .csv questionsets you want to import from you project folder. They are located at: server/database/questions
 9. After you get to the import screen, click on 'choose file' and select the .CSV file
 10. scroll down to the bottom of the import screen and you'll see a switch with the text "first line ..." switch this box to on 
 IMPORTANT: do not click other buttons or switches in the import screen unless you know what you are doing!
