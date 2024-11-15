@@ -34,6 +34,8 @@
     "setTurnText": "Det er {{data}}s tur til at kaste terningerne og svare på et spørgsmål",
     "rollDice": "Kaste terningerne",
     "leaderboard": "Måltavle",
+    "previousPoints": "tidliger",
+    "currentPoints": "aktuel",
     "modWait": "Venter på, at spilleren sender et svar",
     "setRoundText": "Runde {{data.currentRound}} af {{data.totalRounds}}"
   },

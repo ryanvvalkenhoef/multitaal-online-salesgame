@@ -4,7 +4,8 @@
     width: 400px;
     margin-top: 5%;
     margin-bottom: 45px;
-    padding-bottom: 25px;
+    padding-top: 50px;
+    padding-bottom: 50px;
     align-content: center;
     display: grid;
     grid-template-columns: auto;
@@ -32,4 +33,27 @@
 }
 .leaderboardItem:last-child {
     border-bottom: none;
+}
+.pointsContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pointsRow {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 50px;
+}
+
+.pointsLabels {
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    margin: 0 auto 10px auto;
+}
+
+.pointsLabel {
+    margin: 0 5px;
 }
