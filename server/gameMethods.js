@@ -1,6 +1,6 @@
-// const SocketManager = require("./socketMethods");
-// const modLogger = require("./modLogger");
-// const userLogger = require("./userLogger");
+const SocketManager = require("./socketMethods");
+const modLogger = require("./modLogger");
+const userLogger = require("./userLogger");
 
 class GameManager{
 

@@ -106,6 +106,7 @@ export function ModView() {
             'game_over': () => {
                 alert("game over");
             },
+            
             'get_player_status': () => {
                 
             }
