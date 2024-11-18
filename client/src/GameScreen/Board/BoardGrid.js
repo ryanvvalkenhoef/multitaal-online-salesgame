@@ -2,6 +2,13 @@ import React, {useEffect, useState,useRef} from "react"
 import './BoardGridStyle.css'
 import {socket} from "../client"
 import { json } from "react-router-dom"
+import {
+    handlePieceAddition,
+    handleTileInfoUpdate,
+    handleTileInfo2Update, cleanUpSocketListeners,
+    handlePositionUpdate,
+    handleValidPositionsUpdate
+} from "../ModeratorScreen/socketEventListeners";
 
 const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen}) => {
     const [startPieces, setStartPieces] = useState([])
@@ -76,7 +83,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                         //setMoveMade(true)
                         document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
                         //socket.emit("update_position", {newPosition: newPosition, selectedPawn: selectedPawn.id})
-                        socket.emit('update_PlayerPosition', {newPosition: newPosition, selectedPawn: selectedPawn.id});
+                        //socket.emit('update_PlayerPosition', {newPosition: newPosition, selectedPawn: selectedPawn.id});
                     } else {
                         console.error("Selected pawn is not a valid DOM element")
                     }
@@ -84,61 +91,12 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             }
         }
 
-        socket.on('send_tileInfo', (data) => {
-            
-            setTileInfo(data)
-        })
+       handleTileInfoUpdate(socket,setTileInfo);
+       handleTileInfo2Update(socket,setTileInfo2);
+       handleValidPositionsUpdate(socket,setValidPositions);
+       handlePieceAddition(socket,setStartPieces,setJoinedColors);
+       handlePositionUpdate(socket,validPositions,setPosition);
 
-        socket.on('send_tileInfo2', (data) => {
-            setTileInfo2(data)
-        })
-
-        socket.on("update_valid_positions", (validPositionsArray) => { //validPositionsArray is a string array of coordinates
-            setValidPositions(validPositionsArray)
-    })
-
-            socket.on("add_piece", (strategies) => {
-              
-                let joinedColorsArray = []
-                const colorMap = {
-                    "world": "green",
-                    "lunar": "yellow",
-                    "domino": "blue",
-                    "jysk": "orange",
-                    "klaphatten": "purple",
-                    "safeline": "red"
-                }
-                
-                strategies.forEach(strategies => {
-                    if (colorMap[strategies]) {  
-                        joinedColorsArray.push(colorMap[strategies]);  
-                    }
-                });
-
-                
-                setStartPieces(strategies)
-                setJoinedColors(joinedColorsArray)
-            })
-
-        socket.on("update_position", (NewPositionData) => {
-            
-            NewPositionData.forEach(data =>{
-
-                const newPosition = data.newPosition
-                const selectedPawnName = data.selectedPawn
-                const selectedPawnElement = document.getElementById(selectedPawnName)
-                console.log(validPositions.includes(newPosition));
-                
-                if (selectedPawnElement) {
-                    const newTile = document.querySelector(`.tile[pos="${newPosition}"]`)
-                    newTile.appendChild(selectedPawnElement)
-                    setPosition(newPosition)
-                    document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
-                }
-
-            })
-
-        })
 
         if (gameScreen){
             socket.on("register_currentplayer", (data) => {
@@ -151,9 +109,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
             }
         } console.log('re-rendering due to update')
         return () => {
-            socket.off('update_valid_positions');
-            socket.off('register_currentplayer');
-            socket.off('update_position');
+            cleanUpSocketListeners(socket);
         };
     }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setPlayerColor, playerColor, gameScreen])
 

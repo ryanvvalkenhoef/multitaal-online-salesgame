@@ -107,6 +107,29 @@ class UserLogger {
         }
     }
 
+    reconnect(newSocketId,oldSocketId){
+        console.log("hooooi")
+
+        let data = this.#jsonFileHandler.readData()
+        if (!data) return null;
+
+        const player = data.users.find(player => {
+           return player.id === oldSocketId;
+        })
+
+        if(player){
+            console.log("oud: " + player.id)
+            player.id = newSocketId;
+            console.log("nieuw: " + player.id);
+        }
+        else{
+            console.warn("Can't replace old player id with new one");
+        }
+
+        this.#jsonFileHandler.writeData(data);
+
+    }
+
      getPoints(id) {
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
@@ -157,6 +180,10 @@ class UserLogger {
         const player = players.find(player =>{
             return player.id === socketid;
         })
+
+        if(!player){
+            console.warn("")
+        }
 
         return player.color;
 
