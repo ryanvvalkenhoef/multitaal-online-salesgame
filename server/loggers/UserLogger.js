@@ -283,6 +283,17 @@ class UserLogger {
         const player = data.users.find(player => player.id === socketid);
         return player.isAnsweringQuestion;
     }
+
+    getPlayerStatus = (room) => {
+        let data = this.#jsonFileHandler.readData();
+        if (!data) return;
+        const playerArray = data.users;
+        let playerStatusArray = [];
+        playerArray.forEach(player => {
+            playerStatusArray.push({[player.strategy]:player.hasFinishedTurn})
+        })
+        return playerStatusArray;
+    }
 }
 
 module.exports = UserLogger;

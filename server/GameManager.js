@@ -93,7 +93,6 @@ class GameManager{
     this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
   }
 
-
 }
 
 module.exports = GameManager;
