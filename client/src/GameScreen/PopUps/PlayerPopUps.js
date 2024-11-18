@@ -1,5 +1,5 @@
 import React,{useEffect} from 'react';
-import './PopUpStyle.css'
+import '../PopUpStyle.css'
 import {useTranslation} from "react-i18next";
 
 const PlayerPopUps = ({ isPopUpEnabled, isWaitingScreenEnabled, question, textBoxContent, handleTextBoxChange, handleSubmitAnswer, popupColor, setPopupColor }) => {

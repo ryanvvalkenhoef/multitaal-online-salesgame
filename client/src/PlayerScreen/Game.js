@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {socket} from '../client'
 import './GameStyle.css';
-import BoardGrid from "../GameScreen/BoardGrid";
-import DiceContainer from '../GameScreen/DiceContainer';
-import LeaderBoard from "../GameScreen/LeaderBoard";
-import PlayerPopUps from "../GameScreen/PlayerPopUps";
+import BoardGrid from "../GameScreen/Board/BoardGrid";
+import DiceContainer from '../GameScreen/Dice/DiceContainer';
+import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
+import PlayerPopUps from "../GameScreen/PopUps/PlayerPopUps";
 import PlayerTurns from "../GameScreen/PlayerTurns";
 import AudioPlayer from "../GameScreen/AudioPlayer";
 import '../App.css'
@@ -80,8 +80,8 @@ export function Game() {
                 try {
                     const pawn = document.querySelector('#' + strategy)
                     const parent = pawn.parentElement
-                    const parentPosition = parent.getAttribute('pos')
-                    
+                    const parentPosition = parent.getAttribute('data-pos')
+
                     setPosition(parentPosition)
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)

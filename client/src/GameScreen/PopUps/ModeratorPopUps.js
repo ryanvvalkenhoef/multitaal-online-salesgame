@@ -1,5 +1,5 @@
 import React from "react";
-import './PopUpStyle.css'
+import '../PopUpStyle.css'
 import {useTranslation} from "react-i18next";
 
 const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, selectedPoints, handleSubmitPoints, handleUpdatePoints, answer, popupColor}) => {

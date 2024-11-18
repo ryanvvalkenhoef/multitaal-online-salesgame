@@ -2,10 +2,10 @@ import React, { useState, useEffect,useRef } from 'react';
 import '../PlayerScreen/GameStyle.css';
 import '../App.css';
 import {socket} from '../client'
-import DiceContainer from '../GameScreen/DiceContainer';
-import LeaderBoard from "../GameScreen/LeaderBoard";
-import ModeratorPopUps from "../GameScreen/ModeratorPopUps";
-import BoardGrid from "../GameScreen/BoardGrid";
+import DiceContainer from '../GameScreen/Dice/DiceContainer';
+import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
+import ModeratorPopUps from "../GameScreen/PopUps/ModeratorPopUps";
+import BoardGrid from "../GameScreen/Board/BoardGrid";
 import {useTranslation} from "react-i18next";
 import { useLanguageManager } from '../Translations/LanguageManager';
 import den_flag from '../Assets/den_flag.png';
