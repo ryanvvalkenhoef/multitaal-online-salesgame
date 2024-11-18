@@ -19,11 +19,11 @@ const LeaderBoard = ({ sortedUserData, playerName }) => {
         <div className='leaderBoard'>
             <h2>{t("Game.leaderboard")}</h2>
             <div className="pointsLabels">
-                <div className="pointsLabel">{t("Game.previousPoints")}</div>
                 <div className="pointsLabel">{t("Game.currentPoints")}</div>
+                <div className="pointsLabel">{t("Game.previousPoints")}</div>
             </div>
-                {sortedUserData.map(data => (
-                    <div className="leaderboardItem" key={data.id}>
+            {sortedUserData.map(data => (
+                <div className="leaderboardItem" key={data.id}>
                         <img
                             className={`${data.name === playerName ? 'flicker' : ''} ${
                                 data.strategy === 'Safeline' ? 'piecesafeline' :

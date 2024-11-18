@@ -2,10 +2,10 @@
     position: absolute;
     left: 70%;
     width: 400px;
-    margin-top: 5%;
+    margin-top: 2%;
     margin-bottom: 45px;
-    padding-top: 50px;
-    padding-bottom: 50px;
+    padding-top: 35px;
+    padding-bottom: 35px;
     align-content: center;
     display: grid;
     grid-template-columns: auto;
@@ -52,8 +52,9 @@
     justify-content: center;
     width: 80%;
     margin: 0 auto 10px auto;
+    padding-left: 90px;
 }
 
 .pointsLabel {
-    margin: 0 5px;
+    margin: 0 15px;
 }
