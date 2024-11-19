@@ -43,33 +43,6 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     //EMPTY ARRAY NECESSARY FOR RENDERING TILES
     const tiles = []
 
-    // const renderStartPieces = () => {
-    //     if (!updatedPieces) {
-    //         if (modView) {
-    //             socket.emit('get_pieces', 'mod')
-    //             socket.emit('get_data', 'leaderboard_update')
-    //             setUpdatedPieces(true)
-    //         } else {
-    //             socket.emit('get_pieces', 'player')
-    //             socket.emit('get_data', 'leaderboard_update')
-    //             socket.emit('get_playerstrategy', 'player')
-    //             setUpdatedPieces(true)
-    //         }
-    //     }
-    //
-    //     return startPieces.map((piece, index) => {
-    //         const isSelected = selectedPawn && selectedPawn.id !== piece
-    //         const pieceClasses = `startpieces piece${piece} ${isSelected ? 'black-border-piece' : ''}`
-    //         return (
-    //             <div key={index}
-    //                  className={pieceClasses}
-    //                  id={`${piece}`}>
-    //                 {selectedPawn && selectedPawn.id === piece &&
-    //                     <div className="gradient-background round-border"></div>}
-    //             </div>
-    //         )
-    //     })
-    // }
 
     const sendQuestionRequest = (colorTile) => {
         socket.emit("send_question_request", { questionColor: colorTile, userColor: playerColor })
@@ -149,21 +122,18 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
 
          const color = assignColorToTile(index,joinedColors,tileInfo,tileInfo2);
          const isHighlighted = highLightChecker(index,possiblePositions,validPositions);
-        const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
+         const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
          const position = possiblePositions[index];
 
-
-        const tile = Tile({index,position,tileClass,renderStartPieces,startPieces, selectedPawn});
-        tiles.push(tile);
+         const tile = Tile({index,position,tileClass,renderStartPieces,startPieces, selectedPawn});
+         tiles.push(tile);
         }
-
 
 
     return (
             <div className='board-grid'>
                 {tiles}
             </div>
-
     )
 }
 

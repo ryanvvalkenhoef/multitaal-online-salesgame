@@ -128,7 +128,6 @@ export function Game() {
                 playerColor={playerColor}
                 setPlayerColor={setPlayerColor}
                 gameScreen={true}
-                
                 />
             <DiceContainer
                 setSteps={setSteps}
