@@ -13,12 +13,11 @@ const DiceContainer = (props) => {
     const { t, i18n } = useTranslation('global');
     const [diceValue, setDiceValue] = useState(1);
     const [playerName, setPlayerName] = useState('');
-    const { position, setMyTurn, isModeratorScreen, myTurn } = props;
+    const { position, playerRollDice, setPlayerRollDice, isModeratorScreen } = props;
     const images = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
 
     const roll = () => {
-        socket.emit("roll_dice");
-        //setMyTurn(false);
+        socket.emit("roll_dice", playerRollDice);
     };
 
     useEffect(() => {
@@ -42,11 +41,11 @@ const DiceContainer = (props) => {
         };
 
         socket.on("set_dice", setDice);
-        socket.on("players_name", setPlayerName);
+        socket.on("player_names", setPlayerName);
 
         return () => {
             socket.off("set_dice", setDice);
-            socket.off("players_name", setPlayerName);
+            socket.off("player_names", setPlayerName);
         };
     }, [position]);
 
@@ -58,7 +57,7 @@ const DiceContainer = (props) => {
             {isModeratorScreen ?
                 <div className="turnsModView"> {playerName} {t("Game.TurnText")}</div> :
                 <div>
-                    {myTurn && <button className='diceButton' type='button' onClick={roll}>{t("Game.rollDice")}</button>}
+                    {playerRollDice && <button className='diceButton' type='button' onClick={roll}>{t("Game.rollDice")}</button>}
                 </div>
             }
         </div>

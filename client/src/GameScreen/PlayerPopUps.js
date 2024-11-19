@@ -2,7 +2,7 @@ import React,{useEffect} from 'react';
 import './PopUpStyle.css'
 import {useTranslation} from "react-i18next";
 
-const PlayerPopUps = ({ gamePaused, gamePaused2, question, textBoxContent, handleTextBoxChange, handleSubmitAnswer, popupColor, setPopupColor }) => {
+const PlayerPopUps = ({ isPopUpEnabled, isWaitingScreenEnabled, question, textBoxContent, handleTextBoxChange, handleSubmitAnswer, popupColor, setPopupColor }) => {
     const { t, i18n } = useTranslation('global');
 
     useEffect(() => { //prevents copying/pasting
@@ -23,7 +23,7 @@ const PlayerPopUps = ({ gamePaused, gamePaused2, question, textBoxContent, handl
     }, []);
     return (
         <>
-            {gamePaused && (
+            {isPopUpEnabled && (
                 <div className='questionBoxPopup'>
                     <div className={`questionColorBox ${popupColor}`}>
                         <div className='rowpopup'>
@@ -61,7 +61,7 @@ const PlayerPopUps = ({ gamePaused, gamePaused2, question, textBoxContent, handl
                     </div>
                 </div>
             )}
-            {gamePaused2 && (
+            {isWaitingScreenEnabled && (
                 <div className='waitingScreenPopup'>
                     <div className='waitingScreenText'> {t("PopUps.wait")} </div>
                 </div>

@@ -21,18 +21,18 @@ export function Game() {
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
     const [popupColor, setPopupColor] = useState('')
-    const [myTurn, setMyTurn] = useState(true)
+    const [playerRollDice, setPlayerRollDice] = useState(false)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
-    const [gamePaused, setGamePaused] = useState(false)
-    const [gamePaused2, setGamePaused2] = useState(false)
+    const [isPopUpEnabled, setIsPopUpEnabled] = useState(false)
+    const [isWaitingScreenEnabled, setIsWaitingScreenEnabled] = useState(false)
     const [textBoxContent, setTextBoxContent] = useState('')
     const [playerName, setPlayerName] = useState('')
     const [turnText, setTurnText] = useState(t("Game.wait"))
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
-    const currentQuestion = useRef(null);
+    const currentQuestionRef = useRef(null);
     
 
     const handleTextBoxChange = (event) => {
@@ -40,13 +40,13 @@ export function Game() {
     };
 
     const handleSubmitAnswer = () => {
-        setGamePaused(false);
+        setIsPopUpEnabled(false);
         setTextBoxContent('');
-        setGamePaused2(true);
-        currentQuestion.current.playerAnswer = textBoxContent;
-        currentQuestion.current.playerId = socket.id;
-        socket.emit('send_answer_to_server', currentQuestion.current)
-        socket.emit('updateHasFinishedTurn',true);
+        //setIsWaitingScreenEnabled(true);
+        currentQuestionRef.current.playerAnswer = textBoxContent;
+        currentQuestionRef.current.playerId = socket.id;
+        socket.emit('send_answer_to_server', currentQuestionRef.current)
+        socket.emit('update_hasFinishedTurn',true);
     };
 
     useEffect(() =>{
@@ -58,23 +58,22 @@ export function Game() {
                 setCurrentRound(data.currentRound)
                 setRoundText(t("Game.setRoundText", {data}))
             },
-            'players_name': (data) => {
+            'player_names': (data) => {
                 setPlayerName(data)
-                
-                
                 setTurnText(t("Game.setTurnText", { data }))
             },
-            'data_leaderboard': (jsonData) => {
+            'update_leaderboard': (jsonData) => {
+                console.log("leaderbord update")
                 setData(jsonData)
             },
             'receive_question': (data) => {
-                currentQuestion.current = data;
-                setPopupColor(currentQuestion.current.questionColor)
-                setQuestion(currentQuestion.current.questionText);
-                setGamePaused(true);
+                currentQuestionRef.current = data;
+                setPopupColor(currentQuestionRef.current.questionColor)
+                setQuestion(currentQuestionRef.current.questionText);
+                setIsPopUpEnabled(true);
             },
-            'submitted_points' : (data) => {
-                setGamePaused2(false)
+            'disable_waiting_screen' : (data) => {
+                setIsWaitingScreenEnabled(false)
                 //socket.emit('get_data', 'leaderboard_update');
             },
             'players_turn': (strategy) => {
@@ -84,18 +83,20 @@ export function Game() {
                     const parentPosition = parent.getAttribute('pos')
                     
                     setPosition(parentPosition)
-                    
                     console.log('game', parentPosition)
                     setSelectedPawn(pawn)
-                    
-                   
                 } catch (TypeError) {
-                    
                     socket.emit('pawns_request_failed', '')
                 }
             },
+            //mmmm
+            'set_roll_dice': (boolean) => {
+                setPlayerRollDice(boolean)
+                console.log('can roll dice', playerRollDice);
+            },
 
             'game_over': () => {
+                console.log('game over');
                 alert("game over");
             }
             
@@ -114,7 +115,7 @@ export function Game() {
 
     return (
     <>
-        <div className={gamePaused || gamePaused2 ? 'appBlurred' : 'playboard'}>
+        <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
             <div className='roundscounter'>{roundText}</div>
             <BoardGrid
                 steps={steps}
@@ -134,8 +135,8 @@ export function Game() {
                 setSteps={setSteps}
                 setMoveMade={setMoveMade}
                 position={position}
-                myTurn={myTurn}
-                setMyTurn={setMyTurn}/>
+                playerRollDice={playerRollDice}
+                setPlayerRollDice={setPlayerRollDice}/>
             <LeaderBoard
                 sortedUserData={sortedUserData}
                 playerName={playerName}/>
@@ -147,8 +148,8 @@ export function Game() {
             <PlayerPopUps
                 setPopupColor={setPopupColor}
                 popupColor={popupColor}
-                gamePaused={gamePaused}
-                gamePaused2={gamePaused2}
+                isPopUpEnabled={isPopUpEnabled}
+                isWaitingScreenEnabled={isWaitingScreenEnabled}
                 question={question}
                 textBoxContent={textBoxContent}
                 handleTextBoxChange={handleTextBoxChange}
