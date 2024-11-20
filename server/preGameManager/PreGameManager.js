@@ -133,5 +133,20 @@ class PreGameManager {
         return true;
 
     }
+
+    static checkIfUniqueStrategy(jsonFileHandler,newName){
+        const data = jsonFileHandler.readData();
+        if (!data) return null;
+
+        for(const name of data.gameState.strategies){
+            if(name.toLowerCase() === newName.toLowerCase()){
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
 }
 module.exports = PreGameManager;
