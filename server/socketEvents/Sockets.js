@@ -74,8 +74,10 @@ module.exports = function (io){
                 jsonFileHandler = new JsonFileHandler(data.room);
                 const isRoomFull = PreGameManager.checkIfRoomFull(jsonFileHandler)
                 const isStrategyAssigned = data.strategy !== '';
+                const isNameUnique = PreGameManager.checkIfUniqueName(jsonFileHandler,data.name);
+                console.log("name: " + isNameUnique);
 
-                if (isValidRoom && isStrategyAssigned && !isRoomFull) { // All info is valid so player can join the game.
+                if (isValidRoom && isStrategyAssigned && !isRoomFull && isNameUnique) { // All info is valid so player can join the game.
                     //adds socket to rooms and adds room code as property to socket object
                     socket.join(data.room);
                     socket.join(`${data.room}players`);
@@ -112,6 +114,7 @@ module.exports = function (io){
                     // The conditions are checked in a specific order.
                     joinStatus = !isValidRoom ? 'Room does not exist' : undefined;
                     joinStatus = !isStrategyAssigned && !joinStatus ? 'Choose a strategy' : joinStatus;
+                    joinStatus = !isNameUnique && !joinStatus ? 'Name already in use' : joinStatus;
                     joinStatus = isRoomFull && !joinStatus ? 'Room is full' : joinStatus;
                     socketManager.emitBackToClient(socket,'join_succes',joinStatus);
                 }

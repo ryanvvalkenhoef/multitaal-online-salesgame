@@ -119,5 +119,19 @@ class PreGameManager {
     static checkIfValidRoom(room, roomList) {
         return roomList.includes(room)
     }
+
+    static checkIfUniqueName(jsonFileHandler,newName){
+        const data = jsonFileHandler.readData();
+        if (!data) return null;
+
+        for(const name of data.gameState.playerNames){
+           if(name.toLowerCase() === newName.toLowerCase()){
+               return false;
+           }
+        }
+
+        return true;
+
+    }
 }
 module.exports = PreGameManager;
