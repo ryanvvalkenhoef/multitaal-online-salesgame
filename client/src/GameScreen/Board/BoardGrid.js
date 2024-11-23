@@ -17,7 +17,7 @@ import {Piece} from "../Piece/Piece.js";
 import {renderStartPieces} from "../Piece/functions";
 
 
-const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen}) => {
+const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen,ti}) => {
     const [startPieces, setStartPieces] = useState([])
     const [validPositions, setValidPositions] = useState([])
     const [updatedPieces, setUpdatedPieces] = useState(false)
@@ -26,6 +26,9 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     const [tileInfo2, setTileInfo2] = useState([])
     const tilesColorAndPositionRef = useRef(null)
     const [tilePieces, setTilePieces] = useState({});
+    const [isReadyToRender, setIsReadyToRender] = useState(false);
+    const[tilesUseState, setTilesUseState] = useState([]);
+
 
     //CO-ORDINATES FOR PAWN MOVEMENT
     const possiblePositions = [
@@ -94,45 +97,118 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         };
     }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setPlayerColor, playerColor, gameScreen])
 
+    useEffect(()=>{
+socket.on('connect', ()=> {
+    if (socket.id === sessionStorage.getItem('socketId')) {
+        setIsReadyToRender(true);
+    } else {
+        const sessionData = {};
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            sessionData[key] = sessionStorage.getItem(key);
+        }
+        socket.emit('reconnect_player', sessionData);
+        setIsReadyToRender(true);
+        console.log("socket id ==== ", socket.id);
+        sessionStorage.setItem('socketId', socket.id);
+        console.log("sessionStorage: ", sessionStorage.getItem('socketId'))
+    }
+})
+
+        if(isReadyToRender) {
+            if (!updatedPieces) {
+                if (modView) {
+                    socket.emit('get_pieces', 'mod');
+                    socket.emit('get_data', 'leaderboard_update');
+                } else {
+                    socket.emit('get_pieces', 'player');
+                    socket.emit('get_data', 'leaderboard_update');
+                    socket.emit('get_playerstrategy', 'player');
+                }
+                setUpdatedPieces(true); // Mark pieces as updated after emitting events
+            }
+
+            if (tileInfo.length === 0 || tileInfo2.length === 0) {
+                console.log("emit event")
+                socket.emit('get_tileInfo');
+                socket.emit('get_tileInfo2')
+                // return <div> Loading...</div>
+            }
+
+
+            for (let index = 0; index < tileInfo.length; index++) {
+
+
+                const color = assignColorToTile(index, joinedColors, tileInfo, tileInfo2);
+                const isHighlighted = highLightChecker(index, possiblePositions, validPositions);
+                const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
+                const position = possiblePositions[index];
+
+                const tile = Tile({index, position, tileClass, renderStartPieces, startPieces, selectedPawn});
+                tiles.push(tile);
+            }
+            console.log('isReadytoRender: ', isReadyToRender);
+            console.log("colors: ", joinedColors);
+            setTilesUseState(tiles);
+        }
+        return () => {
+            socket.off('connect');
+        };
+    },[isReadyToRender,tileInfo,tileInfo2,joinedColors])
+
+    useEffect(() => {
+        console.log("tileInfo updated:", tileInfo);
+        console.log("tileInfo2 updated:", tileInfo2);
+    }, [tileInfo, tileInfo2]);
 
 
     useEffect(() => {
-        if (!updatedPieces) {
-            if (modView) {
-                socket.emit('get_pieces', 'mod');
-                socket.emit('get_data', 'leaderboard_update');
-            } else {
-                socket.emit('get_pieces', 'player');
-                socket.emit('get_data', 'leaderboard_update');
-                socket.emit('get_playerstrategy', 'player');
-            }
-            setUpdatedPieces(true); // Mark pieces as updated after emitting events
-        }
 
-    }, [])
+        // if(isReadyToRender) {
+        //     if (!updatedPieces) {
+        //         if (modView) {
+        //             socket.emit('get_pieces', 'mod');
+        //             socket.emit('get_data', 'leaderboard_update');
+        //         } else {
+        //             socket.emit('get_pieces', 'player');
+        //             socket.emit('get_data', 'leaderboard_update');
+        //             socket.emit('get_playerstrategy', 'player');
+        //         }
+        //         setUpdatedPieces(true); // Mark pieces as updated after emitting events
+        //     }
+        //
+        //     if (tileInfo.length === 0 || tileInfo2.length === 0) {
+        //         console.log("emit event")
+        //         socket.emit('get_tileInfo');
+        //         socket.emit('get_tileInfo2')
+        //         // return <div> Loading...</div>
+        //     }
+        //
+        //
+        //     for (let index = 0; index < tileInfo.length; index++) {
+        //
+        //
+        //         const color = assignColorToTile(index, joinedColors, tileInfo, tileInfo2);
+        //         const isHighlighted = highLightChecker(index, possiblePositions, validPositions);
+        //         const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
+        //         const position = possiblePositions[index];
+        //
+        //         const tile = Tile({index, position, tileClass, renderStartPieces, startPieces, selectedPawn});
+        //         tiles.push(tile);
+        //     }
+        //     console.log('isReadytoRender: ', isReadyToRender);
+        //     console.log("colors: ", joinedColors);
+        //     setTilesUseState(tiles);
+        // }
 
-    if (tileInfo.length === 0 || tileInfo2.length === 0){
-        socket.emit('get_tileInfo')
-        socket.emit('get_tileInfo2')
-       // return <div> Loading...</div>
-    }
+    }, [isReadyToRender,tileInfo,joinedColors])
 
 
-    for (let index = 0; index < tileInfo.length; index++) {
-
-         const color = assignColorToTile(index,joinedColors,tileInfo,tileInfo2);
-         const isHighlighted = highLightChecker(index,possiblePositions,validPositions);
-         const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
-         const position = possiblePositions[index];
-
-         const tile = Tile({index,position,tileClass,renderStartPieces,startPieces, selectedPawn});
-         tiles.push(tile);
-        }
 
 
     return (
             <div className='board-grid'>
-                {tiles}
+                {tilesUseState}
             </div>
     )
 }

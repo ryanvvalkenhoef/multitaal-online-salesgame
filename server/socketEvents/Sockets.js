@@ -119,9 +119,9 @@ module.exports = function (io){
                 }
             },
 
-            'reconnect_player': (sessionStorageData) =>{
-
-                const room = sessionStorageData.room
+            'reconnect_player': (sessionData) =>{
+                console.log("recived sssion data: ", sessionData);
+                const room = sessionData.room;
 
                 jsonFileHandler = new JsonFileHandler(room);
                 modLogger = new ModLogger(room, jsonFileHandler);
@@ -129,8 +129,9 @@ module.exports = function (io){
                 gameStateTracker = GameStateTrackerManager.getGameStateTracker(room, jsonFileHandler); //Get a GameStateTracker for current room
                 gameManager = new GameManager(userLogger, socketManager, gameStateTracker);
 
-                gameManager.reconnectPlayer(socket, sessionStorageData);
+                gameManager.reconnectPlayer(socket, sessionData);
                 const pieces = gameStateTracker.getStrategies();
+                console.log("pieeecces: ", pieces);
                 socketManager.emitBackToClient("add_piece",pieces);
             },
 
@@ -331,6 +332,7 @@ module.exports = function (io){
             },
 
             'get_pieces': (data) => {
+                console.log("socket getPieces: ",socket.id);
                 const pieces = gameStateTracker.getStrategies();
                 socketManager.emitToRoom(socket, "add_piece", pieces);
 

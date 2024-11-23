@@ -63,8 +63,9 @@ class GameManager{
     this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
   }
 
-  reconnectPlayer = (socket , sessionStorageData) =>{
-    const oldSocketId = sessionStorageData.oldSocketId;
+  reconnectPlayer = (socket , sessionData) =>{
+    console.log("sessonData soxketID:",sessionData.socketId)
+    const oldSocketId = sessionData.socketId;
     this.#userLogger.reconnect(socket.id,oldSocketId);
 }
 

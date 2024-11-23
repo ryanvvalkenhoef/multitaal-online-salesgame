@@ -41,6 +41,8 @@ export function Gamepin() {
         if (playerCount === playerNeeded) {
             socket.emit('start_turn', 'data')
             navigate('/modview');
+            sessionStorage.setItem("socketId", socket.id);
+            sessionStorage.setItem("room", gamepin)
         } else {
             setErrorCode(`Not all players have joined`);
         }

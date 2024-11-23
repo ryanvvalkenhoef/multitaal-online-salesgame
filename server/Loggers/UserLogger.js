@@ -108,25 +108,39 @@ class UserLogger {
     }
 
     reconnect(newSocketId,oldSocketId){
-        console.log("hooooi")
 
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
-
-        const player = data.users.find(player => {
-           return player.id === oldSocketId;
+        console.log("oldSocketId: " , oldSocketId)
+        console.log("newSocketedId" , newSocketId)
+        console.log('-------------------------')
+        let changedPlayerId = false;
+        data.users.forEach(player => {
+            console.log("socketList: ", player.id)
+           if(player.id === oldSocketId){
+               player.id = newSocketId;
+               changedPlayerId = true;
+           }
         })
 
-        if(player){
-            console.log("oud: " + player.id)
-            player.id = newSocketId;
-            console.log("nieuw: " + player.id);
+        if (changedPlayerId){
+            this.#jsonFileHandler.writeData(data);
         }
         else{
             console.warn("Can't replace old player id with new one");
         }
 
-        this.#jsonFileHandler.writeData(data);
+        // if(player){
+        //     console.log("oud: " + player.id)
+        //     player.id = newSocketId;
+        //     console.log("nieuw: " + player.id);
+        // }
+        // else{
+        //     console.warn("Can't replace old player id with new one");
+        // }
+
+
+        // this.#jsonFileHandler.writeData(data);
 
     }
 
@@ -146,6 +160,7 @@ class UserLogger {
 
 
      getStrategy(socketid) {
+         console.log("socketid getStrategy: ",socketid);
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
@@ -173,6 +188,7 @@ class UserLogger {
     }
 
     getColor(socketid){
+        console.log("socketid getColor: ",socketid);
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 

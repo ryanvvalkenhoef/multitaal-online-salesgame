@@ -1,6 +1,7 @@
 const handleTileInfoUpdate = (socket, setTileInfo) => {
     socket.on("send_tileInfo", (data) => {
         setTileInfo(data);
+        console.log("getttting tile infffooooo")
     });
 };
 
@@ -27,13 +28,13 @@ const handlePieceAddition = (socket, setStartPieces, setJoinedColors) => {
             klaphatten: "purple",
             safeline: "red",
         };
-
+        console.log('strategies in event: ' , strategies)
         strategies.forEach((strategy) => {
             if (colorMap[strategy]) {
                 joinedColorsArray.push(colorMap[strategy]);
             }
         });
-
+        console.log("HandlePiecaddition")
         setStartPieces(strategies);
         setJoinedColors(joinedColorsArray);
     });
