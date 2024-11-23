@@ -9,6 +9,14 @@ import PlayerTurns from "../GameScreen/PlayerTurns";
 import AudioPlayer from "../GameScreen/AudioPlayer";
 import '../App.css'
 import {useTranslation} from "react-i18next";
+import RenderManager from "../RenderManager/RenderManager";
+import {
+    cleanUpSocketListeners,
+    handleColorAddition,
+    handlePieceAddition,
+    handleTileInfo2Update,
+    handleTileInfoUpdate
+} from "../GameScreen/Board/socketEventListeners";
 
 export function Game() {
     const { t, i18n } = useTranslation('global');
@@ -33,9 +41,14 @@ export function Game() {
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const currentQuestionRef = useRef(null);
+    const [tileInfo, setTileInfo] = useState([])
+    const [tileInfo2, setTileInfo2] = useState([])
+    const [joinedColors, setJoinedColors] = useState([])
+    const [startPieces, setStartPieces] = useState([])
+    const[isReadyToRender, setIsReadyToRender] = useState(false);
+    const [isPlayerConnected, setIsPlayerConnected] = useState(false);
 
 
-    
 
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
@@ -51,9 +64,56 @@ export function Game() {
         socket.emit('update_hasFinishedTurn',true);
     };
 
+
     useEffect(() =>{
-        
-        
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        const func  = async () => {
+            const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
+            handleTileInfoUpdate(socket, setTileInfo, (data) => renderManager.setTileInfo(data));
+            handleTileInfo2Update(socket, setTileInfo2, (data) => renderManager.setTileInfo2(data));
+            handlePieceAddition(socket, setStartPieces, (data) => renderManager.setPieces(data));
+            handleColorAddition(socket, setJoinedColors, (data) => renderManager.setJoinedColors(data));
+            socket.on('player_is_connected', () => {
+                setIsPlayerConnected(true);
+            })
+
+            if (!socket.connected) {
+                socket.connect();
+                console.log("tesst")
+                await delay(1000)
+            }
+
+
+            console.log("in conecttion event")
+            if (socket.id === sessionStorage.getItem('socketId')) {
+                setIsPlayerConnected(true)
+            } else {
+                const sessionData = {};
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    sessionData[key] = sessionStorage.getItem(key);
+                }
+                socket.emit('reconnect_player', sessionData);
+
+                console.log("socket id ==== ", socket.id);
+                sessionStorage.setItem('socketId', socket.id);
+                console.log("sessionStorage: ", sessionStorage.getItem('socketId'))
+            }
+
+
+
+
+
+            socket.emit('get_tileInfo');
+            socket.emit('get_pieces');
+            console.log("getting_pieces");
+            socket.emit('send_player_colors');
+        }
+
+
+        func().then(r => {})
+
         const socketHandlers = {
             'rounds': (data) => {
                 setTotalRounds(data.totalRounds)
@@ -111,40 +171,48 @@ export function Game() {
             Object.keys(socketHandlers).forEach(event => {
                 socket.off(event, socketHandlers[event])
             })
+            cleanUpSocketListeners(socket);
         }
     },[])//,[currentPlayer]
 
     return (
-    <>
-        <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
-            <div className='roundscounter'>{roundText}</div>
-            <BoardGrid
-                steps={steps}
-                moveMade={moveMade}
-                setMoveMade={setMoveMade}
-                selectedPawn={selectedPawn}
-                setSelectedPawn={setSelectedPawn}
-                setPosition={setPosition}
-                setCurrentPlayer={setCurrentPlayer}
-                currentPlayer={currentPlayer}
-                playerColor={playerColor}
-                setPlayerColor={setPlayerColor}
-                gameScreen={true}
-                />
-            <DiceContainer
-                setSteps={setSteps}
-                setMoveMade={setMoveMade}
-                position={position}
-                myTurn={myTurn}
-                setMyTurn={setMyTurn}/>
-            <LeaderBoard
-                sortedUserData={sortedUserData}
-                playerName={playerName}/>
-            <PlayerTurns
-                turnText={turnText}/>
-        </div>
-        <AudioPlayer
-            />
+        <>
+            {isReadyToRender ? (
+                <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
+                    <div className='roundscounter'>{roundText}</div>
+                    <BoardGrid
+                        steps={steps}
+                        moveMade={moveMade}
+                        setMoveMade={setMoveMade}
+                        selectedPawn={selectedPawn}
+                        setSelectedPawn={setSelectedPawn}
+                        setPosition={setPosition}
+                        setCurrentPlayer={setCurrentPlayer}
+                        currentPlayer={currentPlayer}
+                        playerColor={playerColor}
+                        setPlayerColor={setPlayerColor}
+                        gameScreen={true}
+                        tileInfo={tileInfo}
+                        tileInfo2={tileInfo2}
+                        joinedColors={joinedColors}
+                        startPieces={startPieces}
+                    />
+                    <DiceContainer
+                        setSteps={setSteps}
+                        setMoveMade={setMoveMade}
+                        position={position}
+                        myTurn={myTurn}
+                        setMyTurn={setMyTurn}
+                    />
+                    <LeaderBoard sortedUserData={sortedUserData} playerName={playerName} />
+                    <PlayerTurns turnText={turnText} />
+                </div>
+            ) : (
+                <div className="loading-screen">
+                    <p>Loading...</p>
+                </div>
+            )}
+            <AudioPlayer />
             <PlayerPopUps
                 setPopupColor={setPopupColor}
                 popupColor={popupColor}
@@ -156,6 +224,7 @@ export function Game() {
                 handleSubmitAnswer={handleSubmitAnswer}
             />
         </>
-    )
+    );
+
 }
 

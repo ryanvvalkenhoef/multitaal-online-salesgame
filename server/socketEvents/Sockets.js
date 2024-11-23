@@ -108,6 +108,7 @@ module.exports = function (io){
                     socketManager.emitBackToClient('set_player_is_connected',true);
                     const pieces = gameStateTracker.getStrategies();
                     socketManager.emitToRoom(socket, 'add_piece', pieces); //adds pawn to the board
+                    socketManager.emitBackToClient("add_player_color",pieces);
 
                 } else {
                     // checks if joinStatus is undefined to prevent overwriting previous assignment.
@@ -122,6 +123,9 @@ module.exports = function (io){
             'reconnect_player': (sessionData) =>{
                 console.log("recived sssion data: ", sessionData);
                 const room = sessionData.room;
+                socket.room = room;
+                socket.join(room)
+                socket.join(`${room}players`)
 
                 jsonFileHandler = new JsonFileHandler(room);
                 modLogger = new ModLogger(room, jsonFileHandler);
@@ -132,7 +136,10 @@ module.exports = function (io){
                 gameManager.reconnectPlayer(socket, sessionData);
                 const pieces = gameStateTracker.getStrategies();
                 console.log("pieeecces: ", pieces);
+                console.log("emit terug naar client voor reconnect")
                 socketManager.emitBackToClient("add_piece",pieces);
+                socketManager.emitBackToClient("add_player_color",pieces);
+                socketManager.emitBackToClient('player_is_connected');
             },
 
             'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler gestuurd
@@ -335,8 +342,13 @@ module.exports = function (io){
                 console.log("socket getPieces: ",socket.id);
                 const pieces = gameStateTracker.getStrategies();
                 socketManager.emitToRoom(socket, "add_piece", pieces);
+                socketManager.emitToRoom(socket,'add_player_color',pieces);
 
             }
+
+
+
+
 
 
         }
