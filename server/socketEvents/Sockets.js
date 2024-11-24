@@ -141,19 +141,21 @@ module.exports = function (io){
                 }
 
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
-                if (availableColors.includes(data.questionColor)){
-                    const receiver = userLogger.getReceiver(data.questionColor);
+                if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
+                    const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-                    if(playerIsAnsweringQuestion){
-                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData)
+                    if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
+                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
                     }
-                    else {
+                    else { //speler kan de vraag direct beantwoorden
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
                         userLogger.setIsAnsweringQuestion(true,receiver);
+                        socketManager.emitToMod(socket, 'player_is_answering', {playerId: receiver, isAnsweringQuestion: true});
                     }
-                } else {
+                } else { // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     userLogger.setIsAnsweringQuestion(true, socket.id);
+                    socketManager.emitToMod(socket, 'player_is_answering', {playerId: socket.id, isAnsweringQuestion: true});
                 }
             },
 

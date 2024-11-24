@@ -35,4 +35,10 @@
     height: 80px;
     margin: 0;
     padding: 0;
+    filter: saturate(0);
+}
+
+.answering {
+    /* Add your custom styling here */
+    border: 2px solid red;
 }
