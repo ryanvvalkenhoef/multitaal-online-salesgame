@@ -11,7 +11,7 @@ import { useLanguageManager } from '../Translations/LanguageManager';
 import den_flag from '../Assets/den_flag.png';
 import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
-import PlayerProgress from '../GameScreen/PlayerProgress';
+import PlayerProgress from './PlayerProgress';
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
@@ -132,7 +132,8 @@ export function ModView() {
                     selectedPawn={selectedPawn}
                     setSelectedPawn={setSelectedPawn}
                     modView={true}/>
-                <PlayerProgress/>
+                <PlayerProgress
+                    sortedUserData={sortedUserData}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}
