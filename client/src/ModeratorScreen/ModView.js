@@ -11,6 +11,13 @@ import { useLanguageManager } from '../Translations/LanguageManager';
 import den_flag from '../Assets/den_flag.png';
 import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
+import RenderManager from "../RenderManager/RenderManager";
+import {
+    handleColorAddition,
+    handlePieceAddition,
+    handleTileInfo2Update,
+    handleTileInfoUpdate
+} from "../GameScreen/Board/socketEventListeners";
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
@@ -35,6 +42,11 @@ export function ModView() {
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
     const playerCountRef = useRef(0);
     const currentQuestionRef = useRef(null);
+    const [tileInfo, setTileInfo] = useState([])
+    const [tileInfo2, setTileInfo2] = useState([])
+    const [joinedColors, setJoinedColors] = useState([])
+    const [startPieces, setStartPieces] = useState([])
+    const[isReadyToRender, setIsReadyToRender] = useState(false);
 
    
 
@@ -65,7 +77,56 @@ export function ModView() {
 
 
     useEffect(() => {
-        
+
+
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        const func  = async () => {
+            const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
+            handleTileInfoUpdate(socket, setTileInfo, (data) => renderManager.setTileInfo(data));
+            handleTileInfo2Update(socket, setTileInfo2, (data) => renderManager.setTileInfo2(data));
+            handlePieceAddition(socket, setStartPieces, (data) => renderManager.setPieces(data));
+            handleColorAddition(socket, setJoinedColors, (data) => renderManager.setJoinedColors(data));
+            socket.on('player_is_connected', () => {
+                //setIsPlayerConnected(true);
+            })
+
+            if (!socket.connected) {
+                socket.connect();
+                console.log("tesst")
+                await delay(1000)
+            }
+
+
+            console.log("in conecttion event")
+            if (socket.id === sessionStorage.getItem('socketId')) {
+                //setIsPlayerConnected(true)
+            } else {
+                const sessionData = {};
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    sessionData[key] = sessionStorage.getItem(key);
+                }
+                socket.emit('reconnect_player', sessionData);
+
+                console.log("socket id ==== ", socket.id);
+                sessionStorage.setItem('socketId', socket.id);
+                console.log("sessionStorage: ", sessionStorage.getItem('socketId'))
+            }
+
+
+
+
+
+            socket.emit('get_tileInfo');
+            socket.emit('get_pieces');
+            console.log("getting_pieces");
+            socket.emit('send_player_colors');
+        }
+
+
+        func().then(r => {})
+
         const socketHandlers = {
             'set_dice': (data) => {
                 setDiceValue(data);
@@ -117,7 +178,7 @@ export function ModView() {
 
     return (
         <>
-            <div className={showPopup ? 'appBlurred' : 'playboard'}>
+            {isReadyToRender? <div className={showPopup ? 'appBlurred' : 'playboard'}>
                 <button className="Qbutton2" onClick={handleGuide}>?</button>
                 <div className='roundscounter'>{roundText}</div>
                 <BoardGrid
@@ -126,7 +187,11 @@ export function ModView() {
                     setPosition={setPosition}
                     selectedPawn={selectedPawn}
                     setSelectedPawn={setSelectedPawn}
-                    modView={true}/>
+                    modView={true}
+                    tileInfo={tileInfo}
+                    tileInfo2={tileInfo2}
+                    joinedColors={joinedColors}
+                    startPieces={startPieces}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}
@@ -139,7 +204,11 @@ export function ModView() {
                 <div><img className='flagImg6' id='DEN' src={den_flag} alt='Danish' onClick={() => handleChangeLanguage('dk')} /></div>
                 <div><img className='flagImg7' id='EN' src={uk_flag} alt='English' onClick={() => handleChangeLanguage('en')} /></div>
                 <div><img className='flagImg8' id='NL' src={nl_flag} alt='Dutch' onClick={() => handleChangeLanguage('nl')} /></div>
-            </div>
+            </div> : (
+                <div className="loading-screen">
+                    <p>Loading...</p>
+                </div>
+            )}
                 <ModeratorPopUps
                     answer={answer}
                     popupColor={popupColor}

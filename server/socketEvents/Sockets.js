@@ -326,6 +326,7 @@ module.exports = function (io){
             },
 
             'send_dice_roll_and_position': (data) => {
+                console.log("Data coordinates: " + JSON.stringify(data));
                 const coordinate = data.position.split('-');
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
@@ -342,7 +343,7 @@ module.exports = function (io){
                 console.log("socket getPieces: ",socket.id);
                 const pieces = gameStateTracker.getStrategies();
                 socketManager.emitToRoom(socket, "add_piece", pieces);
-                socketManager.emitToRoom(socket,'add_player_color',pieces);
+                socketManager.emitToRoom(socket,'add_player_color',pieces); // moet een eigen event voor komen
 
             }
 

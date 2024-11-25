@@ -16,6 +16,7 @@ const handleTileInfo2Update = (socket, setTileInfo2,func) => {
 
 const handleValidPositionsUpdate = (socket, setValidPositions) => {
     socket.on("update_valid_positions", (validPositionsArray) => {
+        console.log("In valid positions update event")
         setValidPositions(validPositionsArray);
     });
 };

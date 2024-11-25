@@ -1,7 +1,9 @@
 class GameManager{
-  
+  /** @type {UserLogger} */
   #userLogger
+  /** @type {SocketManager} */
   #socketManager
+  /** @type {GameStateTracker} */
   #gameStateTracker
   
   constructor(userLogger,socketManager,gameStateTracker) {
@@ -67,6 +69,23 @@ class GameManager{
     console.log("sessonData soxketID:",sessionData.socketId)
     const oldSocketId = sessionData.socketId;
     this.#userLogger.reconnect(socket.id,oldSocketId);
+
+    const userData = this.#userLogger.getAllPlayerObjects();
+    this.#socketManager.emitBackToClient(socket, "update_leaderboard", userData);
+
+    const roundInfo = this.#gameStateTracker.getRound();
+    this.#socketManager.emitBackToClient(socket, "rounds", roundInfo);
+
+    const players = this.#userLogger.getAllPlayerObjects();
+    const playerPositions = players.map(player => player.playerPosition);
+    this.#socketManager.emitBackToClient(socket,'update_position',playerPositions);
+
+    const strategy = this.#userLogger.getStrategy(socket.id);
+    this.#socketManager.emitBackToClient(socket,'players_turn',strategy);
+    const name = this.#userLogger.getPlayerName(socket.id);
+    this.#socketManager.emitBackToClient(socket,'player_names',name);
+    this.#socketManager.emitBackToClient(socket, 'set_turn_true');
+
 }
 
 

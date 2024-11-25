@@ -81,7 +81,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
        // handleTileInfo2Update(socket,setTileInfo2);
         handleValidPositionsUpdate(socket,setValidPositions);
        // handlePieceAddition(socket,setStartPieces,setJoinedColors);
-       handlePositionUpdate(socket,validPositions,setPosition);
+
 
 
         if (gameScreen){
@@ -154,7 +154,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         return () => {
             socket.off('connect');
         };
-    }, [joinedColors])
+    }, [joinedColors,validPositions])
 
     // useEffect(() => {
     //     console.log("tileInfo updated:", tileInfo);

@@ -102,9 +102,7 @@ export function Game() {
             }
 
 
-
-
-
+            console.log("currentPLayer: " + currentPlayer)
             socket.emit('get_tileInfo');
             socket.emit('get_pieces');
             console.log("getting_pieces");
