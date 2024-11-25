@@ -35,7 +35,13 @@
     height: 80px;
     margin: 0;
     padding: 0;
-    filter: saturate(0);
+    filter: grayscale(100);
+}
+
+.image.finished {
+    border: 2px solid white;
+    border-radius: 50%;
+    filter: none;
 }
 
 .answering {

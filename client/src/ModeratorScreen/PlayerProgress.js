@@ -9,7 +9,8 @@ import './PlayerProgressStyles.css'
 import {socket} from "../client";
 
 const PlayerProgress = ({sortedUserData, onImageClick}) => {
-    const [isPlayerAnsweringQuestion, setIsPlayerAnsweringQuestion] = useState([]);
+    const [playersAnsweringQuestion, setPlayersAnsweringQuestion] = useState([]);
+    const [playersFinishedTurn, setPlayersFinishedTurn] = useState([]);
     const strategyImages = {
         'Safeline': Safeline,
         'Lunar': Lunar,
@@ -21,7 +22,7 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
 
     useEffect(() => {
         socket.on('player_is_answering', (data) => {
-            setIsPlayerAnsweringQuestion((playerIdState) => {
+            setPlayersAnsweringQuestion((playerIdState) => {
                 if (data.isAnsweringQuestion) {
                     // Add the player to the list if not already present
                     return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
@@ -31,11 +32,17 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
                 }
             });
         });
+        socket.on('player_has_finished_turn', (data) => {
+            setPlayersFinishedTurn((playerIdState) => {
+                return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
+            });
+        });
 
 
 
         return () => {
             socket.off('player_answering_question');
+            socket.off('player_has_finished_turn');
         };
     }, []);
 
@@ -43,11 +50,17 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
         <div className="player-progress-container">
             <label className="progress-label"> Player Progression: </label>
             {sortedUserData.map((data, index) => (
-                <button key={data.id} className={`image-button ${isPlayerAnsweringQuestion.includes(data.id) ? 'answering' : ''}`}
-                        onClick={() => onImageClick(index)}>
+                <button
+                    key={data.id}
+                    className="image-button"
+                    onClick={() => onImageClick(index)}
+                >
                     <img
                         src={strategyImages[data.strategy]}
                         className={`image ${
+                            playersFinishedTurn.includes(data.id) ? 'finished' :
+                                playersAnsweringQuestion.includes(data.id) ? 'answering' : ''
+                        } ${
                             data.strategy === 'Safeline' ? 'piecesafeline' :
                                 data.strategy === 'Lunar' ? 'piecelunar' :
                                     data.strategy === 'Domino House' ? 'piecedomino' :

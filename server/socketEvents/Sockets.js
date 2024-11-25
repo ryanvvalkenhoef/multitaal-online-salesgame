@@ -229,6 +229,7 @@ module.exports = function (io){
 
             'update_hasFinishedTurn': (hasFinishedTurn)=>{
                 userLogger.updateUser(socket.id,{hasFinishedTurn: hasFinishedTurn})
+                socketManager.emitToMod(socket, 'player_has_finished_turn', {playerId: socket.id, hasFinishedTurn: hasFinishedTurn});
             },
 
             'update_PlayerPosition': (playerPosition) =>{ // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
