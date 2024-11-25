@@ -2,7 +2,6 @@ class QuestionQueue {
 
   constructor() {
     this.queues = {};
-    this.instanceId = Date.now() + Math.random();
     if (new.target === QuestionQueue) {
       throw new TypeError("Cannot construct Abstract instances directly");
     }

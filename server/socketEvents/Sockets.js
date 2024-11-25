@@ -11,6 +11,7 @@ const RoomGenerator = require('../roomGenerator/RoomGenerator');
 const PreGameManager = require('../preGameManager/PreGameManager')
 const GameStateTrackerManager = require("../gameState/GameStateTrackerManager");
 const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
+const ModReconnectManager = require("../ReonnectManager/ModReconnectManager");
 
 
 module.exports = function (io){
@@ -132,6 +133,34 @@ module.exports = function (io){
                 userLogger = new UserLogger(room, jsonFileHandler);
                 gameStateTracker = GameStateTrackerManager.getGameStateTracker(room, jsonFileHandler); //Get a GameStateTracker for current room
                 gameManager = new GameManager(userLogger, socketManager, gameStateTracker);
+
+                gameManager.reconnectPlayer(socket, sessionData);
+                const pieces = gameStateTracker.getStrategies();
+                console.log("pieeecces: ", pieces);
+                console.log("emit terug naar client voor reconnect")
+                socketManager.emitBackToClient("add_piece",pieces);
+                socketManager.emitBackToClient("add_player_color",pieces);
+                socketManager.emitBackToClient('player_is_connected');
+            },
+
+            'reconnect_mod': (sessionData) =>{
+                const room = sessionData.room;
+                socket.room = room;
+                socket.join(room)
+                socket.join(`${room}mod`)
+
+
+
+
+                const modReconnectManager = new ModReconnectManager();
+                const instances = modReconnectManager.getClassInstances(room,io);
+                jsonFileHandler = instances.jsonFileHandler;
+                modLogger = instances.modLogger;
+                userLogger = instances.userLogger;
+                gameStateTracker = instances.gameStateTracker;
+                gameManager = instances.gameManager;
+
+
 
                 gameManager.reconnectPlayer(socket, sessionData);
                 const pieces = gameStateTracker.getStrategies();
