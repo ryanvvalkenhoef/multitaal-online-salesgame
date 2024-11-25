@@ -11,6 +11,7 @@ import {socket} from "../client";
 const PlayerProgress = ({sortedUserData, onImageClick}) => {
     const [playersAnsweringQuestion, setPlayersAnsweringQuestion] = useState([]);
     const [playersFinishedTurn, setPlayersFinishedTurn] = useState([]);
+    const [playersReviewed, setPlayersReviewed] = useState([]);
     const strategyImages = {
         'Safeline': Safeline,
         'Lunar': Lunar,
@@ -34,15 +35,33 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
         });
         socket.on('player_has_finished_turn', (data) => {
             setPlayersFinishedTurn((playerIdState) => {
-                return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
+                if (data.hasFinishedTurn) {
+                    return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
+                } else {
+                    return playerIdState.filter((id) => id !== data.playerId);
+                }
             });
         });
-
-
+        socket.on('player_has_been_reviewed', (data) => {
+            setPlayersReviewed((playerIdState) => {
+                if (data.hasBeenReviewed) {
+                    return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
+                } else {
+                    return playerIdState.filter((id) => id !== data.playerId);
+                }
+            });
+        });
+        socket.on('reset_player_progress_styles', (data) => {
+            setPlayersAnsweringQuestion([]);
+            setPlayersFinishedTurn([]);
+            setPlayersReviewed([]);
+        });
 
         return () => {
             socket.off('player_answering_question');
             socket.off('player_has_finished_turn');
+            socket.off('player_has_been_reviewed');
+            socket.off('reset_player_progress_styles');
         };
     }, []);
 
@@ -58,8 +77,9 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
                     <img
                         src={strategyImages[data.strategy]}
                         className={`image ${
-                            playersFinishedTurn.includes(data.id) ? 'finished' :
-                                playersAnsweringQuestion.includes(data.id) ? 'answering' : ''
+                            playersReviewed.includes(data.id) ? 'reviewed' :
+                                playersFinishedTurn.includes(data.id) ? 'finished' : 
+                                    playersAnsweringQuestion.includes(data.id) ? 'answering' : ''
                         } ${
                             data.strategy === 'Safeline' ? 'piecesafeline' :
                                 data.strategy === 'Lunar' ? 'piecelunar' :

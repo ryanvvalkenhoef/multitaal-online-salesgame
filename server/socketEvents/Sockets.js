@@ -199,6 +199,8 @@ module.exports = function (io){
                 const oldPoints = userLogger.getPoints(id);
                 const newPoints = Number(oldPoints) + Number(data.points);
                 userLogger.updateUser(id,{points : newPoints})
+                userLogger.setHasBeenReviewed(id, data.hasBeenReviewed)
+                socketManager.emitBackToClient(socket, 'player_has_been_reviewed', {playerId: id, hasBeenReviewed: data.hasBeenReviewed});
             },
 
 
@@ -259,6 +261,7 @@ module.exports = function (io){
                     gameManager.updateGameState(socket);
                     gameManager.updateAllBoards(socket);
                     gameManager.startRound(socket);
+                    socketManager.emitToMod(socket, 'reset_player_progress_styles');
                 }
               },
 
