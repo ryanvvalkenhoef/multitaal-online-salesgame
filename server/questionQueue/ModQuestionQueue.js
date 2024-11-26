@@ -31,14 +31,13 @@ class ModQuestionQueue extends QuestionQueue {
         return true;
     }
 
-    getQuestionFromQueue(socket) {
+    getQuestionFromQueue(socket, playerId) {
         const room = socket.room;
 
         if(!this.queues[room]){ // Mod doesn't have a queue
             return null;
         }
-
-        return this.queues[room][0];
+        return this.queues[room].find(question => question.playerId === playerId) || null;
     }
 
     removeQuestionFromQueue(socket){

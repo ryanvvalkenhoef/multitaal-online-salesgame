@@ -63,6 +63,10 @@ export function ModView() {
             submitPoints()
     };
 
+    const onImageClick = (playerId) => {
+        socket.emit('get_player_answer_on_click', playerId);
+    }
+
 
 
     useEffect(() => {
@@ -91,7 +95,7 @@ export function ModView() {
                 }
             },
             'receive_player_answer': (questionData)=> { //parameter is an object
-                    reviewQuestion(questionData)
+                    reviewQuestion(questionData);
             },
 
             'player_count': (playerCount) => {
@@ -133,7 +137,8 @@ export function ModView() {
                     setSelectedPawn={setSelectedPawn}
                     modView={true}/>
                 <PlayerProgress
-                    sortedUserData={sortedUserData}/>
+                    sortedUserData={sortedUserData}
+                    onImageClick={onImageClick}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}

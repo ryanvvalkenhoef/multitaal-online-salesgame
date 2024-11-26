@@ -143,6 +143,10 @@ module.exports = function (io){
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
                     const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
+                    if (receiver !== socket.id){
+                        userLogger.updateUser(socket.id,{hasFinishedTurn: true});
+                        socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
+                    }
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
                     if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
                         playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
@@ -159,17 +163,18 @@ module.exports = function (io){
                 }
             },
 
-            'send_answer_to_server': (questionData) => {
+            'get_player_answer_on_click': (playerId) => {
                 const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
-                // Check if mod queue contains any questions and if the mod is able to review.
-                if (questionQueueLength === 0 && !isReviewingQuestion) {
-                    gameManager.sendAnswerToModerator(socket,questionData);
-                    modLogger.setIsReviewingQuestion(true);
-                } else {
-                    modQuestionQueue.addQuestionToQueue(socket,questionData);
-                }
+                 if (questionQueueLength !== 0) {
+                     const questionData = modQuestionQueue.getQuestionFromQueue(socket, playerId);
+                     gameManager.sendAnswerToModerator(socket, questionData);
+                     modQuestionQueue.removeQuestionFromQueue(socket);
+                     modLogger.setIsReviewingQuestion(true);
+                 }
+            },
 
+            'send_answer_to_server': (questionData) => {
+                    modQuestionQueue.addQuestionToQueue(socket,questionData);
                 // Check if the question queue of the player who sent the question to the server contains any questions.
                 if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
@@ -240,22 +245,22 @@ module.exports = function (io){
 
 
             'question_reviewed': () => {
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+                //const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
                 modLogger.updateNumberOfQuestionsReviewed();
 
-                if (questionQueueLength > 0) {
-                    const question = modQuestionQueue.getQuestionFromQueue(socket);
-                    modQuestionQueue.removeQuestionFromQueue(socket);
-                    gameManager.sendAnswerToModerator(socket, question);
-                }
-                // When queue is empty but not all players have submitted
-                else {
-                  modLogger.setIsReviewingQuestion(false);
-                }
-
-                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
+                // if (questionQueueLength > 0) {
+                //     const question = modQuestionQueue.getQuestionFromQueue(socket);
+                //     modQuestionQueue.removeQuestionFromQueue(socket);
+                //     gameManager.sendAnswerToModerator(socket, question);
+                // }
+                // // When queue is empty but not all players have submitted
+                // else {
+                //   modLogger.setIsReviewingQuestion(false);
+                // }
+                //
+                // const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
-                if (isRoundFinished && !isReviewingQuestion) { // Update Game state and go to next round
+                if (isRoundFinished) { // Update Game state and go to next round
                     modLogger.resetNumberOfQuestionsReviewed();
                     userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
                     gameManager.updateGameState(socket);

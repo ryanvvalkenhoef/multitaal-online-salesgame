@@ -68,11 +68,15 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
     return (
         <div className="player-progress-container">
             <label className="progress-label"> Player Progression: </label>
-            {sortedUserData.map((data, index) => (
+            {sortedUserData.map((data) => (
                 <button
                     key={data.id}
                     className="image-button"
-                    onClick={() => onImageClick(index)}
+                    onClick={() => {
+                        if (playersFinishedTurn.includes(data.id)) {
+                            onImageClick(data.id);
+                        }
+                    }}
                 >
                     <img
                         src={strategyImages[data.strategy]}
