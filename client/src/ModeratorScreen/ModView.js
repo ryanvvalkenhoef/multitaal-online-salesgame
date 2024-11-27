@@ -44,6 +44,11 @@ export function ModView() {
     };
 
     const reviewQuestion = (questionData) =>{
+        console.log('questionData', questionData);
+        if (!questionData || !questionData.questionText) {
+            console.error('Invalid question data:', questionData);
+            return;
+        }
         setShowPopup(true);
         setQuestion(questionData.questionText);
         setColor(questionData.questionColor);
@@ -65,7 +70,6 @@ export function ModView() {
 
     const onImageClick = (playerId) => {
         socket.emit('get_player_answer_on_click', playerId);
-        console.log('data for playerprogress', data);
     }
 
 

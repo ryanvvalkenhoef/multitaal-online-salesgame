@@ -145,7 +145,7 @@ module.exports = function (io){
                     const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
                     if (receiver !== socket.id){
                         userLogger.updateUser(socket.id,{hasFinishedTurn: true});
-                        socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
+                        socketManager.emitToMod(socket, 'player_is_answering', {playerId: socket.id, isAnsweringQuestion: true});
                     }
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
                     if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
@@ -168,7 +168,7 @@ module.exports = function (io){
                  if (questionQueueLength !== 0) {
                      const questionData = modQuestionQueue.getQuestionFromQueue(socket, playerId);
                      gameManager.sendAnswerToModerator(socket, questionData);
-                     modQuestionQueue.removeQuestionFromQueue(socket);
+                     modQuestionQueue.removeQuestionFromQueue(socket, playerId);
                      modLogger.setIsReviewingQuestion(true);
                  }
             },
@@ -307,12 +307,10 @@ module.exports = function (io){
                 const diceValue = Math.floor(Math.random() * 6) + 1;
                 socket.emit("set_dice", diceValue)
                 const canRollDice = userLogger.getCanRollDice(socket.id);
-                console.log('userlogger is prolly not defined' + userLogger);
 
                 if (canRollDice && playerRollDice) { //if its truly players turn do this
                         userLogger.setCanRollDice(socket.id, false);
                         socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
-                        console.log('canRollDice vergelijken' + canRollDice + ' en ' + playerRollDice);
                 }
             },
 

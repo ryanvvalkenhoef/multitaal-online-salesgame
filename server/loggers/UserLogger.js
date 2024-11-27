@@ -241,7 +241,6 @@ class UserLogger {
 
         const player = data.users.find(player => player.id === playerId);
         player.canRollDice = boolean;
-        console.log('de bool', boolean);
         this.#jsonFileHandler.writeData(data)
     }
 

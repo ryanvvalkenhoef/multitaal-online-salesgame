@@ -33,21 +33,35 @@ class ModQuestionQueue extends QuestionQueue {
 
     getQuestionFromQueue(socket, playerId) {
         const room = socket.room;
-
+        console.log('playerId:', playerId);
         if(!this.queues[room]){ // Mod doesn't have a queue
             return null;
         }
-        return this.queues[room].find(question => question.playerId === playerId) || null;
+        const question = this.queues[room].find(question => {
+            console.log('Checking question.playerId:', question.playerId);
+            return question.playerId === playerId;
+        });
+        if (!question) {
+            console.log('No matching question found for playerId:', playerId);
+        }
+
+        console.log('Found question:', question);
+
+        return question || null;
     }
 
-    removeQuestionFromQueue(socket){
+    removeQuestionFromQueue(socket, playerId){
         const room = socket.room;
 
         if (!this.queues[room]) {
             return null;
         }
+        const index = this.queues[room].findIndex(question => question.playerId === playerId);
 
-        this.queues[room].shift();
+        // If a matching question is found, remove it from the queue
+        if (index !== -1) {
+            this.queues[room].splice(index, 1);
+        }
     }
 
     #checkIfRoomExists(room) {
