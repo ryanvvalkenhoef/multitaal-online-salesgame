@@ -42,6 +42,7 @@ const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, s
                         <div className='questionWhiteBox3'> {submittedAnswer} </div>
                     </div>
                     <div className='assignScoreBox'>
+                        <button className='closeButton' onClick={() => setShowPopup(false)}>✖</button>
                         <div className='correctAnswerText'> {t("PopUps.correct")} </div>
                         <div className='correctAnswerBox'>{answer}</div>
                         <div className='assignScoreText'> {t("PopUps.assign")} </div>
@@ -71,16 +72,19 @@ const ModeratorPopUps = ({ setShowPopup, showPopup, question, submittedAnswer, s
                         {/*<button className='submitScoreButton' onClick={() => { handleSubmitPoints(); }}>Submit</button>*/}
                         <button
                             className='submitScoreButton' onClick={() => {
-                            if (selectedPoints !== null) {handleSubmitPoints();
-                            } else {alert(t("PopUps.alert"));}
+                            if (selectedPoints !== null) {
+                                handleSubmitPoints();
+                            } else {
+                                alert(t("PopUps.alert"));
+                            }
                         }}
                         >
                             {t("PopUps.submit")}
                         </button>
                     </div>
                 </div>
-                )}
-                </>
+            )}
+        </>
     )
 }
 export default ModeratorPopUps;

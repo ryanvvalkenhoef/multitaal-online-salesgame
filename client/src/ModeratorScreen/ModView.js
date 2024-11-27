@@ -49,7 +49,6 @@ export function ModView() {
             console.error('Invalid question data:', questionData);
             return;
         }
-        setShowPopup(true);
         setQuestion(questionData.questionText);
         setColor(questionData.questionColor);
         setUserColor(questionData.playerColor);
@@ -70,6 +69,7 @@ export function ModView() {
 
     const onImageClick = (playerId) => {
         socket.emit('get_player_answer_on_click', playerId);
+        setShowPopup(true);//dit werkt nog niet helemaal lekker
     }
 
 
