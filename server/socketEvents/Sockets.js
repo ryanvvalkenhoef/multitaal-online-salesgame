@@ -201,9 +201,10 @@ module.exports = function (io){
 
             'submit_points' : (data) => {
                 const id = data.playerId;
-                const oldPoints = userLogger.getPoints(id);
-                const newPoints = Number(oldPoints) + Number(data.points);
-                userLogger.updateUser(id,{points : newPoints})
+
+                const oldTotalPoints = userLogger.getPoints(id);
+                const newTotalPoints = Number(oldTotalPoints) + Number(data.totalPoints);
+                userLogger.updateUser(id,{totalPoints : newTotalPoints, previousPoints: oldTotalPoints});
                 userLogger.setHasBeenReviewed(id, data.hasBeenReviewed)
                 socketManager.emitBackToClient(socket, 'player_has_been_reviewed', {playerId: id, hasBeenReviewed: data.hasBeenReviewed});
             },

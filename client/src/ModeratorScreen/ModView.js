@@ -17,7 +17,7 @@ export function ModView() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
     const [users, setUsers] = useState([]);
-    const sortedUserData = [...data].sort((a, b) => b.points - a.points);
+    const sortedUserData = [...data].sort((a, b) => b.totalPoints - a.totalPoints);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
@@ -58,7 +58,7 @@ export function ModView() {
 
     const submitPoints = () =>{
             setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId, hasBeenReviewed: true} );
+            socket.emit("submit_points", { totalPoints: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId, hasBeenReviewed: true});
             socket.emit('question_reviewed');
             setSelectedPoints([]);
     }
@@ -110,9 +110,9 @@ export function ModView() {
             'game_over': () => {
                 alert("game over");
             },
-            
+
             'get_player_status': () => {
-                
+                //wth is dit hier ineens
             }
 
         }

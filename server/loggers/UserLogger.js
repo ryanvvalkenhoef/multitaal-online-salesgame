@@ -58,7 +58,8 @@ class UserLogger {
             language: 'en',
             room: '',
             name: '',
-            points: 0,
+            previousPoints: 0,
+            totalPoints: 0,
             strategy:'',
             canRollDice: false,
             isAnsweringQuestion: false,
@@ -115,7 +116,7 @@ class UserLogger {
 
         const user = data.users.find(user => user.id === id);
         if (user) {
-            return user.points;
+            return user.totalPoints;
         } else {
             console.error('User not found3.');
             return null;
