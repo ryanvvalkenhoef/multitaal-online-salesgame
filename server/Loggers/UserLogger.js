@@ -130,17 +130,7 @@ class UserLogger {
             console.warn("Can't replace old player id with new one");
         }
 
-        // if(player){
-        //     console.log("oud: " + player.id)
-        //     player.id = newSocketId;
-        //     console.log("nieuw: " + player.id);
-        // }
-        // else{
-        //     console.warn("Can't replace old player id with new one");
-        // }
 
-
-        // this.#jsonFileHandler.writeData(data);
 
     }
 

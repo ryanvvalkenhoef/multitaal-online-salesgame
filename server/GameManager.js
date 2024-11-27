@@ -5,11 +5,14 @@ class GameManager{
   #socketManager
   /** @type {GameStateTracker} */
   #gameStateTracker
+  /**@type {GameScreenDataEmitter}*/
+  #gameScreenDataEmitter
   
-  constructor(userLogger,socketManager,gameStateTracker) {
+  constructor(userLogger,socketManager,gameStateTracker, gameScreenDataEmitter) {
     this.#userLogger = userLogger;
-    this.#socketManager = socketManager
+    this.#socketManager = socketManager;
     this.#gameStateTracker = gameStateTracker;
+    this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
 
 
@@ -24,8 +27,11 @@ class GameManager{
 
 
   updateGameState = (socket) => { // Sends newest game state to the client
-    this.#updateRounds(socket);
-    this.#updateLeaderboard(socket);
+    // this.#updateRounds(socket);
+    // this.#updateLeaderboard(socket);
+    this.#gameScreenDataEmitter.sendRoundData(socket);
+    this.#gameScreenDataEmitter.sendLeaderboardData(socket);
+
 
     const roundInfo = this.#gameStateTracker.getRound();
     const isGameFinished = this.#gameStateTracker.checkIfGameOver(roundInfo)
@@ -54,50 +60,32 @@ class GameManager{
       this.#socketManager.emitToSpecificSocket(socketId,'player_names',name);
       this.#socketManager.emitToSpecificSocket(socketId, 'set_turn_true');
     }
-    this.#updateRounds(socket)
-    this.#updateLeaderboard(socket);
+    // this.#updateRounds(socket)
+    // this.#updateLeaderboard(socket);
+    this.#gameScreenDataEmitter.sendRoundData(socket);
+    this.#gameScreenDataEmitter.sendLeaderboardData(socket);
   }
 
 
-  updateAllBoards = (socket) =>{
-    const players = this.#userLogger.getAllPlayerObjects();
-    const playerPositions = players.map(player => player.playerPosition);
-    this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+  updatePiecePositions = (socket) =>{
+    // const players = this.#userLogger.getAllPlayerObjects();
+    // const playerPositions = players.map(player => player.playerPosition);
+    // this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+    this.#gameScreenDataEmitter.sendNewPositionsData(socket);
   }
 
-  reconnectPlayer = (socket , sessionData) =>{
-    console.log("sessonData soxketID:",sessionData.socketId)
-    const oldSocketId = sessionData.socketId;
-    this.#userLogger.reconnect(socket.id,oldSocketId);
-
-    const userData = this.#userLogger.getAllPlayerObjects();
-    this.#socketManager.emitBackToClient(socket, "update_leaderboard", userData);
-
-    const roundInfo = this.#gameStateTracker.getRound();
-    this.#socketManager.emitBackToClient(socket, "rounds", roundInfo);
-
-    const players = this.#userLogger.getAllPlayerObjects();
-    const playerPositions = players.map(player => player.playerPosition);
-    this.#socketManager.emitBackToClient(socket,'update_position',playerPositions);
-
-    const strategy = this.#userLogger.getStrategy(socket.id);
-    this.#socketManager.emitBackToClient(socket,'players_turn',strategy);
-    const name = this.#userLogger.getPlayerName(socket.id);
-    this.#socketManager.emitBackToClient(socket,'player_names',name);
-    this.#socketManager.emitBackToClient(socket, 'set_turn_true');
-
-}
 
 
-  #updateLeaderboard = (socket) => {
-    const userData = this.#userLogger.getAllPlayerObjects();
-    this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);
-  }
 
-  #updateRounds = (socket) => {
-    const roundInfo = this.#gameStateTracker.getRound();
-    this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
-  }
+  // #updateLeaderboard = (socket) => {
+  //   const userData = this.#userLogger.getAllPlayerObjects();
+  //   this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);
+  // }
+  //
+  // #updateRounds = (socket) => {
+  //   const roundInfo = this.#gameStateTracker.getRound();
+  //   this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
+  // }
 
 
 }

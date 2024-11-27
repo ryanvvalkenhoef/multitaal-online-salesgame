@@ -81,6 +81,7 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
        // handleTileInfo2Update(socket,setTileInfo2);
         handleValidPositionsUpdate(socket,setValidPositions);
        // handlePieceAddition(socket,setStartPieces,setJoinedColors);
+        handlePositionUpdate(socket,validPositions,setPosition, (data) => setPosition(data))
 
 
 

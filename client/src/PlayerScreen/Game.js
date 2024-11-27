@@ -15,7 +15,8 @@ import {
     handleColorAddition,
     handlePieceAddition,
     handleTileInfo2Update,
-    handleTileInfoUpdate
+    handleTileInfoUpdate,
+    handlePositionUpdate
 } from "../GameScreen/Board/socketEventListeners";
 
 export function Game() {
@@ -74,6 +75,7 @@ export function Game() {
             handleTileInfo2Update(socket, setTileInfo2, (data) => renderManager.setTileInfo2(data));
             handlePieceAddition(socket, setStartPieces, (data) => renderManager.setPieces(data));
             handleColorAddition(socket, setJoinedColors, (data) => renderManager.setJoinedColors(data));
+
             socket.on('player_is_connected', () => {
                 setIsPlayerConnected(true);
             })

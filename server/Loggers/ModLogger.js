@@ -84,6 +84,22 @@ class ModLogger {
         }
     }
 
+    reconnect(newSocketId, oldSocketId) {
+        let data = this.#jsonFileHandler.readData()
+        if (!data) return null;
+        console.log("oldSocketId: " , oldSocketId)
+        console.log("newSocketedId" , newSocketId)
+        console.log('-------------------------')
+        const mod = data.mod;
+        if(mod && mod.id === oldSocketId){
+            mod.id = newSocketId;
+            this.#jsonFileHandler.writeData(data);
+        }
+        else{
+            console.warn("Can't replace old mod id with new one");
+        }
+    }
+
     resetNumberOfQuestionsReviewed() {
         const data = this.#jsonFileHandler.readData()
         if (data && data.mod) {

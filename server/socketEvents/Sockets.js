@@ -11,7 +11,10 @@ const RoomGenerator = require('../roomGenerator/RoomGenerator');
 const PreGameManager = require('../preGameManager/PreGameManager')
 const GameStateTrackerManager = require("../gameState/GameStateTrackerManager");
 const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
-const ModReconnectManager = require("../ReonnectManager/ModReconnectManager");
+const initializeInstances = require("../initializers/initializeGame");
+const GameScreenDataEmitter = require("../gameDataEmitters/GameScreenDataEmitter");
+const ReconnectionManager = require("../ReconnectionManager/ReconnectionManager");
+
 
 
 module.exports = function (io){
@@ -21,6 +24,7 @@ module.exports = function (io){
 
 
     io.on('connection', (socket) => {
+
 
         const socketManager = new SocketManager(io);
         /** @type {GameManager} */
@@ -33,6 +37,8 @@ module.exports = function (io){
         let userLogger;
         /** @type {JsonFileHandler} */
         let jsonFileHandler;
+        /**@type {GameScreenDataEmitter}*/
+        let gameScreenDataEmitter;
 
 
         const socketHandlers = {
@@ -40,12 +46,16 @@ module.exports = function (io){
             //data is an object consisting of playercount and roundscount.
             'create_room': (data) => {
                 const room = RoomGenerator.createRoom();
-                jsonFileHandler = new JsonFileHandler(room);
+                const instances = initializeInstances(room,socketManager);
+                jsonFileHandler = instances.jsonFileHandler;
+                modLogger = instances.modLogger;
+                userLogger = instances.userLogger;
+                gameStateTracker = instances.gameStateTracker;
+                gameManager = instances.gameMananger;
+                gameScreenDataEmitter = instances.gameScreenDataEmitter;
+
                 jsonFileHandler.createJsonFile();
-                modLogger = new ModLogger(room, jsonFileHandler);
-                userLogger = new UserLogger(room, jsonFileHandler);
-                gameStateTracker = GameStateTrackerManager.getGameStateTracker(room, jsonFileHandler); //Get a GameStateTracker for current room
-                gameManager = new GameManager(userLogger, socketManager, gameStateTracker);
+
                 modLogger.createMod(socket.id, data);
 
                 PreGameManager.setTotalPlayers(data.playerCount, jsonFileHandler);
@@ -83,12 +93,13 @@ module.exports = function (io){
                     socket.room = data.room;
                     room = socket.room;
 
-                    //all objects needed are being created
-                    jsonFileHandler = new JsonFileHandler(room);
-                    gameStateTracker = GameStateTrackerManager.getGameStateTracker(room, jsonFileHandler);//Get a GameStateTracker for current room
-                    gameManager = new GameManager(userLogger, socketManager, gameStateTracker);
-                    modLogger = new ModLogger(room, jsonFileHandler);
-                    userLogger = new UserLogger(room, jsonFileHandler);
+                    const instances = initializeInstances(room,socketManager);
+                    jsonFileHandler = instances.jsonFileHandler;
+                    modLogger = instances.modLogger;
+                    userLogger = instances.userLogger;
+                    gameStateTracker = instances.gameStateTracker;
+                    gameManager = instances. gameMananger;
+                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
                     //user is being created and values assigned to properties of user object
                     userLogger.createUser(socket.id);
@@ -106,9 +117,11 @@ module.exports = function (io){
                     socketManager.emitToMod(socket, 'add_user', "adding");
                     joinStatus = 'available';
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
-                    socketManager.emitBackToClient('set_player_is_connected',true);
-                    const pieces = gameStateTracker.getStrategies();
-                    socketManager.emitToRoom(socket, 'add_piece', pieces); //adds pawn to the board
+                    //socketManager.emitBackToClient('set_player_is_connected',true);
+                     const pieces = gameStateTracker.getStrategies();
+                    // socketManager.emitToRoom(socket, 'add_piece', pieces); //adds pawn to the board
+                    gameScreenDataEmitter.sendPiecesData(socket);
+
                     socketManager.emitBackToClient("add_player_color",pieces);
 
                 } else {
@@ -128,46 +141,39 @@ module.exports = function (io){
                 socket.join(room)
                 socket.join(`${room}players`)
 
-                jsonFileHandler = new JsonFileHandler(room);
-                modLogger = new ModLogger(room, jsonFileHandler);
-                userLogger = new UserLogger(room, jsonFileHandler);
-                gameStateTracker = GameStateTrackerManager.getGameStateTracker(room, jsonFileHandler); //Get a GameStateTracker for current room
-                gameManager = new GameManager(userLogger, socketManager, gameStateTracker);
+                const instances = initializeInstances(room,socketManager);
+                jsonFileHandler = instances.jsonFileHandler;
+                modLogger = instances.modLogger;
+                userLogger = instances.userLogger;
+                gameStateTracker = instances.gameStateTracker;
+                gameManager = instances. gameMananger;
+                gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                gameManager.reconnectPlayer(socket, sessionData);
-                const pieces = gameStateTracker.getStrategies();
-                console.log("pieeecces: ", pieces);
-                console.log("emit terug naar client voor reconnect")
-                socketManager.emitBackToClient("add_piece",pieces);
-                socketManager.emitBackToClient("add_player_color",pieces);
+                const reconnectionManager = new ReconnectionManager(userLogger,modLogger,gameScreenDataEmitter,gameManager,socketManager);
+                reconnectionManager.reconnectPlayer(socket,sessionData);
+
                 socketManager.emitBackToClient('player_is_connected');
             },
 
             'reconnect_mod': (sessionData) =>{
                 const room = sessionData.room;
                 socket.room = room;
-                socket.join(room)
-                socket.join(`${room}mod`)
+                socket.join(room);
+                socket.join(`${room}mod`);
 
 
 
-
-                const modReconnectManager = new ModReconnectManager();
-                const instances = modReconnectManager.getClassInstances(room,io);
+                const instances = initializeInstances(room,socketManager);
                 jsonFileHandler = instances.jsonFileHandler;
                 modLogger = instances.modLogger;
                 userLogger = instances.userLogger;
                 gameStateTracker = instances.gameStateTracker;
-                gameManager = instances.gameManager;
+                gameManager = instances. gameMananger;
+                gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
 
-
-                gameManager.reconnectPlayer(socket, sessionData);
-                const pieces = gameStateTracker.getStrategies();
-                console.log("pieeecces: ", pieces);
-                console.log("emit terug naar client voor reconnect")
-                socketManager.emitBackToClient("add_piece",pieces);
-                socketManager.emitBackToClient("add_player_color",pieces);
+                const reconnectionManager = new ReconnectionManager(userLogger,modLogger,gameScreenDataEmitter,gameManager,socketManager);
+                reconnectionManager.reconnectMod(socket,sessionData);
                 socketManager.emitBackToClient('player_is_connected');
             },
 
@@ -311,7 +317,7 @@ module.exports = function (io){
                     modLogger.resetNumberOfQuestionsReviewed();
                     userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
                     gameManager.updateGameState(socket);
-                    gameManager.updateAllBoards(socket);
+                    gameManager.updatePiecePositions(socket);
                     gameManager.startRound(socket);
                 }
             },

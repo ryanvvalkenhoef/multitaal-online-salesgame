@@ -55,7 +55,7 @@ const handleColorAddition = (socket,setJoinedColors,func) =>{
     })
 }
 
-const handlePositionUpdate = (socket, validPositions, setPosition) => {
+const handlePositionUpdate = (socket, validPositions, setPosition,func) => {
     socket.on("update_position", (newPositionData) => {
         console.log("data: " + JSON.stringify(newPositionData))
         newPositionData.forEach((data) => {
@@ -67,7 +67,6 @@ const handlePositionUpdate = (socket, validPositions, setPosition) => {
             if (selectedPawnElement) {
                 const newTile = document.querySelector(`.tile[data-pos="${newPosition}"]`);
                 newTile.appendChild(selectedPawnElement);
-                setPosition(newPosition);
                 document.querySelectorAll(".tile").forEach((tile) => tile.classList.remove("blink"));
             }
         });

@@ -107,7 +107,7 @@ export function ModView() {
                     const key = sessionStorage.key(i);
                     sessionData[key] = sessionStorage.getItem(key);
                 }
-                socket.emit('reconnect_player', sessionData);
+                socket.emit('reconnect_mod', sessionData);
 
                 console.log("socket id ==== ", socket.id);
                 sessionStorage.setItem('socketId', socket.id);
