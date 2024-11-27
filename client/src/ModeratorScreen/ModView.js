@@ -17,7 +17,7 @@ export function ModView() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
     const [users, setUsers] = useState([]);
-    const sortedUserData = data.sort((a, b) => b.points - a.points);
+    const sortedUserData = [...data].sort((a, b) => b.points - a.points);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
@@ -65,6 +65,7 @@ export function ModView() {
 
     const onImageClick = (playerId) => {
         socket.emit('get_player_answer_on_click', playerId);
+        console.log('data for playerprogress', data);
     }
 
 
@@ -137,7 +138,7 @@ export function ModView() {
                     setSelectedPawn={setSelectedPawn}
                     modView={true}/>
                 <PlayerProgress
-                    sortedUserData={sortedUserData}
+                    playerProgressData={data}
                     onImageClick={onImageClick}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}

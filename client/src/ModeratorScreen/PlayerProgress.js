@@ -8,7 +8,7 @@ import Klaphatten from '../Assets/Klaphatten.png';
 import './PlayerProgressStyles.css'
 import {socket} from "../client";
 
-const PlayerProgress = ({sortedUserData, onImageClick}) => {
+const PlayerProgress = ({playerProgressData, onImageClick}) => {
     const [playersAnsweringQuestion, setPlayersAnsweringQuestion] = useState([]);
     const [playersFinishedTurn, setPlayersFinishedTurn] = useState([]);
     const [playersReviewed, setPlayersReviewed] = useState([]);
@@ -36,6 +36,7 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
         socket.on('player_has_finished_turn', (data) => {
             setPlayersFinishedTurn((playerIdState) => {
                 if (data.hasFinishedTurn) {
+                    setPlayersAnsweringQuestion((prev) => prev.filter((id) => id !== data.playerId));
                     return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
                 } else {
                     return playerIdState.filter((id) => id !== data.playerId);
@@ -45,6 +46,7 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
         socket.on('player_has_been_reviewed', (data) => {
             setPlayersReviewed((playerIdState) => {
                 if (data.hasBeenReviewed) {
+                    setPlayersFinishedTurn((prev) => prev.filter((id) => id !== data.playerId));
                     return playerIdState.includes(data.playerId) ? playerIdState : [...playerIdState, data.playerId];
                 } else {
                     return playerIdState.filter((id) => id !== data.playerId);
@@ -68,7 +70,7 @@ const PlayerProgress = ({sortedUserData, onImageClick}) => {
     return (
         <div className="player-progress-container">
             <label className="progress-label"> Player Progression: </label>
-            {sortedUserData.map((data) => (
+            {playerProgressData.map((data) => (
                 <button
                     key={data.id}
                     className="image-button"
