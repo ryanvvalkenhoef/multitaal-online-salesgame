@@ -36,6 +36,7 @@
     "leaderboard": "Scorebord",
     "previousPoints": "vorig",
     "currentPoints": "huidig",
+    "playerProgress": "Spelervoortgang",
     "modWait": "Wachten tot de speler een antwoord heeft ingediend",
     "setRoundText": "Ronde {{data.currentRound}} van {{data.totalRounds}}"
   },

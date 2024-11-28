@@ -7,6 +7,7 @@ import DominoHouse from '../Assets/DominoHouse.png';
 import Klaphatten from '../Assets/Klaphatten.png';
 import './PlayerProgressStyles.css'
 import {socket} from "../client";
+import {useTranslation} from "react-i18next";
 
 const PlayerProgress = ({playerProgressData, onImageClick}) => {
     const [playersAnsweringQuestion, setPlayersAnsweringQuestion] = useState([]);
@@ -20,6 +21,7 @@ const PlayerProgress = ({playerProgressData, onImageClick}) => {
         'Top of the World': TopOfTheWorld,
         'Jysk Telepartner': JyskTelepartner
     };
+    const { t, i18n } = useTranslation('global');
 
     useEffect(() => {
         socket.on('player_is_answering', (data) => {
@@ -69,7 +71,7 @@ const PlayerProgress = ({playerProgressData, onImageClick}) => {
 
     return (
         <div className="player-progress-container">
-            <label className="progress-label"> Player Progression: </label>
+            <label className="progress-label">{t('Game.playerProgress')} </label>
             {playerProgressData.map((data) => (
                 <button
                     key={data.id}

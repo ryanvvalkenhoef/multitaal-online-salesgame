@@ -36,6 +36,7 @@
     "leaderboard": "Leaderboard",
     "previousPoints": "previous",
     "currentPoints": "current",
+    "playerProgress": "Player progress",
     "modWait": "Waiting for player to submit an answer",
     "setRoundText": "Round {{data.currentRound}} of {{data.totalRounds}}"
   },
