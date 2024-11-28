@@ -18,16 +18,15 @@ import {
     handleTileInfo2Update,
     handleTileInfoUpdate
 } from "../GameScreen/Board/socketEventListeners";
+import {useNavigate} from "react-router-dom";
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
-    const [users, setUsers] = useState([]);
     const sortedUserData = data.sort((a, b) => b.points - a.points);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
-    const [currentPlayer, setCurrentPlayer] = useState (0)
     const [popupColor, setColor] = useState('')
     const [userColor, setUserColor] = useState('')
     const [playerName, setPlayerName] = useState('')
@@ -36,17 +35,15 @@ export function ModView() {
     const [position, setPosition] = useState("8-5")
     const [diceValue, setDiceValue] = useState(1);
     const [selectedPoints, setSelectedPoints] = useState(null);
-    const [currentRound, setCurrentRound] = useState(0)
-    const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
-    const playerCountRef = useRef(0);
     const currentQuestionRef = useRef(null);
     const [tileInfo, setTileInfo] = useState([])
     const [tileInfo2, setTileInfo2] = useState([])
     const [joinedColors, setJoinedColors] = useState([])
     const [startPieces, setStartPieces] = useState([])
     const[isReadyToRender, setIsReadyToRender] = useState(false);
+    const navigate = useNavigate();
 
    
 
@@ -125,15 +122,18 @@ export function ModView() {
         }
 
 
-        func().then(r => {})
+        if(!sessionStorage.getItem('socketId')){
+            navigate('/home');
+        }
+        else{
+            func().then(r => {})
+        }
 
         const socketHandlers = {
             'set_dice': (data) => {
                 setDiceValue(data);
             },
             'rounds': (data) => {
-                setTotalRounds(data.totalRounds)
-                setCurrentRound(data.currentRound)
                 setRoundText(t("Game.setRoundText", {data}))
             },
             'player_names': (data) => {
@@ -154,13 +154,10 @@ export function ModView() {
                     reviewQuestion(questionData)
             },
 
-            'player_count': (playerCount) => {
-                playerCountRef.current = playerCount;
-            },
-
             'game_over': () => {
                 alert("game over");
             }
+
 
         }
 
@@ -182,10 +179,7 @@ export function ModView() {
                 <button className="Qbutton2" onClick={handleGuide}>?</button>
                 <div className='roundscounter'>{roundText}</div>
                 <BoardGrid
-                    moveMade={moveMade}
-                    setMoveMade={setMoveMade}
                     setPosition={setPosition}
-                    selectedPawn={selectedPawn}
                     setSelectedPawn={setSelectedPawn}
                     modView={true}
                     tileInfo={tileInfo}
@@ -193,7 +187,6 @@ export function ModView() {
                     joinedColors={joinedColors}
                     startPieces={startPieces}/>
                 <DiceContainer
-                    setMoveMade={setMoveMade}
                     position={position}
                     diceValue={diceValue}
                     isModeratorScreen={true}/>

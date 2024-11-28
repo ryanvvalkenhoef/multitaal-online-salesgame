@@ -18,6 +18,7 @@ import {
     handleTileInfoUpdate,
     handlePositionUpdate
 } from "../GameScreen/Board/socketEventListeners";
+import {useNavigate} from "react-router-dom";
 
 export function Game() {
     const { t, i18n } = useTranslation('global');
@@ -48,6 +49,7 @@ export function Game() {
     const [startPieces, setStartPieces] = useState([])
     const[isReadyToRender, setIsReadyToRender] = useState(false);
     const [isPlayerConnected, setIsPlayerConnected] = useState(false);
+    const navigate = useNavigate();
 
 
 
@@ -69,6 +71,8 @@ export function Game() {
     useEffect(() =>{
         const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+
+
         const func  = async () => {
             const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
             handleTileInfoUpdate(socket, setTileInfo, (data) => renderManager.setTileInfo(data));
@@ -79,6 +83,8 @@ export function Game() {
             socket.on('player_is_connected', () => {
                 setIsPlayerConnected(true);
             })
+
+
 
             if (!socket.connected) {
                 socket.connect();
@@ -111,8 +117,12 @@ export function Game() {
             socket.emit('send_player_colors');
         }
 
-
+        if(!sessionStorage.getItem('socketId')){
+            navigate('/home');
+        }
+        else{
         func().then(r => {})
+         }
 
         const socketHandlers = {
             'rounds': (data) => {
@@ -160,9 +170,11 @@ export function Game() {
                 console.log('game over');
                 alert("game over");
             }
-            
-            
+
         }
+            
+            
+
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])
         })
@@ -181,11 +193,7 @@ export function Game() {
                 <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
                     <div className='roundscounter'>{roundText}</div>
                     <BoardGrid
-                        steps={steps}
-                        moveMade={moveMade}
-                        setMoveMade={setMoveMade}
                         selectedPawn={selectedPawn}
-                        setSelectedPawn={setSelectedPawn}
                         setPosition={setPosition}
                         setCurrentPlayer={setCurrentPlayer}
                         currentPlayer={currentPlayer}

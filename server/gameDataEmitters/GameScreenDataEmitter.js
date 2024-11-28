@@ -68,7 +68,7 @@ class GameScreenDataEmitter{
 
     sendPlayerColors = (socket) =>{
         const pieces = this.#gameStateTracker.getStrategies();
-        this.#socketManager.emitBackToClient("add_player_color",pieces);
+        this.#socketManager.emitBackToClient(socket,"add_player_color",pieces);
     }
 
 }

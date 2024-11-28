@@ -11,9 +11,11 @@ class PlayerQuestionQueue extends QuestionQueue{
         const playerId = socket.id;
 
         if(!this.queues[room]){ // None of the players have a queue so it returns length of 0
+            console.log("None of the players have a question queue")
             return 0;
         }
         if (!this.queues[room][playerId]) { // The player doesn't have a queue, so it returns a length of 0
+            console.log("The player doesn't have a question que")
             return 0;
         }
 
@@ -57,6 +59,15 @@ class PlayerQuestionQueue extends QuestionQueue{
         }
 
         this.queues[room][playerId].shift();
+    }
+
+    reconnectToQueue(socket, sessionData){
+        const room = socket.room;
+        const oldSocketId = sessionData.socketId;
+        const newSocketId = socket.id;
+        this.queues[room][newSocketId] = this.queues[room][oldSocketId];
+        delete this.queues[room][oldSocketId];
+
     }
 
 

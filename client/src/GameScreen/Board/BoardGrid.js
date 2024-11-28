@@ -17,15 +17,8 @@ import {Piece} from "../Piece/Piece.js";
 import {renderStartPieces} from "../Piece/functions";
 
 
-const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces}) => {
-    // const [startPieces, setStartPieces] = useState([])
+const BoardGrid = ({selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces}) => {
     const [validPositions, setValidPositions] = useState([])
-    const [updatedPieces, setUpdatedPieces] = useState(false)
-    // const [joinedColors, setJoinedColors] = useState([])
-    // const [tileInfo, setTileInfo] = useState([])
-    // const [tileInfo2, setTileInfo2] = useState([])
-    const tilesColorAndPositionRef = useRef(null)
-    const [tilePieces, setTilePieces] = useState({});
     const [isReadyToRender, setIsReadyToRender] = useState(false);
     const[tilesUseState, setTilesUseState] = useState([]);
 
@@ -54,18 +47,16 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
     useEffect(() => {
         const handleTileClick = event => {
             const targetTile = event.target.closest('.tile')
-            console.log("debugggg " );
             if (startPieces.includes(event.target.id)) {
                 event.target.classList.add('highlight')
             } else if (targetTile && validPositions.includes(targetTile.getAttribute('data-pos'))
                 && targetTile.classList.contains('blink')) {
                 const newPosition = targetTile.getAttribute('data-pos')
-                if (validPositions.includes(newPosition) && !moveMade) {
+                if (validPositions.includes(newPosition)) {
                     if (selectedPawn instanceof HTMLElement) {
                         event.target.appendChild(selectedPawn)
                         const color = targetTile.className.split(' ')[1]
                         sendQuestionRequest(color)
-                        //setMoveMade(true)
                         document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
                         socket.emit('update_player_position', {newPosition: newPosition, selectedPawn: selectedPawn.id});
                     } else {
@@ -76,13 +67,8 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         }
 
 
-
-       // handleTileInfoUpdate(socket,setTileInfo);
-       // handleTileInfo2Update(socket,setTileInfo2);
         handleValidPositionsUpdate(socket,setValidPositions);
-       // handlePieceAddition(socket,setStartPieces,setJoinedColors);
         handlePositionUpdate(socket,validPositions,setPosition, (data) => setPosition(data))
-
 
 
         if (gameScreen){
@@ -92,49 +78,15 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
                 boardGrid.addEventListener('click', handleTileClick)
             }
         }
-        console.log('re-rendering due to update')
+        console.log('Board re-rendering due to update')
         return () => {
             cleanUpSocketListeners(socket);
         };
-    }, [moveMade, validPositions, selectedPawn, setMoveMade, setPosition, setSelectedPawn, setCurrentPlayer, setPlayerColor, playerColor, gameScreen])
+    }, [validPositions])
 
     useEffect(()=>{
-// socket.on('connect', ()=> {
-//     if (socket.id === sessionStorage.getItem('socketId')) {
-//         setIsReadyToRender(true);
-//     } else {
-//         const sessionData = {};
-//         for (let i = 0; i < sessionStorage.length; i++) {
-//             const key = sessionStorage.key(i);
-//             sessionData[key] = sessionStorage.getItem(key);
-//         }
-//         socket.emit('reconnect_player', sessionData);
-//         setIsReadyToRender(true);
-//         console.log("socket id ==== ", socket.id);
-//         sessionStorage.setItem('socketId', socket.id);
-//         console.log("sessionStorage: ", sessionStorage.getItem('socketId'))
-//     }
-// })
-        //
-        // if(isReadyToRender) {
-        //     if (!updatedPieces) {
-        //         if (modView) {
-        //             socket.emit('get_pieces', 'mod');
-        //             socket.emit('get_data', 'leaderboard_update');
-        //         } else {
-        //             socket.emit('get_pieces', 'player');
-        //             socket.emit('get_data', 'leaderboard_update');
-        //             socket.emit('get_playerstrategy', 'player');
-        //         }
-                setUpdatedPieces(true); // Mark pieces as updated after emitting events
-            //}
-            //
-            // if (tileInfo.length === 0 || tileInfo2.length === 0) {
-            //     console.log("emit event")
-            //     socket.emit('get_tileInfo');
-            //     socket.emit('get_tileInfo2')
-            //     // return <div> Loading...</div>
-            // }
+
+
 
 
             for (let index = 0; index < tileInfo.length; index++) {
@@ -157,64 +109,12 @@ const BoardGrid = ({moveMade, setMoveMade, setSelectedPawn, selectedPawn, setPos
         };
     }, [joinedColors,validPositions])
 
-    // useEffect(() => {
-    //     console.log("tileInfo updated:", tileInfo);
-    //     console.log("tileInfo2 updated:", tileInfo2);
-    // }, [tileInfo, tileInfo2]);
-
-    //
-    // useEffect(() => {
-    //
-    //     // if(isReadyToRender) {
-    //     //     if (!updatedPieces) {
-    //     //         if (modView) {
-    //     //             socket.emit('get_pieces', 'mod');
-    //     //             socket.emit('get_data', 'leaderboard_update');
-    //     //         } else {
-    //     //             socket.emit('get_pieces', 'player');
-    //     //             socket.emit('get_data', 'leaderboard_update');
-    //     //             socket.emit('get_playerstrategy', 'player');
-    //     //         }
-    //     //         setUpdatedPieces(true); // Mark pieces as updated after emitting events
-    //     //     }
-    //     //
-    //     //     if (tileInfo.length === 0 || tileInfo2.length === 0) {
-    //     //         console.log("emit event")
-    //     //         socket.emit('get_tileInfo');
-    //     //         socket.emit('get_tileInfo2')
-    //     //         // return <div> Loading...</div>
-    //     //     }
-    //     //
-    //     //
-    //     //     for (let index = 0; index < tileInfo.length; index++) {
-    //     //
-    //     //
-    //     //         const color = assignColorToTile(index, joinedColors, tileInfo, tileInfo2);
-    //     //         const isHighlighted = highLightChecker(index, possiblePositions, validPositions);
-    //     //         const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
-    //     //         const position = possiblePositions[index];
-    //     //
-    //     //         const tile = Tile({index, position, tileClass, renderStartPieces, startPieces, selectedPawn});
-    //     //         tiles.push(tile);
-    //     //     }
-    //     //     console.log('isReadytoRender: ', isReadyToRender);
-    //     //     console.log("colors: ", joinedColors);
-    //     //     setTilesUseState(tiles);
-    //     // }
-    //
-    // }, [isReadyToRender,tileInfo,joinedColors])
-
-
-
-
     return (
             <div className='board-grid'>
                 {tilesUseState}
             </div>
     )
 }
-
-
 
 
 export default BoardGrid

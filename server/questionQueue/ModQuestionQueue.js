@@ -51,6 +51,8 @@ class ModQuestionQueue extends QuestionQueue {
         this.queues[room].shift();
     }
 
+
+
     #checkIfRoomExists(room) {
         if (!this.queues[room]) {
             throw new Error(`Room '${room}' doesn't exist in mod queue object`)

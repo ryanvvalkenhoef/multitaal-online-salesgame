@@ -135,46 +135,71 @@ module.exports = function (io){
             },
 
             'reconnect_player': (sessionData) =>{
-                console.log("recived sssion data: ", sessionData);
-                const room = sessionData.room;
-                socket.room = room;
-                socket.join(room)
-                socket.join(`${room}players`)
+                try {
+                    console.log("recived sssion data: ", sessionData);
+                    const room = sessionData.room;
+                    socket.room = room;
+                    socket.join(room)
+                    socket.join(`${room}players`)
 
-                const instances = initializeInstances(room,socketManager);
-                jsonFileHandler = instances.jsonFileHandler;
-                modLogger = instances.modLogger;
-                userLogger = instances.userLogger;
-                gameStateTracker = instances.gameStateTracker;
-                gameManager = instances. gameMananger;
-                gameScreenDataEmitter = instances.gameScreenDataEmitter;
+                    const instances = initializeInstances(room, socketManager);
+                    jsonFileHandler = instances.jsonFileHandler;
+                    modLogger = instances.modLogger;
+                    userLogger = instances.userLogger;
+                    gameStateTracker = instances.gameStateTracker;
+                    gameManager = instances.gameMananger;
+                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                const reconnectionManager = new ReconnectionManager(userLogger,modLogger,gameScreenDataEmitter,gameManager,socketManager);
-                reconnectionManager.reconnectPlayer(socket,sessionData);
+                    const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
+                    reconnectionManager.reconnectPlayer(socket, sessionData);
 
-                socketManager.emitBackToClient('player_is_connected');
+                    socketManager.emitBackToClient('player_is_connected');
+
+                    playerQuestionQueue.reconnectToQueue(socket, sessionData);
+                    const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
+                    if (questionQueueLength > 0) {
+                        const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
+                        socketManager.emitBackToClient(socket, 'receive_question', questionData);
+                        playerQuestionQueue.removeQuestionFromQueue(socket);
+                    }
+                }
+                catch (exception){
+                    console.error("Can't reconnect player")
+                }
             },
 
             'reconnect_mod': (sessionData) =>{
-                const room = sessionData.room;
-                socket.room = room;
-                socket.join(room);
-                socket.join(`${room}mod`);
+                try {
+                    const room = sessionData.room;
+                    socket.room = room;
+                    socket.join(room);
+                    socket.join(`${room}mod`);
 
 
+                    const instances = initializeInstances(room, socketManager);
+                    jsonFileHandler = instances.jsonFileHandler;
+                    modLogger = instances.modLogger;
+                    userLogger = instances.userLogger;
+                    gameStateTracker = instances.gameStateTracker;
+                    gameManager = instances.gameMananger;
+                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                const instances = initializeInstances(room,socketManager);
-                jsonFileHandler = instances.jsonFileHandler;
-                modLogger = instances.modLogger;
-                userLogger = instances.userLogger;
-                gameStateTracker = instances.gameStateTracker;
-                gameManager = instances. gameMananger;
-                gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
+                    const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
+                    reconnectionManager.reconnectMod(socket, sessionData);
+                    socketManager.emitBackToClient('player_is_connected');
 
-                const reconnectionManager = new ReconnectionManager(userLogger,modLogger,gameScreenDataEmitter,gameManager,socketManager);
-                reconnectionManager.reconnectMod(socket,sessionData);
-                socketManager.emitBackToClient('player_is_connected');
+                    const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+                    if (questionQueueLength > 0) {
+                        const question = modQuestionQueue.getQuestionFromQueue(socket);
+                        //modQuestionQueue.removeQuestionFromQueue(socket);
+                        gameManager.sendAnswerToModerator(socket, question);
+                    }
+                }
+            catch (exception){
+                    console.error("Can't reconnect moderator")
+
+                }
             },
 
             'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler gestuurd
@@ -209,29 +234,32 @@ module.exports = function (io){
                 if (availableColors.includes(data.questionColor)) {
                     const receiver = userLogger.getReceiver(data.questionColor);
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-                    if (playerIsAnsweringQuestion) {
-                        playerQuestionQueue.addQuestionToQueue(socket, receiver, questionData)
-                    } else {
+                    playerQuestionQueue.addQuestionToQueue(socket, receiver, questionData)
+                    if (!playerIsAnsweringQuestion) {
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
                         userLogger.setIsAnsweringQuestion(true, receiver);
                     }
-                } else {
+                }
+                else {
+                    playerQuestionQueue.addQuestionToQueue(socket, socket.id, questionData)
                     socketManager.emitBackToClient(socket, 'receive_question', questionData);
                     userLogger.setIsAnsweringQuestion(true, socket.id);
                 }
             },
 
             'send_answer_to_server': (questionData) => {
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+
+                modQuestionQueue.addQuestionToQueue(socket, questionData);
                 const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
-                // Check if mod queue contains any questions and if the mod is able to review.
-                if (questionQueueLength === 0 && !isReviewingQuestion) {
+
+                // Checks if the mod is already reviewing a question.
+                if (!isReviewingQuestion) {
                     gameManager.sendAnswerToModerator(socket, questionData);
                     modLogger.setIsReviewingQuestion(true);
-                } else {
-                    modQuestionQueue.addQuestionToQueue(socket, questionData);
                 }
 
+
+                playerQuestionQueue.removeQuestionFromQueue(socket);
                 // Check if the question queue of the player who sent the question to the server contains any questions.
                 if (playerQuestionQueue.getQuestionQueueLength(socket) > 0) {
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
@@ -298,12 +326,13 @@ module.exports = function (io){
 
 
             'question_reviewed': () => {
+                modQuestionQueue.removeQuestionFromQueue(socket);
                 const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
                 modLogger.updateNumberOfQuestionsReviewed();
 
                 if (questionQueueLength > 0) {
                     const question = modQuestionQueue.getQuestionFromQueue(socket);
-                    modQuestionQueue.removeQuestionFromQueue(socket);
+                    //modQuestionQueue.removeQuestionFromQueue(socket);
                     gameManager.sendAnswerToModerator(socket, question);
                 }
                 // When queue is empty but not all players have submitted
@@ -377,7 +406,7 @@ module.exports = function (io){
             'get_pieces': (data) => {
                 console.log("socket getPieces: ",socket.id);
                 const pieces = gameStateTracker.getStrategies();
-                socketManager.emitToRoom(socket, "add_piece", pieces);
+                gameScreenDataEmitter.sendPiecesData(socket);
                 socketManager.emitToRoom(socket,'add_player_color',pieces); // moet een eigen event voor komen
 
             }

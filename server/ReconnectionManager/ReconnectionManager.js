@@ -10,26 +10,28 @@ class ReconnectionManager {
     #gameManager;
     /** @type {#SocketManager} */
     #socketManager
+    /** @type {#GameStateTracker} */
+    #gameStateTracker
 
 
 
-    constructor(userLogger, modLogger,gameScreenDataEmitter, gameManager, socketManager) {
+    constructor(userLogger, modLogger,gameScreenDataEmitter, gameManager, socketManager,gameStateTracker) {
         this.#userLogger = userLogger;
         this.#modLogger = modLogger;
         this.#gameScreenDataEmitter = gameScreenDataEmitter;
         this.#gameManager = gameManager;
         this.#socketManager = socketManager
+        this.#gameStateTracker = gameStateTracker;
 
     }
 
     reconnectPlayer = (socket , sessionData) =>{
         this.#updatePlayerId(socket,sessionData);
         this.#sendLeaderBoardData(socket);
-        this.#sendNewPositionsData(socket)
+        this.#sendPositionsData(socket)
         this.#sendPiecesData(socket);
         this.#sendPlayerColors(socket);
-        this.#sendRoundInfo(socket);
-        this.#sendPlayerPositions(socket);
+        this.#sendRoundData(socket);
         this.#linkPlayerToPiece(socket);
         this.#sendPlayerNames(socket);
         this.#setTurnStatusTrue(socket);
@@ -42,11 +44,10 @@ class ReconnectionManager {
         this.#updateModId(socket,sessionData);
         this.#sendBoardData(socket);
         this.#sendLeaderBoardData(socket);
-        this.#sendNewPositionsData(socket)
+        this.#sendPositionsData(socket)
         this.#sendPiecesData(socket);
         this.#sendPlayerColors(socket);
-        this.#sendRoundInfo(socket);
-        this.#sendPlayerPositions(socket);
+        this.#sendRoundData(socket);
         this.#setTurnStatusTrue(socket);
     }
 
@@ -59,26 +60,57 @@ class ReconnectionManager {
         this.#modLogger.reconnect(socket.id,oldSocketId);
     }
     #sendBoardData = (socket) =>{
-        this.#gameScreenDataEmitter.sendBoardData(socket);
+        const tileInfo = [
+            'sales', 'color1', 'color3', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color7', 'sales', 'rainbow', 'color12', 'megatrends', 'color10', 'color8',
+            'color6', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance',
+            'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color9', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color11',
+            'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'rainbow',
+            'rainbow', 'sales', 'color8', 'chance', 'color1', 'megatrends', 'color10', 'start', 'rainbow', 'sales', 'color4', 'megatrends', 'color7', 'color6', 'sales',
+            'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'sales', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color9',
+            'color10', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color12', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color4',
+            'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends',
+            'sales', 'rainbow', 'color11', 'chance', 'color2', 'color7', 'megatrends', 'rainbow', 'color9', 'sales', 'color8', 'color6', 'chance', 'rainbow', 'color5'
+        ]
+
+        //TILE_INFO FOR WHEN 5 PLAYERS JOIN
+        const tileInfo2 = [
+            'sales', 'color1', 'color5', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color1', 'sales', 'rainbow', 'color3', 'megatrends', 'color4', 'color2',
+            'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance',
+            'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color5',
+            'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'rainbow',
+            'rainbow', 'sales', 'color2', 'chance', 'color1', 'megatrends', 'color4', 'start', 'rainbow', 'sales', 'color4', 'megatrends', 'color1', 'color3', 'sales',
+            'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'sales', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color5',
+            'color4', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color4',
+            'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends',
+            'sales', 'rainbow', 'color5', 'chance', 'color2', 'color1', 'megatrends', 'rainbow', 'color5', 'sales', 'color2', 'color3', 'chance', 'rainbow', 'color5'
+        ]
+
+        this.#socketManager.emitBackToClient(socket, 'send_tileInfo', tileInfo);
+        this.#socketManager.emitBackToClient(socket, 'send_tileInfo2', tileInfo2);
     }
     #sendLeaderBoardData = (socket) =>{
-        this.#gameScreenDataEmitter.sendLeaderboardData(socket)
+        const userData = this.#userLogger.getAllPlayerObjects();
+        this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);
     }
-    #sendRoundInfo = (socket) =>{
-        this.#gameScreenDataEmitter.sendRoundData(socket);
+    #sendRoundData = (socket) =>{
+        const roundInfo = this.#gameStateTracker.getRound();
+        this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
     }
-    #sendNewPositionsData = (socket) =>{
-        this.#gameScreenDataEmitter.sendNewPositionsData(socket);
+    #sendPositionsData = (socket) =>{
+        const players = this.#userLogger.getAllPlayerObjects();
+        const playerPositions = players.map(player => player.playerPosition);
+        this.#socketManager.emitBackToClient(socket,'update_position',playerPositions);
     }
     #sendPiecesData = (socket) =>{
-        this.#gameScreenDataEmitter.sendPiecesData(socket);
+        const pieces = this.#gameStateTracker.getStrategies();
+        this.#socketManager.emitBackToClient(socket, 'add_piece', pieces);
     }
-    #sendPlayerPositions = (socket) =>{
-        this.#gameManager.updatePiecePositions(socket)
-    }
+
     #sendPlayerColors = (socket) =>{
-        this.#gameScreenDataEmitter.sendPlayerColors(socket);
+        const pieces = this.#gameStateTracker.getStrategies();
+        this.#socketManager.emitBackToClient(socket,"add_player_color",pieces);
     }
+
     #linkPlayerToPiece = (socket) =>{
         const strategy = this.#userLogger.getStrategy(socket.id);
         this.#socketManager.emitBackToClient(socket,'players_turn',strategy);
@@ -90,8 +122,9 @@ class ReconnectionManager {
     #setTurnStatusTrue = (socket) =>{
         this.#socketManager.emitBackToClient(socket, 'set_turn_true');
     }
-
-
 }
+
+
+
 
 module.exports = ReconnectionManager;
