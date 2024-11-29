@@ -85,9 +85,9 @@ const PlayerProgress = ({playerProgressData, onImageClick}) => {
                     <img
                         src={strategyImages[data.strategy]}
                         className={`image ${
-                            playersReviewed.includes(data.id) ? 'reviewed' :
-                                playersFinishedTurn.includes(data.id) ? 'finished' : 
-                                    playersAnsweringQuestion.includes(data.id) ? 'answering' : ''
+                            playersAnsweringQuestion.includes(data.id) ? 'answering' :
+                                playersFinishedTurn.includes(data.id) ? 'finished' :
+                                    playersReviewed.includes(data.id) ? 'reviewed' : ''
                         } ${
                             data.strategy === 'Safeline' ? 'piecesafeline' :
                                 data.strategy === 'Lunar' ? 'piecelunar' :

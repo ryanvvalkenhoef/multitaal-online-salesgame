@@ -44,7 +44,7 @@ module.exports = function (io){
                 modLogger = new ModLogger(room,jsonFileHandler);
                 userLogger = new UserLogger(room,jsonFileHandler);
                 gameStateTracker = GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler); //Get a GameStateTracker for current room
-                gameManager = new GameManager(userLogger,socketManager,gameStateTracker);
+                gameManager = new GameManager(userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue);
                 modLogger.createMod(socket.id,data);
 
                 PreGameManager.setTotalPlayers(data.playerCount,jsonFileHandler);
@@ -85,7 +85,7 @@ module.exports = function (io){
                     //all objects needed are being created
                     jsonFileHandler = new JsonFileHandler(room);
                     gameStateTracker = GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler);//Get a GameStateTracker for current room
-                    gameManager = new GameManager(userLogger,socketManager,gameStateTracker);
+                    gameManager = new GameManager(userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue);
                     modLogger = new ModLogger(room,jsonFileHandler);
                     userLogger = new UserLogger(room,jsonFileHandler);
 
@@ -143,10 +143,10 @@ module.exports = function (io){
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
                     const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
-                    if (receiver !== socket.id){
-                        userLogger.updateUser(socket.id,{hasFinishedTurn: true});
-                        socketManager.emitToMod(socket, 'player_is_answering', {playerId: socket.id, isAnsweringQuestion: true});
-                    }
+                    // if (receiver !== socket.id){
+                    //     userLogger.updateUser(socket.id,{hasBeenReviewed: true});
+                    //     socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
+                    // }
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
                     if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
                         playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
@@ -164,19 +164,14 @@ module.exports = function (io){
             },
 
             'get_player_answer_on_click': (playerId) => {
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                 if (questionQueueLength !== 0) {
-                     const questionData = modQuestionQueue.getQuestionFromQueue(socket, playerId);
-                     gameManager.sendAnswerToModerator(socket, questionData);
-                     modQuestionQueue.removeQuestionFromQueue(socket, playerId);
-                     modLogger.setIsReviewingQuestion(true);
-                 }
+                gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
             },
 
             'send_answer_to_server': (questionData) => {
-                    modQuestionQueue.addQuestionToQueue(socket,questionData);
+                //await gameManager.waitForModToFinishReview(modLogger);
+                modQuestionQueue.addQuestionToQueue(socket,questionData);
                 // Check if the question queue of the player who sent the question to the server contains any questions.
-                if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
+                if (playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     playerQuestionQueue.removeQuestionFromQueue(socket);
@@ -245,21 +240,12 @@ module.exports = function (io){
             },
 
 
-            'question_reviewed': () => {
-                //const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+            'question_reviewed': (playerId) => {
                 modLogger.updateNumberOfQuestionsReviewed();
+                modQuestionQueue.removeQuestionFromQueue(socket, playerId);
+                modLogger.setIsReviewingQuestion(false);
+                gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
 
-                // if (questionQueueLength > 0) {
-                //     const question = modQuestionQueue.getQuestionFromQueue(socket);
-                //     modQuestionQueue.removeQuestionFromQueue(socket);
-                //     gameManager.sendAnswerToModerator(socket, question);
-                // }
-                // // When queue is empty but not all players have submitted
-                // else {
-                //   modLogger.setIsReviewingQuestion(false);
-                // }
-                //
-                // const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
                 if (isRoundFinished) { // Update Game state and go to next round
                     modLogger.resetNumberOfQuestionsReviewed();

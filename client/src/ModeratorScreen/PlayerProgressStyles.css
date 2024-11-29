@@ -38,12 +38,10 @@
     filter: grayscale(100);
 }
 
-.image.reviewed {
+.image.answering {
     border-radius: 50%;
-    animation: none;
-    filter: none;
-    background-color: green; /* Change the color to green */
-    opacity: 0.5;
+    animation: pulse 2s infinite;
+    filter: grayscale(90);
     cursor: default;
 }
 
@@ -54,10 +52,12 @@
     cursor: pointer;
 }
 
-.image.answering {
+.image.reviewed {
     border-radius: 50%;
-    animation: pulse 2s infinite;
-    filter: grayscale(90);
+    animation: none;
+    filter: none;
+    background-color: green; /* Change the color to green */
+    opacity: 0.5;
     cursor: default;
 }
 
