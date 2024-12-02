@@ -9,25 +9,35 @@ class ModQuestionQueue extends QuestionQueue {
     }
 
 
-    getQuestionQueueLength(socket) {
+    getQuestionQueueLength(socket, playerId) {
         const room = socket.room;
 
         if(!this.queues[room]){ // Mod doesn't have a queue so it returns length of 0.
             return 0;
         }
-
-        return this.queues[room].length;
-    }
-
-    addQuestionToQueue(socket, question) {
-        const room = socket.room;
-
-        if(!this.queues[room]){ // check if mod already has a queue
-            this.queues[room] = [];
+        if (!this.queues[room][playerId]) { // The player doesn't have a queue, so it returns a length of 0
+            return 0;
         }
 
-        const currentQueue = this.queues[room];  // Initialize as empty array if player's queue is missing
-        this.queues[room] = [...currentQueue,question];
+        return this.queues[room][playerId].length;
+    }
+
+    addQuestionToQueue(socket, playerId, question) {
+        const room = socket.room;
+        console.log('playerId:', playerId);
+        console.log('question:', question);
+
+        if (!this.queues[room]) { // Check if mod already has a queue
+            this.queues[room] = {};
+        }
+
+        if (!this.queues[room][playerId]) { // Initialize player's queue if missing
+            this.queues[room][playerId] = [];
+        }
+
+        this.queues[room][playerId].push(question); // Add question to player's queue
+        console.log('Updated queue:', JSON.stringify(this.queues[room][playerId]));
+        console.log('Updated queue length:', this.queues[room][playerId].length);
         return true;
     }
 
@@ -37,7 +47,10 @@ class ModQuestionQueue extends QuestionQueue {
         if(!this.queues[room]){ // Mod doesn't have a queue
             return null;
         }
-        const question = this.queues[room].find(question => {
+        if (!this.queues[room][playerId]) { // The player doesn't have a queue
+            return null;
+        }
+        const question = this.queues[room][playerId].find(question => {
             console.log('Checking question.playerId:', question.playerId);
             return question.playerId === playerId;
         });
@@ -56,11 +69,14 @@ class ModQuestionQueue extends QuestionQueue {
         if (!this.queues[room]) {
             return null;
         }
-        const index = this.queues[room].findIndex(question => question.playerId === playerId);
+        if (!this.queues[room][playerId]) {
+            return null;
+        }
+        const index = this.queues[room][playerId].findIndex(question => question.playerId === playerId);
 
         // If a matching question is found, remove it from the queue
         if (index !== -1) {
-            this.queues[room].splice(index, 1);
+            this.queues[room][playerId].splice(index, 1);
         }
     }
 

@@ -31,7 +31,7 @@ class GameManager{
   // };
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
-    const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket);
+    const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
     console.log('questionQueueLength:', questionQueueLength);
     if (questionQueueLength !== 0) {
       const questionData = this.#modQuestionQueue.getQuestionFromQueue(socket, playerId);
@@ -39,6 +39,9 @@ class GameManager{
       this.sendAnswerToModerator(socket, questionData);
       // modQuestionQueue.removeQuestionFromQueue(socket, playerId);
       this.#modLogger.setIsReviewingQuestion(true);
+    } else {
+      this.#userLogger.setHasBeenReviewed(playerId, true);
+      this.#socketManager.emitBackToClient(socket, 'player_has_been_reviewed', {playerId: playerId, hasBeenReviewed: true});
     }
   }
 

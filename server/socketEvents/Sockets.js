@@ -150,6 +150,7 @@ module.exports = function (io){
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
                     if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
                         playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
+                        console.log('playerQuestionQueue:', JSON.stringify(playerQuestionQueue));
                     }
                     else { //speler kan de vraag direct beantwoorden
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
@@ -169,7 +170,8 @@ module.exports = function (io){
 
             'send_answer_to_server': (questionData) => {
                 //await gameManager.waitForModToFinishReview(modLogger);
-                modQuestionQueue.addQuestionToQueue(socket,questionData);
+                modQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
+                console.log('modQuestionQueue:', JSON.stringify(modQuestionQueue));
                 // Check if the question queue of the player who sent the question to the server contains any questions.
                 if (playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
@@ -192,18 +194,6 @@ module.exports = function (io){
             'change_language' : (data) => {
                 userLogger.updateUser(socket.id, {language : data})
             },
-
-
-            'submit_points' : (data) => {
-                const id = data.playerId;
-
-                const oldTotalPoints = userLogger.getPoints(id);
-                const newTotalPoints = Number(oldTotalPoints) + Number(data.totalPoints);
-                userLogger.updateUser(id,{totalPoints : newTotalPoints, previousPoints: oldTotalPoints});
-                userLogger.setHasBeenReviewed(id, data.hasBeenReviewed)
-                socketManager.emitBackToClient(socket, 'player_has_been_reviewed', {playerId: id, hasBeenReviewed: data.hasBeenReviewed});
-            },
-
 
             'update_position' : (data) => {
                 socketManager.emitToRoom(socket,'update_position',data);
@@ -240,11 +230,17 @@ module.exports = function (io){
             },
 
 
-            'question_reviewed': (playerId) => {
+            'points_submitted_question_reviewed': (reviewData) => {
+                const id = reviewData.playerId;
+                const oldTotalPoints = userLogger.getPoints(id);
+                const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
+                userLogger.updateUser(id,{totalPoints : newTotalPoints, previousPoints: oldTotalPoints});
+
                 modLogger.updateNumberOfQuestionsReviewed();
-                modQuestionQueue.removeQuestionFromQueue(socket, playerId);
+                modQuestionQueue.removeQuestionFromQueue(socket, id);
                 modLogger.setIsReviewingQuestion(false);
-                gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
+                gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, id);
+
 
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
                 if (isRoundFinished) { // Update Game state and go to next round
