@@ -36,20 +36,24 @@ import{
 export function Game() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
+    const [users, setUsers] = useState([]);
     const sortedUserData = data.sort((a, b) => b.points - a.points);
     const [question, setQuestion] = useState("")
-    const [moveMade, setMoveMade] = useState(false) //wordt niet gebruikt?
-    const [currentPlayer, setCurrentPlayer] = useState ('') //wordt niet gebruikt?
+    const [steps, setSteps] = useState(0)
+    const [moveMade, setMoveMade] = useState(false)
+    const [currentPlayer, setCurrentPlayer] = useState ('')
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
-    const [popupColor, setPopUpColor] = useState('')
-    const [myTurn, setMyTurn] = useState(true)
+    const [popupColor, setPopupColor] = useState('')
+    const [playerRollDice, setPlayerRollDice] = useState(false)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [isPopUpEnabled, setIsPopUpEnabled] = useState(false)
     const [isWaitingScreenEnabled, setIsWaitingScreenEnabled] = useState(false)
     const [textBoxContent, setTextBoxContent] = useState('')
     const [playerName, setPlayerName] = useState('')
-    const [turnText, setTurnText] = useState(t(""))
+    const [turnText, setTurnText] = useState(t("Game.wait"))
+    const [currentRound, setCurrentRound] = useState(0)
+    const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const currentQuestionRef = useRef(null);
     const [tileInfo, setTileInfo] = useState([])
@@ -129,6 +133,8 @@ export function Game() {
                         position={position}
                         myTurn={myTurn}
                         setMyTurn={setMyTurn}
+                        playerRollDice={playerRollDice}
+                        setPlayerRollDice={setPlayerRollDic}
                     />
                     <LeaderBoard sortedUserData={sortedUserData} playerName={playerName} />
                     <PlayerTurns turnText={turnText} />

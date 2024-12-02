@@ -58,11 +58,13 @@ class UserLogger {
             language: 'en',
             room: '',
             name: '',
-            points: 0,
+            previousPoints: 0,
+            totalPoints: 0,
             strategy:'',
+            canRollDice: false,
             isAnsweringQuestion: false,
             hasFinishedTurn: false,
-            playerPosition: '' }
+            playerPosition: ''}
 
         data.users.push(user);
         this.#jsonFileHandler.writeData(data);
@@ -140,7 +142,7 @@ class UserLogger {
 
         const user = data.users.find(user => user.id === id);
         if (user) {
-            return user.points;
+            return user.totalPoints;
         } else {
             console.error('User not found3.');
             return null;
@@ -257,6 +259,23 @@ class UserLogger {
             console.error('User not found7.');
             return null;
         }
+    }
+    getCanRollDice(playerId) {
+        let data = this.#jsonFileHandler.readData()
+        if (!data) return null;
+
+        const player = data.users.find(player => player.id === playerId);
+        return player.canRollDice;
+    }
+
+    setCanRollDice(playerId, boolean) {
+        let data = this.#jsonFileHandler.readData()
+        if (!data) return null;
+
+        const player = data.users.find(player => player.id === playerId);
+        player.canRollDice = boolean;
+        console.log('de bool', boolean);
+        this.#jsonFileHandler.writeData(data)
     }
 
      resetHasFinishedTurn() {

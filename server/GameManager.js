@@ -7,7 +7,7 @@ class GameManager{
   #gameStateTracker
   /**@type {GameScreenDataEmitter}*/
   #gameScreenDataEmitter
-  
+
   constructor(userLogger,socketManager,gameStateTracker, gameScreenDataEmitter) {
     this.#userLogger = userLogger;
     this.#socketManager = socketManager;
@@ -58,25 +58,48 @@ class GameManager{
       const name = playerNames[i].name;
       this.#socketManager.emitToSpecificSocket(socketId,'players_turn',strategy);
       this.#socketManager.emitToSpecificSocket(socketId,'player_names',name);
-      this.#socketManager.emitToSpecificSocket(socketId, 'set_turn_true');
+      this.#userLogger.setCanRollDice(socketId, true);
+      this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
     }
-    // this.#updateRounds(socket)
-    // this.#updateLeaderboard(socket);
-    this.#gameScreenDataEmitter.sendRoundData(socket);
-    this.#gameScreenDataEmitter.sendLeaderboardData(socket);
+      // this.#updateRounds(socket)
+      // this.#updateLeaderboard(socket);
+      this.#gameScreenDataEmitter.sendRoundData(socket);
+      this.#gameScreenDataEmitter.sendLeaderboardData(socket);
   }
 
+  // enableRollDice = (socketId) => {
+  //   if (!this.#userLogger) {
+  //     console.error("userLogger is not initialized");
+  //     return;
+  //   }
+  //   console.log("whyyyyyyy", this.#userLogger);
+  //   this.#userLogger.setCanRollDice(socketId, true);
+  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
+  // }
 
-  updatePiecePositions = (socket) =>{
-    // const players = this.#userLogger.getAllPlayerObjects();
-    // const playerPositions = players.map(player => player.playerPosition);
-    // this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
-    this.#gameScreenDataEmitter.sendNewPositionsData(socket);
-  }
+  // disableRollDice = (socketId) => {
+  //   if (!this.#userLogger) {
+  //     console.error("userLogger is not initialized22222");
+  //     return;
+  //   }
+  //   console.log("whyyyyyyy2", this.#userLogger);
+  //   this.#userLogger.setCanRollDice(socketId, false);
+  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', false);
+  // }
 
+  // updateAllBoards = (socket) =>{
+  //   const players = this.#userLogger.getAllPlayerObjects();
+  //   const playerPositions = players.map(player => player.playerPosition);
+  //   this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+  // }
+    updatePiecePositions = (socket) =>{
+        // const players = this.#userLogger.getAllPlayerObjects();
+        // const playerPositions = players.map(player => player.playerPosition);
+        // this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+        this.#gameScreenDataEmitter.sendNewPositionsData(socket);
+    }
 
-
-
+  //
   // #updateLeaderboard = (socket) => {
   //   const userData = this.#userLogger.getAllPlayerObjects();
   //   this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);

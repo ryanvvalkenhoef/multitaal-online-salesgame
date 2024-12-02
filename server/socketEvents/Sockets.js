@@ -1,5 +1,5 @@
-const databaseQuestion = require("../database");
-const databaseAnswer = require("../database");
+const databaseQuestion = require("../database/database");
+const databaseAnswer = require("../database/database");
 const getMovesFromCoordinate = require("../positionCalculator");
 const SocketManager = require("../Socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
@@ -80,8 +80,11 @@ module.exports = function (io){
                 jsonFileHandler = new JsonFileHandler(data.room);
                 const isRoomFull = PreGameManager.checkIfRoomFull(jsonFileHandler)
                 const isStrategyAssigned = data.strategy !== '';
+                const isStrategyUnique = PreGameManager.checkIfUniqueStrategy(jsonFileHandler,data.strategy);
+                const isNameUnique = PreGameManager.checkIfUniqueName(jsonFileHandler,data.name);
 
-                if (isValidRoom && isStrategyAssigned && !isRoomFull) { // All info is valid so player can join the game.
+
+                if (isValidRoom && isStrategyAssigned && !isRoomFull && isStrategyUnique && isNameUnique) { // All info is valid so player can join the game.
                     //adds socket to rooms and adds room code as property to socket object
                     socket.join(data.room);
                     socket.join(`${data.room}players`);
@@ -109,12 +112,10 @@ module.exports = function (io){
                     PreGameManager.addPlayerName(data.name, jsonFileHandler);
 
 
-                    socketManager.emitToMod(socket, 'add_user', "adding");
+                    socketManager.emitToMod(socket,'add_user',"adding");
                     joinStatus = 'available';
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
-                    //socketManager.emitBackToClient('set_player_is_connected',true);
-                     const pieces = gameStateTracker.getStrategies();
-                    // socketManager.emitToRoom(socket, 'add_piece', pieces); //adds pawn to the board
+                    const pieces = gameStateTracker.getStrategies();
                     gameScreenDataEmitter.sendPiecesData(socket);
 
                     socketManager.emitBackToClient("add_player_color",pieces);
@@ -124,6 +125,8 @@ module.exports = function (io){
                     // The conditions are checked in a specific order.
                     joinStatus = !isValidRoom ? 'Room does not exist' : undefined;
                     joinStatus = !isStrategyAssigned && !joinStatus ? 'Choose a strategy' : joinStatus;
+                    joinStatus = !isStrategyUnique && !joinStatus ? 'Strategy already in use' : joinStatus;
+                    joinStatus = !isNameUnique && !joinStatus ? 'Name already in use' : joinStatus;
                     joinStatus = isRoomFull && !joinStatus ? 'Room is full' : joinStatus;
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
                 }
@@ -199,13 +202,11 @@ module.exports = function (io){
             'send_question_request': async (data) => {  //Hier wordt dus de vraag naar de speler gestuurd
                 const availableColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
                 const language = userLogger.getLanguage(socket.id);
-                const {question, answer} = await databaseQuestion(data.questionColor, sort = language);
+                const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
                 let popupColor
-                console.log("data.useColor: " + data.userColor)
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
                     popupColor = data.userColor;
-                    console.log("color: " + popupColor)
                 }
                 switch (data.questionColor) {
                     case 'chance':
@@ -230,6 +231,7 @@ module.exports = function (io){
                 if (availableColors.includes(data.questionColor)) {
                     const receiver = userLogger.getReceiver(data.questionColor);
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
+                    playerQuestionQueue.addQuestionToQueue(socket, socket.id, questionData)
                     playerQuestionQueue.addQuestionToQueue(socket, receiver, questionData)
                     if (!playerIsAnsweringQuestion) {
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
@@ -263,7 +265,7 @@ module.exports = function (io){
                     userLogger.setIsAnsweringQuestion(false, socket.id);
                 }
 
-            },
+              },
 
             'send_answer_request': async (data) => {
                 const room = socket.room;
@@ -277,7 +279,7 @@ module.exports = function (io){
             },
 
 
-            'submit_points': (data) => {
+            'submit_points' : (data) => {
                 const id = data.playerId;
                 const oldPoints = userLogger.getPoints(id);
                 const newPoints = Number(oldPoints) + Number(data.points);
@@ -362,28 +364,35 @@ module.exports = function (io){
 
                 //TILE_INFO FOR WHEN 5 PLAYERS JOIN
                 const tileInfo2 = [
-                    'sales', 'color1', 'color5', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color1', 'sales', 'rainbow', 'color3', 'megatrends', 'color4', 'color2',
-                    'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance',
-                    'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color5',
-                    'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'rainbow',
-                    'rainbow', 'sales', 'color2', 'chance', 'color1', 'megatrends', 'color4', 'start', 'rainbow', 'sales', 'color4', 'megatrends', 'color1', 'color3', 'sales',
-                    'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'sales', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color5',
-                    'color4', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color4',
-                    'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends',
-                    'sales', 'rainbow', 'color5', 'chance', 'color2', 'color1', 'megatrends', 'rainbow', 'color5', 'sales', 'color2', 'color3', 'chance', 'rainbow', 'color5'
+                    'sales','color1','color5','megatrends','rainbow','color4','chance', 'color2', 'color1', 'sales','rainbow', 'color3','megatrends','color4','color2',
+                    'color3','blank','blank','blank', 'blank','blank', 'blank', 'megatrends', 'blank', 'blank','blank', 'blank', 'blank', 'blank','chance',
+                    'chance','blank','blank','blank','blank','blank', 'blank', 'color5', 'blank','blank','blank', 'blank', 'blank','blank','color5',
+                    'color5','blank','blank','blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank','rainbow',
+                    'rainbow','sales','color2','chance', 'color1','megatrends', 'color4', 'start', 'rainbow', 'sales','color4', 'megatrends', 'color1','color3', 'sales',
+                    'megatrends','blank','blank', 'blank', 'blank','blank', 'blank', 'sales', 'blank', 'blank','blank', 'blank', 'blank','blank', 'color5',
+                    'color4','blank', 'blank', 'blank', 'blank','blank', 'blank', 'color3', 'blank', 'blank','blank','blank','blank','blank','color4',
+                    'color5', 'blank', 'blank', 'blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank', 'megatrends',
+                    'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
                 ]
 
-                socketManager.emitBackToClient(socket, 'send_tileInfo', tileInfo);
-                socketManager.emitBackToClient(socket, 'send_tileInfo2', tileInfo2);
+                socketManager.emitBackToClient(socket,'send_tileInfo', tileInfo);
+                socketManager.emitBackToClient(socket,'send_tileInfo2', tileInfo2);
             },
 
-            'roll_dice': (data) => {
+            'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", 1);
+                socket.emit("set_dice", diceValue)
+                const canRollDice = userLogger.getCanRollDice(socket.id);
+                console.log('userlogger is prolly not defined' + userLogger);
+
+                if (canRollDice && playerRollDice) { //if its truly players turn do this
+                        userLogger.setCanRollDice(socket.id, false);
+                        socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
+                        console.log('canRollDice vergelijken' + canRollDice + ' en ' + playerRollDice);
+                }
             },
 
             'send_dice_roll_and_position': (data) => {
-                console.log("Data coordinates: " + JSON.stringify(data));
                 const coordinate = data.position.split('-');
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
@@ -392,7 +401,7 @@ module.exports = function (io){
                 socket.emit('update_valid_positions', formattedPositions);
             },
 
-            'start_turn': (data) => {
+            'start_turn' : (data) => {
                 gameManager.startRound(socket);
             },
 
@@ -403,10 +412,6 @@ module.exports = function (io){
                 socketManager.emitToRoom(socket,'add_player_color',pieces); // moet een eigen event voor komen
 
             }
-
-
-
-
 
 
         }

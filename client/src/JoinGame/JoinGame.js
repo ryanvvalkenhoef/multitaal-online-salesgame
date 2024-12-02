@@ -23,9 +23,6 @@ export function JoinGame() {
             setInformation("Please enter a name");
             return;
         }
-        
-      
-        
         socket.emit("join_room", { name: username, room: gamepin, strategy: strategy});
     };
 
