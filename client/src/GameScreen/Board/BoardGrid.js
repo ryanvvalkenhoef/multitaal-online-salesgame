@@ -1,25 +1,17 @@
 import React, {useEffect, useState,useRef} from "react"
 import './BoardGridStyle.css'
 import {socket} from "../../client"
-import { json } from "react-router-dom"
 import {
-    handlePieceAddition,
-    handleTileInfoUpdate,
-    handleTileInfo2Update,
     cleanUpSocketListeners,
     handlePositionUpdate,
     handleValidPositionsUpdate,
-    handleCurrentPlayerRegistration
 } from "./socketEventListeners";
-import {assignColorToTile, highLightChecker} from "./functions";
-import {Tile} from "../Tile/Tile.js";
-import {Piece} from "../Piece/Piece.js";
-import {renderStartPieces} from "../Piece/functions";
+import {createTiles, handleTileClick} from "./boardFunctions";
 
 
-const BoardGrid = ({selectedPawn, setPosition, setCurrentPlayer, setPlayerColor, playerColor, modView, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces}) => {
+
+const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces}) => {
     const [validPositions, setValidPositions] = useState([])
-    const [isReadyToRender, setIsReadyToRender] = useState(false);
     const[tilesUseState, setTilesUseState] = useState([]);
 
 
@@ -36,77 +28,34 @@ const BoardGrid = ({selectedPawn, setPosition, setCurrentPlayer, setPlayerColor,
         "1-1", "2-1", "3-1", "4-1", "5-1", "6-1", "7-1", "8-1", "9-1", "10-1", "11-1", "12-1", "13-1", "14-1", "15-1",
     ]
 
-    //EMPTY ARRAY NECESSARY FOR RENDERING TILES
-    const tiles = []
-
-
-    const sendQuestionRequest = (colorTile) => {
-        socket.emit("send_question_request", { questionColor: colorTile, userColor: playerColor })
-    }
-
     useEffect(() => {
-        const handleTileClick = event => {
-            const targetTile = event.target.closest('.tile')
-            if (startPieces.includes(event.target.id)) {
-                event.target.classList.add('highlight')
-            } else if (targetTile && validPositions.includes(targetTile.getAttribute('data-pos'))
-                && targetTile.classList.contains('blink')) {
-                const newPosition = targetTile.getAttribute('data-pos')
-                if (validPositions.includes(newPosition)) {
-                    if (selectedPawn instanceof HTMLElement) {
-                        event.target.appendChild(selectedPawn)
-                        const color = targetTile.className.split(' ')[1]
-                        sendQuestionRequest(color)
-                        document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
-                        socket.emit('update_player_position', {newPosition: newPosition, selectedPawn: selectedPawn.id});
-                    } else {
-                        console.error("Selected pawn is not a valid DOM element")
-                    }
-                }
-            }
-        }
-
-
         handleValidPositionsUpdate(socket,setValidPositions);
         handlePositionUpdate(socket,validPositions,setPosition, (data) => setPosition(data))
 
-
-        if (gameScreen){
-           handleCurrentPlayerRegistration(socket,setCurrentPlayer,setPlayerColor);
-            const boardGrid = document.querySelector('.board-grid')
-            if (boardGrid !== null){
-                boardGrid.addEventListener('click', handleTileClick)
-            }
-        }
-        console.log('Board re-rendering due to update')
         return () => {
             cleanUpSocketListeners(socket);
         };
+    }, []);
+
+    useEffect(() => {
+
+        const boardGrid = document.querySelector('.board-grid')
+        if (gameScreen && boardGrid !== null){
+            boardGrid.addEventListener('click', (event) =>
+                handleTileClick({ event, startPieces, selectedPawn, validPositions,playerColor })
+            );
+
+        }
+
+        console.log('Board re-rendering due to update')
+
     }, [validPositions])
 
-    useEffect(()=>{
+    useEffect(()=>{// The code in this useEffect is creating the tiles
 
+       const tiles = createTiles({joinedColors,tileInfo,tileInfo2,possiblePositions,validPositions,startPieces,selectedPawn});
+       setTilesUseState(tiles);//tiles need to be put in useState in order to render the board.
 
-
-
-            for (let index = 0; index < tileInfo.length; index++) {
-
-
-                const color = assignColorToTile(index, joinedColors, tileInfo, tileInfo2);
-                const isHighlighted = highLightChecker(index, possiblePositions, validPositions);
-                const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
-                const position = possiblePositions[index];
-
-                const tile = Tile({index, position, tileClass, renderStartPieces, startPieces, selectedPawn});
-                tiles.push(tile);
-            }
-            console.log('isReadytoRender: ', isReadyToRender);
-            console.log("colors: ", joinedColors);
-            setTilesUseState(tiles);
-
-        return () => {
-            socket.off('connect');
-        };
     }, [joinedColors,validPositions])
 
     return (

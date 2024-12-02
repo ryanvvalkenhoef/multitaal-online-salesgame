@@ -10,27 +10,38 @@ import AudioPlayer from "../GameScreen/AudioPlayer";
 import '../App.css'
 import {useTranslation} from "react-i18next";
 import RenderManager from "../RenderManager/RenderManager";
+import {useNavigate} from "react-router-dom";
 import {
     cleanUpSocketListeners,
     handleColorAddition,
     handlePieceAddition,
     handleTileInfo2Update,
     handleTileInfoUpdate,
-    handlePositionUpdate
-} from "../GameScreen/Board/socketEventListeners";
-import {useNavigate} from "react-router-dom";
+    handleCurrentPlayerRegistration,
+    handleUpdateRound,
+    handleNameUpdate,
+    handleLeaderBoardUpdate,
+    handleReceivingQuestion,
+    handleDisablingWaitingScreen,
+    handlePlayerTurnUpdate,
+    handleTurnStatusUpdate,
+    handleGameOverEvent,
+
+} from "./socketEventListenersPlayer";
+import{
+    startRender
+} from "./gameScreenFunctions";
+
 
 export function Game() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
-    const [users, setUsers] = useState([]);
     const sortedUserData = data.sort((a, b) => b.points - a.points);
     const [question, setQuestion] = useState("")
-    const [steps, setSteps] = useState(0)
-    const [moveMade, setMoveMade] = useState(false)
-    const [currentPlayer, setCurrentPlayer] = useState ('')
+    const [moveMade, setMoveMade] = useState(false) //wordt niet gebruikt?
+    const [currentPlayer, setCurrentPlayer] = useState ('') //wordt niet gebruikt?
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
-    const [popupColor, setPopupColor] = useState('')
+    const [popupColor, setPopUpColor] = useState('')
     const [myTurn, setMyTurn] = useState(true)
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
@@ -38,9 +49,7 @@ export function Game() {
     const [isWaitingScreenEnabled, setIsWaitingScreenEnabled] = useState(false)
     const [textBoxContent, setTextBoxContent] = useState('')
     const [playerName, setPlayerName] = useState('')
-    const [turnText, setTurnText] = useState(t("Game.wait"))
-    const [currentRound, setCurrentRound] = useState(0)
-    const [totalRounds, setTotalRounds] = useState(0)
+    const [turnText, setTurnText] = useState(t(""))
     const [roundText, setRoundText] = useState('')
     const currentQuestionRef = useRef(null);
     const [tileInfo, setTileInfo] = useState([])
@@ -48,7 +57,6 @@ export function Game() {
     const [joinedColors, setJoinedColors] = useState([])
     const [startPieces, setStartPieces] = useState([])
     const[isReadyToRender, setIsReadyToRender] = useState(false);
-    const [isPlayerConnected, setIsPlayerConnected] = useState(false);
     const navigate = useNavigate();
 
 
@@ -67,125 +75,39 @@ export function Game() {
         socket.emit('update_hasFinishedTurn',true);
     };
 
+    useEffect(() =>{// Adding socketio event listeners
+        const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
+        handleTileInfoUpdate({socket, setTileInfo}, (data) => renderManager.setTileInfo(data));
+        handleTileInfo2Update({socket, setTileInfo2}, (data) => renderManager.setTileInfo2(data));
+        handlePieceAddition({socket, setStartPieces}, (data) => renderManager.setPieces(data));
+        handleColorAddition({socket, setJoinedColors}, (data) => renderManager.setJoinedColors(data));
+        handleCurrentPlayerRegistration({socket,setCurrentPlayer,setPlayerColor});
+        handleUpdateRound({socket,setRoundText,t});
+        handleNameUpdate({socket,setPlayerName});
+        handleLeaderBoardUpdate({socket,setData});
+        handleReceivingQuestion({socket,currentQuestionRef,setPopUpColor,setQuestion,setIsPopUpEnabled});
+        handleDisablingWaitingScreen({socket,setIsWaitingScreenEnabled})
+        handlePlayerTurnUpdate({socket,setPosition,setSelectedPawn});
+        handleTurnStatusUpdate({socket,setMyTurn});
+        handleGameOverEvent({socket})
+
+        return () => {
+            cleanUpSocketListeners(socket);
+        }
+    },[])
+
 
     useEffect(() =>{
-        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-
-
-        const func  = async () => {
-            const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
-            handleTileInfoUpdate(socket, setTileInfo, (data) => renderManager.setTileInfo(data));
-            handleTileInfo2Update(socket, setTileInfo2, (data) => renderManager.setTileInfo2(data));
-            handlePieceAddition(socket, setStartPieces, (data) => renderManager.setPieces(data));
-            handleColorAddition(socket, setJoinedColors, (data) => renderManager.setJoinedColors(data));
-
-            socket.on('player_is_connected', () => {
-                setIsPlayerConnected(true);
-            })
-
-
-
-            if (!socket.connected) {
-                socket.connect();
-                console.log("tesst")
-                await delay(1000)
-            }
-
-
-            console.log("in conecttion event")
-            if (socket.id === sessionStorage.getItem('socketId')) {
-                setIsPlayerConnected(true)
-            } else {
-                const sessionData = {};
-                for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    sessionData[key] = sessionStorage.getItem(key);
-                }
-                socket.emit('reconnect_player', sessionData);
-
-                console.log("socket id ==== ", socket.id);
-                sessionStorage.setItem('socketId', socket.id);
-                console.log("sessionStorage: ", sessionStorage.getItem('socketId'))
-            }
-
-
-            console.log("currentPLayer: " + currentPlayer)
-            socket.emit('get_tileInfo');
-            socket.emit('get_pieces');
-            console.log("getting_pieces");
-            socket.emit('send_player_colors');
-        }
-
+        //If there is no sessionData stored the game screen can't be rendered
+        //So client goes back to the homepage
         if(!sessionStorage.getItem('socketId')){
             navigate('/home');
         }
-        else{
-        func().then(r => {})
-         }
-
-        const socketHandlers = {
-            'rounds': (data) => {
-                setTotalRounds(data.totalRounds)
-                setCurrentRound(data.currentRound)
-                setRoundText(t("Game.setRoundText", {data}))
-            },
-            'player_names': (data) => {
-                setPlayerName(data)
-                setTurnText(t("Game.setTurnText", { data }))
-            },
-            'update_leaderboard': (jsonData) => {
-                console.log("leaderbord update")
-                setData(jsonData)
-            },
-            'receive_question': (data) => {
-                currentQuestionRef.current = data;
-                setPopupColor(currentQuestionRef.current.questionColor)
-                setQuestion(currentQuestionRef.current.questionText);
-                setIsPopUpEnabled(true);
-            },
-            'disable_waiting_screen' : (data) => {
-                setIsWaitingScreenEnabled(false)
-                //socket.emit('get_data', 'leaderboard_update');
-            },
-            'players_turn': (strategy) => {
-                try {
-                    const pawn = document.querySelector('#' + strategy)
-                    const parent = pawn.parentElement
-                    const parentPosition = parent.getAttribute('data-pos')
-
-                    setPosition(parentPosition)
-                    console.log('game', parentPosition)
-                    setSelectedPawn(pawn)
-                } catch (TypeError) {
-                    socket.emit('pawns_request_failed', '')
-                }
-            },
-
-            'set_turn_true': () => {
-                setMyTurn(true);
-            },
-
-            'game_over': () => {
-                console.log('game over');
-                alert("game over");
-            }
-
+        else{ //The timeout is used because it takes some time before socketio has created the socket object
+            setTimeout(() => startRender(socket,true),500);
         }
-            
-            
 
-        Object.keys(socketHandlers).forEach(event => {
-            socket.on(event, socketHandlers[event])
-        })
-
-        return () => {
-            Object.keys(socketHandlers).forEach(event => {
-                socket.off(event, socketHandlers[event])
-            })
-            cleanUpSocketListeners(socket);
-        }
-    },[])//,[currentPlayer]
+    },[])
 
     return (
         <>
@@ -195,10 +117,7 @@ export function Game() {
                     <BoardGrid
                         selectedPawn={selectedPawn}
                         setPosition={setPosition}
-                        setCurrentPlayer={setCurrentPlayer}
-                        currentPlayer={currentPlayer}
                         playerColor={playerColor}
-                        setPlayerColor={setPlayerColor}
                         gameScreen={true}
                         tileInfo={tileInfo}
                         tileInfo2={tileInfo2}
@@ -206,7 +125,6 @@ export function Game() {
                         startPieces={startPieces}
                     />
                     <DiceContainer
-                        setSteps={setSteps}
                         setMoveMade={setMoveMade}
                         position={position}
                         myTurn={myTurn}
@@ -222,13 +140,13 @@ export function Game() {
             )}
             <AudioPlayer />
             <PlayerPopUps
-                setPopupColor={setPopupColor}
+                setPopUpColor={setPopUpColor}
                 popupColor={popupColor}
                 isPopUpEnabled={isPopUpEnabled}
                 isWaitingScreenEnabled={isWaitingScreenEnabled}
                 question={question}
                 textBoxContent={textBoxContent}
-                handleTextBoxChange={handleTextBoxChange}
+                handleTextBoxChange={ handleTextBoxChange}
                 handleSubmitAnswer={handleSubmitAnswer}
             />
         </>

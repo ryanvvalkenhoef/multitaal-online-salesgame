@@ -1,18 +1,13 @@
 const databaseQuestion = require("../database");
 const databaseAnswer = require("../database");
 const getMovesFromCoordinate = require("../positionCalculator");
-const GameManager = require('../GameManager');
 const SocketManager = require("../Socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
-const UserLogger = require('../Loggers/UserLogger');
-const ModLogger = require('../Loggers/ModLogger');
 const RoomGenerator = require('../roomGenerator/RoomGenerator');
 const PreGameManager = require('../preGameManager/PreGameManager')
-const GameStateTrackerManager = require("../gameState/GameStateTrackerManager");
 const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
-const initializeInstances = require("../initializers/initializeGame");
-const GameScreenDataEmitter = require("../gameDataEmitters/GameScreenDataEmitter");
+const instanceFactory = require("../instanceFactory/instanceFactory");
 const ReconnectionManager = require("../ReconnectionManager/ReconnectionManager");
 
 
@@ -46,12 +41,12 @@ module.exports = function (io){
             //data is an object consisting of playercount and roundscount.
             'create_room': (data) => {
                 const room = RoomGenerator.createRoom();
-                const instances = initializeInstances(room,socketManager);
+                const instances = instanceFactory(room,socketManager);
                 jsonFileHandler = instances.jsonFileHandler;
                 modLogger = instances.modLogger;
                 userLogger = instances.userLogger;
                 gameStateTracker = instances.gameStateTracker;
-                gameManager = instances.gameMananger;
+                gameManager = instances.gameManager;
                 gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
                 jsonFileHandler.createJsonFile();
@@ -93,12 +88,12 @@ module.exports = function (io){
                     socket.room = data.room;
                     room = socket.room;
 
-                    const instances = initializeInstances(room,socketManager);
+                    const instances = instanceFactory(room,socketManager);
                     jsonFileHandler = instances.jsonFileHandler;
                     modLogger = instances.modLogger;
                     userLogger = instances.userLogger;
                     gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances. gameMananger;
+                    gameManager = instances. gameManager;
                     gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
                     //user is being created and values assigned to properties of user object
@@ -142,18 +137,17 @@ module.exports = function (io){
                     socket.join(room)
                     socket.join(`${room}players`)
 
-                    const instances = initializeInstances(room, socketManager);
+                    const instances = instanceFactory(room, socketManager);
                     jsonFileHandler = instances.jsonFileHandler;
                     modLogger = instances.modLogger;
                     userLogger = instances.userLogger;
                     gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances.gameMananger;
+                    gameManager = instances.gameManager;
                     gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
                     const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
                     reconnectionManager.reconnectPlayer(socket, sessionData);
 
-                    socketManager.emitBackToClient('player_is_connected');
 
                     playerQuestionQueue.reconnectToQueue(socket, sessionData);
                     const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
@@ -164,6 +158,7 @@ module.exports = function (io){
                     }
                 }
                 catch (exception){
+                    console.log(exception)
                     console.error("Can't reconnect player")
                 }
             },
@@ -176,18 +171,17 @@ module.exports = function (io){
                     socket.join(`${room}mod`);
 
 
-                    const instances = initializeInstances(room, socketManager);
+                    const instances = instanceFactory(room, socketManager);
                     jsonFileHandler = instances.jsonFileHandler;
                     modLogger = instances.modLogger;
                     userLogger = instances.userLogger;
                     gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances.gameMananger;
+                    gameManager = instances.gameManager;
                     gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
 
                     const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
                     reconnectionManager.reconnectMod(socket, sessionData);
-                    socketManager.emitBackToClient('player_is_connected');
 
                     const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
                     if (questionQueueLength > 0) {
@@ -207,9 +201,11 @@ module.exports = function (io){
                 const language = userLogger.getLanguage(socket.id);
                 const {question, answer} = await databaseQuestion(data.questionColor, sort = language);
                 let popupColor
+                console.log("data.useColor: " + data.userColor)
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
                     popupColor = data.userColor;
+                    console.log("color: " + popupColor)
                 }
                 switch (data.questionColor) {
                     case 'chance':
@@ -258,13 +254,11 @@ module.exports = function (io){
                     modLogger.setIsReviewingQuestion(true);
                 }
 
-
                 playerQuestionQueue.removeQuestionFromQueue(socket);
                 // Check if the question queue of the player who sent the question to the server contains any questions.
                 if (playerQuestionQueue.getQuestionQueueLength(socket) > 0) {
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket, 'receive_question', questionData);
-                    playerQuestionQueue.removeQuestionFromQueue(socket);
                 } else {
                     userLogger.setIsAnsweringQuestion(false, socket.id);
                 }
@@ -291,9 +285,9 @@ module.exports = function (io){
             },
 
 
-            'update_position': (data) => {
-                socketManager.emitToRoom(socket, 'update_position', data);
-            },
+            // 'update_position': (data) => {
+            //     socketManager.emitToRoom(socket, 'update_position', data);
+            // },
 
             'pawns_request_failed': (data) => { // werkt nu  niet correct omdat method nu array geeft ipv een strategie
                 const strategy = gameStateTracker.getStrategies()
@@ -301,10 +295,10 @@ module.exports = function (io){
             },
 
 
-            'get_playerstrategy': (data) => {
+            'get_player_strategy': (data) => {
                 const strategy = userLogger.getStrategy(socket.id);
                 const color = userLogger.getColor(socket.id);
-                socketManager.emitBackToClient(socket, "register_currentplayer", {strategy: strategy, color: color});
+                socketManager.emitBackToClient(socket, "register_current_player", {strategy: strategy, color: color});
             },
 
             'get_current': (data) => { // // werkt nu  niet correct omdat method nu array geeft ipv een strategie
@@ -332,7 +326,6 @@ module.exports = function (io){
 
                 if (questionQueueLength > 0) {
                     const question = modQuestionQueue.getQuestionFromQueue(socket);
-                    //modQuestionQueue.removeQuestionFromQueue(socket);
                     gameManager.sendAnswerToModerator(socket, question);
                 }
                 // When queue is empty but not all players have submitted
@@ -386,7 +379,7 @@ module.exports = function (io){
 
             'roll_dice': (data) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", diceValue)
+                socket.emit("set_dice", 1);
             },
 
             'send_dice_roll_and_position': (data) => {

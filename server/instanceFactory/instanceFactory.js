@@ -30,7 +30,31 @@ const createGameManager = (room,userLogger, gameStateTracker ,socketManager, gam
     return new GameManager(userLogger,socketManager,gameStateTracker, gameScreenDataEmitter);
 }
 
-const initializeInstances = (room, socketManager) =>{
+/**
+ * @module InstanceFactory
+ * @description
+ * Creates and initializes all core instances required for a game room.
+ *
+ * This module is as a centralized factory for creating interconnected
+ * game-related instances.
+ *
+ *
+ * @param {string} room - Unique identifier for the game room
+ * @param {SocketManager} socketManager - Socket management for the room
+ *
+ * @returns {Object} An object containing all initialized game instances
+ *
+ * @example
+ * const room = 'gameRoom123';
+ * const socketManager = new SocketManager();
+ * const gameInstances = createInstances(room, socketManager);
+ *
+ * // Access specific instances
+ * const gameManager = gameInstances.gameManager;
+ * const userLogger = gameInstances.userLogger;
+ */
+
+const createInstances = (room, socketManager) =>{
     let instances = {};
 
     instances.jsonFileHandler = createJsonFileHandler(room);
@@ -38,13 +62,12 @@ const initializeInstances = (room, socketManager) =>{
     instances.userLogger = createUserLogger(room, instances.jsonFileHandler);
     instances.gameStateTracker = createGameStateTracker(room,instances.jsonFileHandler);
     instances.gameScreenDataEmitter = createGameScreenDataEmitter(instances.userLogger,socketManager,instances.gameStateTracker)
-    instances.gameMananger = createGameManager(room,instances.userLogger,instances.gameStateTracker,socketManager, instances.gameScreenDataEmitter )
-
+    instances.gameManager = createGameManager(room,instances.userLogger,instances.gameStateTracker,socketManager, instances.gameScreenDataEmitter )
 
     return instances;
 
 }
 
-module.exports = initializeInstances;
+module.exports = createInstances;
 
 

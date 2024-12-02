@@ -34,8 +34,8 @@ class ModQuestionQueue extends QuestionQueue {
     getQuestionFromQueue(socket) {
         const room = socket.room;
 
-        if(!this.queues[room]){ // Mod doesn't have a queue
-            return null;
+        if(!this.queues[room]){ // Mod doesn't have a queue so it returns length of 0.
+            return 0;
         }
 
         return this.queues[room][0];

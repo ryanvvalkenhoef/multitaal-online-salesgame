@@ -12,13 +12,21 @@ import den_flag from '../Assets/den_flag.png';
 import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
 import RenderManager from "../RenderManager/RenderManager";
+import {useNavigate} from "react-router-dom";
 import {
+    cleanUpSocketListeners,
     handleColorAddition,
     handlePieceAddition,
     handleTileInfo2Update,
-    handleTileInfoUpdate
-} from "../GameScreen/Board/socketEventListeners";
-import {useNavigate} from "react-router-dom";
+    handleTileInfoUpdate,
+    handleUpdateRound,
+    handleGameOverEvent,
+    handleReceivePlayerAnswer,
+    handleLeaderBoardUpdate
+} from "./socketEventListenersMod";
+import{
+    startRender
+} from "../PlayerScreen/gameScreenFunctions";
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
@@ -33,7 +41,6 @@ export function ModView() {
     const [selectedPawn , setSelectedPawn] = useState()
     const [showPopup, setShowPopup] = useState(false);
     const [position, setPosition] = useState("8-5")
-    const [diceValue, setDiceValue] = useState(1);
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [roundText, setRoundText] = useState('')
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
@@ -63,7 +70,7 @@ export function ModView() {
     const submitPoints = () =>{
             setShowPopup(false)
             socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId}, );
-            socket.emit('question_reviewed');
+            socket.emit('question_reviewed' );
             setSelectedPoints([]);
     }
 
@@ -71,105 +78,35 @@ export function ModView() {
             submitPoints()
     };
 
+    useEffect(() => { // Adding socketio event listeners
+        const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
+        handleTileInfoUpdate({socket, setTileInfo}, (data) => renderManager.setTileInfo(data));
+        handleTileInfo2Update({socket, setTileInfo2}, (data) => renderManager.setTileInfo2(data));
+        handlePieceAddition({socket, setStartPieces}, (data) => renderManager.setPieces(data));
+        handleColorAddition({socket, setJoinedColors}, (data) => renderManager.setJoinedColors(data));
+        handleLeaderBoardUpdate({socket,setData});
+        handleUpdateRound({socket,setRoundText,t});
+        handleReceivePlayerAnswer({socket,reviewQuestion});
+        handleGameOverEvent({socket});
+
+        return () => {
+
+            cleanUpSocketListeners(socket)
+        };
+    }, []);
+
 
 
     useEffect(() => {
 
-
-        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-        const func  = async () => {
-            const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
-            handleTileInfoUpdate(socket, setTileInfo, (data) => renderManager.setTileInfo(data));
-            handleTileInfo2Update(socket, setTileInfo2, (data) => renderManager.setTileInfo2(data));
-            handlePieceAddition(socket, setStartPieces, (data) => renderManager.setPieces(data));
-            handleColorAddition(socket, setJoinedColors, (data) => renderManager.setJoinedColors(data));
-            socket.on('player_is_connected', () => {
-                //setIsPlayerConnected(true);
-            })
-
-            if (!socket.connected) {
-                socket.connect();
-                console.log("tesst")
-                await delay(1000)
-            }
-
-
-            console.log("in conecttion event")
-            if (socket.id === sessionStorage.getItem('socketId')) {
-                //setIsPlayerConnected(true)
-            } else {
-                const sessionData = {};
-                for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    sessionData[key] = sessionStorage.getItem(key);
-                }
-                socket.emit('reconnect_mod', sessionData);
-
-                console.log("socket id ==== ", socket.id);
-                sessionStorage.setItem('socketId', socket.id);
-                console.log("sessionStorage: ", sessionStorage.getItem('socketId'))
-            }
-
-
-
-
-
-            socket.emit('get_tileInfo');
-            socket.emit('get_pieces');
-            console.log("getting_pieces");
-            socket.emit('send_player_colors');
-        }
-
-
-        if(!sessionStorage.getItem('socketId')){
+        if(!sessionStorage.getItem('socketId')){ //If there is no sessionData stored the game screen can't be rendered
             navigate('/home');
         }
-        else{
-            func().then(r => {})
+        else{ //The timeout is used because it takes some time before socketio has created the socket object
+            setTimeout(() => startRender(socket,false),500);
         }
 
-        const socketHandlers = {
-            'set_dice': (data) => {
-                setDiceValue(data);
-            },
-            'rounds': (data) => {
-                setRoundText(t("Game.setRoundText", {data}))
-            },
-            'player_names': (data) => {
-                setPlayerName(data)
-            },
-            'update_leaderboard': (jsonData) => {
-                setData(jsonData)
-            },
-            'set_current_player': (data)=> {
-                try {
-                    const pawn = document.querySelector('#' + data)
-                    setSelectedPawn(pawn)
-                } catch (TypeError) {
-                    socket.emit('pawns_request_failed', '')
-                }
-            },
-            'receive_player_answer': (questionData)=> { //parameter is an object
-                    reviewQuestion(questionData)
-            },
 
-            'game_over': () => {
-                alert("game over");
-            }
-
-
-        }
-
-        Object.keys(socketHandlers).forEach(event => {
-            socket.on(event, socketHandlers[event])
-        })
-
-        return () => {
-            Object.keys(socketHandlers).forEach(event =>{
-                socket.off(event, socketHandlers[event])
-            })
-        };
     }, []);
 
 
@@ -180,7 +117,6 @@ export function ModView() {
                 <div className='roundscounter'>{roundText}</div>
                 <BoardGrid
                     setPosition={setPosition}
-                    setSelectedPawn={setSelectedPawn}
                     modView={true}
                     tileInfo={tileInfo}
                     tileInfo2={tileInfo2}
@@ -188,7 +124,6 @@ export function ModView() {
                     startPieces={startPieces}/>
                 <DiceContainer
                     position={position}
-                    diceValue={diceValue}
                     isModeratorScreen={true}/>
                 <LeaderBoard
                     sortedUserData={sortedUserData}
