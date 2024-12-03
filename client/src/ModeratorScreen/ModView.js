@@ -11,12 +11,13 @@ import { useLanguageManager } from '../Translations/LanguageManager';
 import den_flag from '../Assets/den_flag.png';
 import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
+import PlayerProgress from './PlayerProgress';
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
     const [users, setUsers] = useState([]);
-    const sortedUserData = data.sort((a, b) => b.points - a.points);
+    const sortedUserData = [...data].sort((a, b) => b.totalPoints - a.totalPoints);
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
@@ -43,7 +44,11 @@ export function ModView() {
     };
 
     const reviewQuestion = (questionData) =>{
-        setShowPopup(true);
+        console.log('questionData', questionData);
+        if (!questionData || !questionData.questionText) {
+            console.error('Invalid question data:', questionData);
+            return;
+        }
         setQuestion(questionData.questionText);
         setColor(questionData.questionColor);
         setUserColor(questionData.playerColor);
@@ -52,15 +57,19 @@ export function ModView() {
 }
 
     const submitPoints = () =>{
-            setShowPopup(false)
-            socket.emit("submit_points", { points: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId}, );
-            socket.emit('question_reviewed');
+            setShowPopup(false);
+            socket.emit('points_submitted_question_reviewed', { totalPoints: selectedPoints, color: userColor, playerId: currentQuestionRef.current.playerId, hasBeenReviewed: true});
             setSelectedPoints([]);
     }
 
     const handleSubmitPoints = () => {
             submitPoints()
     };
+
+    const onImageClick = (playerId) => {
+        socket.emit('get_player_answer_on_click', playerId);
+        setShowPopup(true);//dit werkt nog niet helemaal lekker
+    }
 
 
 
@@ -90,7 +99,7 @@ export function ModView() {
                 }
             },
             'receive_player_answer': (questionData)=> { //parameter is an object
-                    reviewQuestion(questionData)
+                    reviewQuestion(questionData);
             },
 
             'player_count': (playerCount) => {
@@ -99,6 +108,10 @@ export function ModView() {
 
             'game_over': () => {
                 alert("game over");
+            },
+
+            'get_player_status': () => {
+                //wth is dit hier ineens
             }
 
         }
@@ -127,6 +140,9 @@ export function ModView() {
                     selectedPawn={selectedPawn}
                     setSelectedPawn={setSelectedPawn}
                     modView={true}/>
+                <PlayerProgress
+                    playerProgressData={data}
+                    onImageClick={onImageClick}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}

@@ -14,7 +14,7 @@ export function Game() {
     const { t, i18n } = useTranslation('global');
     const [data, setData] = useState([]);
     const [users, setUsers] = useState([]);
-    const sortedUserData = data.sort((a, b) => b.points - a.points);
+    const sortedUserData = data.sort((a, b) => b.totalPoints - a.totalPoints);
     const [question, setQuestion] = useState("")
     const [steps, setSteps] = useState(0)
     const [moveMade, setMoveMade] = useState(false)
