@@ -48,7 +48,3 @@
     object-fit: contain;
     margin-right: 10px;
 }
-
-.flicker {
-    animation: flickerAnimation 1.5s infinite;
-}
