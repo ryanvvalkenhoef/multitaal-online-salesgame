@@ -72,11 +72,11 @@ export const handleLeaderBoardUpdate = ({socket, setData}) =>{
     })
 }
 
-export const handleReceivingQuestion = ({socket,currentQuestionRef,setPopUpColor,setQuestion,setIsPopUpEnabled}) =>{
+export const handleReceivingQuestion = ({socket,currentQuestionRef,setGetPlayerStrategy,setQuestion,setIsPopUpEnabled}) =>{
     socket.on('receive_question',(data) => {
         currentQuestionRef.current = data;
-        setPopUpColor(currentQuestionRef.current.questionColor)
-        setQuestion(currentQuestionRef.current.questionText);
+        setGetPlayerStrategy(data.questionColor)
+        setQuestion(data.questionText);
         setIsPopUpEnabled(true);
     })
 }
@@ -116,6 +116,19 @@ export const handleGameOverEvent = ({socket}) =>{
     })
 }
 
+export const handleSetRollDice = ({socket, setPlayerRollDice}) =>{
+    socket.on('set_roll_dice',(boolean) =>{
+        setPlayerRollDice(boolean);
+
+    })
+}
+
+export const handleGoToHomeScreen = ({socket,navigate}) =>{
+    socket.on('go_to_home_screen', ()=>{
+        navigate('/home');
+    } )
+}
+
 
 
 
@@ -131,6 +144,7 @@ export const cleanUpSocketListeners = (socket) => {
     socket.off('disable_waiting_screen');
     socket.off('players_turn');
     socket.off('set_turn_true');
+    socket.off('go_to_home_screen')
     socket.off('game_over');
 
 

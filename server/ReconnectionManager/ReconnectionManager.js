@@ -35,6 +35,8 @@ class ReconnectionManager {
         this.#linkPlayerToPiece(socket);
         this.#sendPlayerNames(socket);
         this.#setTurnStatusTrue(socket);
+        this.#setRollDiceStatus(socket);
+
 
 
 
@@ -48,7 +50,6 @@ class ReconnectionManager {
         this.#sendPiecesData(socket);
         this.#sendPlayerColors(socket);
         this.#sendRoundData(socket);
-        this.#setTurnStatusTrue(socket);
     }
 
     #updatePlayerId = (socket, sessionData) =>{
@@ -121,6 +122,12 @@ class ReconnectionManager {
     }
     #setTurnStatusTrue = (socket) =>{
         this.#socketManager.emitBackToClient(socket, 'set_turn_true');
+    }
+    #setRollDiceStatus = (socket) =>{
+        const hasFinishedTurn = this.#userLogger.getPlayerTurnStatus(socket.id);
+        if(!hasFinishedTurn) {
+            this.#socketManager.emitBackToClient(socket, 'set_roll_dice', true)
+        }
     }
 }
 

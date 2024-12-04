@@ -35,6 +35,10 @@ module.exports = function (io){
         /**@type {GameScreenDataEmitter}*/
         let gameScreenDataEmitter;
 
+        if(RoomGenerator.getRoomList().length === 0) {
+            io.emit('go_to_home_screen');
+        }
+
 
         const socketHandlers = {
             //create_room is the entry point for the moderator
@@ -134,8 +138,12 @@ module.exports = function (io){
 
             'reconnect_player': (sessionData) =>{
                 try {
-                    console.log("recived sssion data: ", sessionData);
                     const room = sessionData.room;
+                    const isValidRoom = PreGameManager.checkIfValidRoom(room, RoomGenerator.getRoomList())
+                    if(!isValidRoom){
+                        socketManager.emitBackToClient(socket,'go_to_home_screen');
+                    }
+
                     socket.room = room;
                     socket.join(room)
                     socket.join(`${room}players`)
@@ -169,6 +177,11 @@ module.exports = function (io){
             'reconnect_mod': (sessionData) =>{
                 try {
                     const room = sessionData.room;
+                    const isValidRoom = PreGameManager.checkIfValidRoom(room, RoomGenerator.getRoomList())
+                    if(!isValidRoom){
+                        socketManager.emitBackToClient(socket,'go_to_home_screen');
+                    }
+
                     socket.room = room;
                     socket.join(room);
                     socket.join(`${room}mod`);
@@ -203,35 +216,36 @@ module.exports = function (io){
                 const availableColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
                 const language = userLogger.getLanguage(socket.id);
                 const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
-                let popupColor
+                let get_player_strategy
+                console.log("Data.userColor: " + data.userColor)
+                console.log("Data.questionColor: " + data.questionColor)
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
-                    popupColor = data.userColor;
+                    get_player_strategy = data.userColor;
                 }
                 switch (data.questionColor) {
                     case 'chance':
-                        popupColor = 'black1';
+                        get_player_strategy = 'black1';
                         break;
                     case 'sales':
-                        popupColor = 'black2';
+                        get_player_strategy = 'black2';
                         break;
                     case 'megatrends':
-                        popupColor = 'black3';
+                        get_player_strategy = 'black3';
                         break;
                     default:
-                        popupColor = data.questionColor;
+                        get_player_strategy = data.questionColor;
                 }
 
                 const questionData = {
                     questionText: question,
-                    questionColor: popupColor,
+                    questionColor: get_player_strategy,
                     playerColor: data.userColor,
                     answer: answer
                 };
                 if (availableColors.includes(data.questionColor)) {
                     const receiver = userLogger.getReceiver(data.questionColor);
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-                    playerQuestionQueue.addQuestionToQueue(socket, socket.id, questionData)
                     playerQuestionQueue.addQuestionToQueue(socket, receiver, questionData)
                     if (!playerIsAnsweringQuestion) {
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
@@ -282,8 +296,8 @@ module.exports = function (io){
             'submit_points' : (data) => {
                 const id = data.playerId;
                 const oldPoints = userLogger.getPoints(id);
-                const newPoints = Number(oldPoints) + Number(data.points);
-                userLogger.updateUser(id, {points: newPoints})
+                const newPoints = Number(oldPoints) + Number(data.totalPoints);
+                userLogger.updateUser(id, {totalPoints: newPoints})
             },
 
 

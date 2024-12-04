@@ -26,6 +26,7 @@ import {
     handlePlayerTurnUpdate,
     handleTurnStatusUpdate,
     handleGameOverEvent,
+    handleSetRollDice, handleGoToHomeScreen
 
 } from "./socketEventListenersPlayer";
 import{
@@ -43,8 +44,9 @@ export function Game() {
     const [moveMade, setMoveMade] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
-    const [popupColor, setPopupColor] = useState('')
-    const [playerRollDice, setPlayerRollDice] = useState(false)
+    const [playerRollDice, setPlayerRollDice] = useState(false);
+    const [get_player_strategy, setGetPlayerStrategy] = useState('');
+    const [myTurn, setMyTurn] = useState(false);
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [isPopUpEnabled, setIsPopUpEnabled] = useState(false)
@@ -89,10 +91,12 @@ export function Game() {
         handleUpdateRound({socket,setRoundText,t});
         handleNameUpdate({socket,setPlayerName});
         handleLeaderBoardUpdate({socket,setData});
-        handleReceivingQuestion({socket,currentQuestionRef,setPopUpColor,setQuestion,setIsPopUpEnabled});
+        handleReceivingQuestion({socket,currentQuestionRef,setGetPlayerStrategy,setQuestion,setIsPopUpEnabled});
         handleDisablingWaitingScreen({socket,setIsWaitingScreenEnabled})
         handlePlayerTurnUpdate({socket,setPosition,setSelectedPawn});
         handleTurnStatusUpdate({socket,setMyTurn});
+        handleSetRollDice({socket,setPlayerRollDice});
+        handleGoToHomeScreen({socket,navigate});
         handleGameOverEvent({socket})
 
         return () => {
@@ -109,6 +113,7 @@ export function Game() {
         }
         else{ //The timeout is used because it takes some time before socketio has created the socket object
             setTimeout(() => startRender(socket,true),500);
+            console.log("roll dice: " + playerRollDice)
         }
 
     },[])
@@ -134,7 +139,7 @@ export function Game() {
                         myTurn={myTurn}
                         setMyTurn={setMyTurn}
                         playerRollDice={playerRollDice}
-                        setPlayerRollDice={setPlayerRollDic}
+                        setPlayerRollDice={setPlayerRollDice}
                     />
                     <LeaderBoard sortedUserData={sortedUserData} playerName={playerName} />
                     <PlayerTurns turnText={turnText} />
@@ -146,8 +151,8 @@ export function Game() {
             )}
             <AudioPlayer />
             <PlayerPopUps
-                setPopUpColor={setPopUpColor}
-                popupColor={popupColor}
+                setGetPlayerStrategy={setGetPlayerStrategy}
+                get_player_strategy={get_player_strategy}
                 isPopUpEnabled={isPopUpEnabled}
                 isWaitingScreenEnabled={isWaitingScreenEnabled}
                 question={question}

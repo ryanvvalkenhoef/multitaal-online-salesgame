@@ -289,7 +289,7 @@ class UserLogger {
      getAllPlayerObjects() {
         let data = this.#jsonFileHandler.readData()
         if (!data) {
-            console.log("Can't read data: getAllPlayerObjects()");
+            console.warn("Can't read data: getAllPlayerObjects()");
             return null;
         }
         return data.users;
@@ -298,7 +298,7 @@ class UserLogger {
      setIsAnsweringQuestion(boolean, socketid) {
         let data = this.#jsonFileHandler.readData()
         if (!data) {
-            console.log("Can't read data: isAnsweringQuestion()");
+            console.warn("Can't read data: isAnsweringQuestion()");
             return null;
         }
 
@@ -310,12 +310,27 @@ class UserLogger {
      checkIfPlayerIsAnsweringQuestion(socketid) {
         let data = this.#jsonFileHandler.readData()
         if (!data) {
-            console.log("Can't read data: checkIfPlayerIsAnsweringQuestion()");
+            console.warn("Can't read data: checkIfPlayerIsAnsweringQuestion()");
             return null;
         }
 
         const player = data.users.find(player => player.id === socketid);
         return player.isAnsweringQuestion;
+    }
+
+    getPlayerTurnStatus(socketid){
+        let data = this.#jsonFileHandler.readData()
+        if (!data) {
+            console.warn("Can't read data: getPlayerTurnStatus()");
+            return null;
+        }
+
+        const player = data.users.find(player => player.id === socketid);
+        if(!player){
+            console.warn("Can't find player: getPlayerTurnStatus()")
+            return null;
+        }
+        return player.hasFinishedTurn;
     }
 }
 

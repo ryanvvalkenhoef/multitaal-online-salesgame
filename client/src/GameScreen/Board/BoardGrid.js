@@ -52,7 +52,6 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
     }, [validPositions])
 
     useEffect(()=>{// The code in this useEffect is creating the tiles
-
        const tiles = createTiles({joinedColors,tileInfo,tileInfo2,possiblePositions,validPositions,startPieces,selectedPawn});
        setTilesUseState(tiles);//tiles need to be put in useState in order to render the board.
 

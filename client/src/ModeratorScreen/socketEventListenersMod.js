@@ -25,5 +25,6 @@ export {
     handleTileInfoUpdate,
     handleUpdateRound,
     handleGameOverEvent,
-    handleLeaderBoardUpdate
+    handleLeaderBoardUpdate,
+    handleGoToHomeScreen
 } from '../PlayerScreen/socketEventListenersPlayer'

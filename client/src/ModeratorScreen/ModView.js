@@ -22,7 +22,7 @@ import {
     handleUpdateRound,
     handleGameOverEvent,
     handleReceivePlayerAnswer,
-    handleLeaderBoardUpdate
+    handleLeaderBoardUpdate, handleGoToHomeScreen
 } from "./socketEventListenersMod";
 import{
     startRender
@@ -37,7 +37,7 @@ export function ModView() {
     const [answer, setAnswer] = useState("");
     const [moveMade, setMoveMade] = useState(false);
     const [currentPlayer, setCurrentPlayer] = useState (0)
-    const [popupColor, setColor] = useState('')
+    const [get_player_strategy, setColor] = useState('')
     const [userColor, setUserColor] = useState('')
     const [playerName, setPlayerName] = useState('')
     const [selectedPawn , setSelectedPawn] = useState()
@@ -93,6 +93,7 @@ export function ModView() {
         handleLeaderBoardUpdate({socket,setData});
         handleUpdateRound({socket,setRoundText,t});
         handleReceivePlayerAnswer({socket,reviewQuestion});
+        handleGoToHomeScreen({socket,navigate});
         handleGameOverEvent({socket});
 
         return () => {
@@ -127,7 +128,12 @@ export function ModView() {
                     setPosition={setPosition}
                     selectedPawn={selectedPawn}
                     setSelectedPawn={setSelectedPawn}
-                    modView={true}/>
+                    modView={true}
+                    tileInfo={tileInfo}
+                    tileInfo2={tileInfo2}
+                    joinedColors={joinedColors}
+                    startPieces={startPieces}
+                />
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}
@@ -147,7 +153,7 @@ export function ModView() {
             )}
                 <ModeratorPopUps
                     answer={answer}
-                    popupColor={popupColor}
+                    get_player_strategy={get_player_strategy}
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     question={question}

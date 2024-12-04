@@ -70,6 +70,7 @@ const handleTileClick = ({event,startPieces,validPositions,selectedPawn,playerCo
             if (selectedPawn instanceof HTMLElement) {
                 event.target.appendChild(selectedPawn)
                 const color = targetTile.className.split(' ')[1]
+                console.log('kleur in tileClick: ' + playerColor)
                 sendQuestionRequest(socket,color,playerColor);
                 document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('blink'))
                 socket.emit('update_player_position', {newPosition: newPosition, selectedPawn: selectedPawn.id});
