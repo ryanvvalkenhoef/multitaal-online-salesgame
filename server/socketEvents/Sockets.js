@@ -149,10 +149,10 @@ module.exports = function (io){
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
                     const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
-                    // if (receiver !== socket.id){
-                    //     userLogger.updateUser(socket.id,{hasBeenReviewed: true});
-                    //     socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
-                    // }
+                    if (receiver !== socket.id){//wanneer speler op ander vakje staat staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
+                        userLogger.updateUser(socket.id,{hasBeenReviewed: true});
+                        socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
+                    }
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
                     if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
                         playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);

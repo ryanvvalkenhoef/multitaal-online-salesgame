@@ -68,7 +68,7 @@ export function ModView() {
 
     const onImageClick = (playerId) => {
         socket.emit('get_player_answer_on_click', playerId);
-        setShowPopup(true);//dit werkt nog niet helemaal lekker
+        setShowPopup(true);
     }
 
 

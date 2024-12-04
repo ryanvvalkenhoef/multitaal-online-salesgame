@@ -89,7 +89,6 @@ export function Game() {
                     socket.emit('pawns_request_failed', '')
                 }
             },
-            //mmmm
             'set_roll_dice': (boolean) => {
                 setPlayerRollDice(boolean)
                 console.log('can roll dice', playerRollDice);
