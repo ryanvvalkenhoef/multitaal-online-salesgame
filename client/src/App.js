@@ -8,6 +8,7 @@ import { Gamepin } from './CreateGame/Gamepin'
 import { ModView } from './ModeratorScreen/ModView'
 import musicOn from "./Assets/musicOn.png";
 import musicOff from "./Assets/musicOff.png";
+import { Results } from "./ResultScreen/Result";
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
             <Route path='/joingame' element={<JoinGame/>}/>
             <Route path='/gamepin' element={<Gamepin/>}/>
             <Route path='/modview' element={<ModView/>}/>
+            <Route path='/results' element={<Results/>}/>
           </Routes>
         </BrowserRouter>
       </div>

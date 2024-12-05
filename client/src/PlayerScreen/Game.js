@@ -9,6 +9,7 @@ import PlayerTurns from "../GameScreen/PlayerTurns";
 import AudioPlayer from "../GameScreen/AudioPlayer";
 import '../App.css'
 import {useTranslation} from "react-i18next";
+import { useNavigate } from 'react-router-dom';
 
 export function Game() {
     const { t, i18n } = useTranslation('global');
@@ -33,6 +34,7 @@ export function Game() {
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
     const currentQuestionRef = useRef(null);
+    const navigate = useNavigate();
     
 
     const handleTextBoxChange = (event) => {
@@ -96,8 +98,8 @@ export function Game() {
             },
 
             'game_over': () => {
-                console.log('game over');
-                alert("game over");
+               console.log('game over');
+               navigate('/results')
             }
             
             

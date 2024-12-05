@@ -38,7 +38,6 @@ class GameManager{
   }
 
   startRound = (socket)=>{
-    console.log("Start round");
 
     const strategies = this.#gameStateTracker.getStrategies(); //is een array
     const playerNames = this.#gameStateTracker.getPlayerList()

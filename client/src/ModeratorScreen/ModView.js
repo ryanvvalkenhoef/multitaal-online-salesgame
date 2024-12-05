@@ -11,6 +11,8 @@ import { useLanguageManager } from '../Translations/LanguageManager';
 import den_flag from '../Assets/den_flag.png';
 import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
+import { useNavigate } from 'react-router-dom';
+
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
@@ -35,8 +37,10 @@ export function ModView() {
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
     const playerCountRef = useRef(0);
     const currentQuestionRef = useRef(null);
+    const navigate = useNavigate();
 
-   
+
+
 
     const handleUpdatePoints = (points) => {
         setSelectedPoints(points);
@@ -99,6 +103,7 @@ export function ModView() {
 
             'game_over': () => {
                 alert("game over");
+                navigate('/results')
             }
 
         }
@@ -114,7 +119,11 @@ export function ModView() {
         };
     }, []);
 
-
+        useEffect(() => {
+        if (currentRound >= totalRounds && totalRounds > 0) {
+        socket.emit('end_game');
+    }
+}, [currentRound, totalRounds]);
     return (
         <>
             <div className={showPopup ? 'appBlurred' : 'playboard'}>

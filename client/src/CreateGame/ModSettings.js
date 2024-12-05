@@ -18,6 +18,7 @@ export function ModSettings() {
   const { handleChangeLanguage, handleGuide } = useLanguageManager();
 
   const createRoom = () => {
+  console.log('creating room');
     socket.emit("create_room", { playerCount, roundsCount });
   }
   const handleGame = () => {

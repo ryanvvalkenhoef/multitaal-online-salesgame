@@ -20,6 +20,7 @@ module.exports = function (io){
 
 
     io.on('connection', (socket) => {
+    console.log('starting');
 
         const socketManager = new SocketManager(io);
         /** @type {GameManager} */
@@ -39,6 +40,7 @@ module.exports = function (io){
             //data is an object consisting of playercount and roundscount.
             'create_room': (data) => {
                 const room = RoomGenerator.createRoom();
+                console.log = ('creating room code');
                 jsonFileHandler = new JsonFileHandler(room);
                 jsonFileHandler.createJsonFile();
                 modLogger = new ModLogger(room,jsonFileHandler);
@@ -326,9 +328,22 @@ module.exports = function (io){
                 const pieces = gameStateTracker.getStrategies();
                 socketManager.emitToRoom(socket,"add_piece",pieces);
 
-            }
+            },
 
-
+            'get_results' : () => {
+                            const room = userLogger('getRoom', socket.id);
+                            const users = userLogger('getData', socket.id);
+                            const sortedUsers = users.sort((a, b) => b.totalPoints - a.totalPoints);
+                            let results = [];
+                            for (let i = 0; i < sortedUsers.length; i++) {
+                                results[i] = {
+                                    id: sortedUsers[i].id,
+                                    name: sortedUsers[i].name,
+                                    score: sortedUsers[i].totalPoints
+                                }
+                            }
+                            socket.to(room).emit('show_results', results);
+                        }
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])})
