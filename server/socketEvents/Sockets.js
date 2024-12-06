@@ -39,8 +39,8 @@ module.exports = function (io){
             //create_room is the entry point for the moderator
             //data is an object consisting of playercount and roundscount.
             'create_room': (data) => {
+
                 const room = RoomGenerator.createRoom();
-                console.log = ('creating room code');
                 jsonFileHandler = new JsonFileHandler(room);
                 jsonFileHandler.createJsonFile();
                 modLogger = new ModLogger(room,jsonFileHandler);
@@ -331,18 +331,13 @@ module.exports = function (io){
             },
 
             'get_results' : () => {
-                            const room = userLogger('getRoom', socket.id);
-                            const users = userLogger('getData', socket.id);
+            console.log('results');
+                            const room = socket.room;
+                            const users = userLogger.getScores();
                             const sortedUsers = users.sort((a, b) => b.totalPoints - a.totalPoints);
-                            let results = [];
-                            for (let i = 0; i < sortedUsers.length; i++) {
-                                results[i] = {
-                                    id: sortedUsers[i].id,
-                                    name: sortedUsers[i].name,
-                                    score: sortedUsers[i].totalPoints
-                                }
-                            }
-                            socket.to(room).emit('show_results', results);
+
+                            socket.to(room).emit('show_results', sortedUsers);
+                            console.log('final')
                         }
         }
         Object.keys(socketHandlers).forEach(event => {

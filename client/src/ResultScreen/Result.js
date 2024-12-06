@@ -28,8 +28,8 @@ export function Results() {
     useEffect (() => {
         const socketHandlers = {
             'show_results' : (results) => {
-               // setShowResultArray(results);
-               setShowResultArray();            }
+              setShowResultArray(results);
+    }
         }
 
         Object.keys(socketHandlers).forEach(event => {
@@ -57,7 +57,7 @@ export function Results() {
                      return 0
                      }).map((results, index) => (
                         <div className="Placement" key={index}>
-                            {index + 1}. {results.name}: {results.score} {t("points")}
+                            {index + 1}. {results.name}: {results.totalPoints} {t("points")}
                         </div>))}
                 </div>
             <button className='home' type="button" onClick={handleReturn}>

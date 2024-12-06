@@ -32,8 +32,7 @@ export function Gamepin() {
         socket.on("delete_user", () => {
             setPlayerCount(prevCount => prevCount - 1);
         })
-        socket.off("send_gamepin");
-        socket.off("add_user");
+
         return () => {
             socket.off("send_gamepin");
             socket.off("add_user");

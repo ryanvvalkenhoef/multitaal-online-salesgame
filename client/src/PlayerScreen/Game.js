@@ -99,6 +99,8 @@ export function Game() {
 
             'game_over': () => {
                console.log('game over');
+               alert("game over");
+               socket.emit('get_results');
                navigate('/results')
             }
             
