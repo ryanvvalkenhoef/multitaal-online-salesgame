@@ -7,31 +7,27 @@ import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
 import PlayerPopUps from "../GameScreen/PopUps/PlayerPopUps";
 import PlayerTurns from "../GameScreen/PlayerTurns";
 import AudioPlayer from "../GameScreen/AudioPlayer";
+import Pieces from '../GameScreen/Piece/Pieces';
 import '../App.css'
 import {useTranslation} from "react-i18next";
 import RenderManager from "../RenderManager/RenderManager";
 import {useNavigate} from "react-router-dom";
 import {
-    cleanUpSocketListeners,
-    handleColorAddition,
-    handlePieceAddition,
-    handleTileInfo2Update,
-    handleTileInfoUpdate,
-    handleCurrentPlayerRegistration,
-    handleUpdateRound,
-    handleNameUpdate,
-    handleLeaderBoardUpdate,
-    handleReceivingQuestion,
-    handleDisablingWaitingScreen,
-    handlePlayerTurnUpdate,
-    handleTurnStatusUpdate,
-    handleGameOverEvent,
-    handleSetRollDice, handleGoToHomeScreen
+    cleanUpSocketListeners, handleColorAddition,
+    handlePieceAddition, handleTileInfo2Update,
+    handleTileInfoUpdate, handleCurrentPlayerRegistration,
+    handleUpdateRound, handleNameUpdate,
+    handleLeaderBoardUpdate, handleReceivingQuestion,
+    handleDisablingWaitingScreen, handlePlayerTurnUpdate,
+    handleTurnStatusUpdate, handleGameOverEvent,
+    handleSetRollDice, handleGoToHomeScreen,
+    handlePositionsUpdate,
 
 } from "./socketEventListenersPlayer";
 import{
     startRender
 } from "./gameScreenFunctions";
+import { handlePositionUpdate} from "../GameScreen/Board/socketEventListeners";
 
 
 export function Game() {
@@ -62,7 +58,9 @@ export function Game() {
     const [tileInfo2, setTileInfo2] = useState([])
     const [joinedColors, setJoinedColors] = useState([])
     const [startPieces, setStartPieces] = useState([])
-    const[isReadyToRender, setIsReadyToRender] = useState(false);
+    const [isReadyToRender, setIsReadyToRender] = useState(false);
+    const [piecePositions, setPiecePositions] = useState([])
+    const [arePiecesRendered, setArePiecesRendered] = useState(false);
     const navigate = useNavigate();
 
 
@@ -94,6 +92,7 @@ export function Game() {
         handleReceivingQuestion({socket,currentQuestionRef,setGetPlayerStrategy,setQuestion,setIsPopUpEnabled});
         handleDisablingWaitingScreen({socket,setIsWaitingScreenEnabled})
         handlePlayerTurnUpdate({socket,setPosition,setSelectedPawn});
+        handlePositionsUpdate({socket,setPiecePositions});
         handleTurnStatusUpdate({socket,setMyTurn});
         handleSetRollDice({socket,setPlayerRollDice});
         handleGoToHomeScreen({socket,navigate});
@@ -123,7 +122,7 @@ export function Game() {
             {isReadyToRender ? (
                 <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
                     <div className='roundscounter'>{roundText}</div>
-                    <BoardGrid
+                    {arePiecesRendered && (< BoardGrid
                         selectedPawn={selectedPawn}
                         setPosition={setPosition}
                         playerColor={playerColor}
@@ -132,6 +131,11 @@ export function Game() {
                         tileInfo2={tileInfo2}
                         joinedColors={joinedColors}
                         startPieces={startPieces}
+                        piecePositions={piecePositions}
+                    />) }
+                    <Pieces
+                        startPieces={startPieces}
+                        setArePiecesRendered={setArePiecesRendered}
                     />
                     <DiceContainer
                         setMoveMade={setMoveMade}
@@ -160,6 +164,7 @@ export function Game() {
                 handleTextBoxChange={ handleTextBoxChange}
                 handleSubmitAnswer={handleSubmitAnswer}
             />
+
         </>
     );
 

@@ -100,7 +100,7 @@ class ReconnectionManager {
     #sendPositionsData = (socket) =>{
         const players = this.#userLogger.getAllPlayerObjects();
         const playerPositions = players.map(player => player.playerPosition);
-        this.#socketManager.emitBackToClient(socket,'update_position',playerPositions);
+        this.#socketManager.emitBackToClient(socket,'update_piece_position',playerPositions);
     }
     #sendPiecesData = (socket) =>{
         const pieces = this.#gameStateTracker.getStrategies();

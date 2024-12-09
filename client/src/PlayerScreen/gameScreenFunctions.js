@@ -15,6 +15,7 @@ export const startRender  =  (socket, isPlayer) => {
     socket.emit('get_tileInfo');
     socket.emit('get_pieces');
     socket.emit('send_player_colors');
+    socket.emit('update_piece_position');
     if(isPlayer) {
         socket.emit('get_player_strategy');
     }

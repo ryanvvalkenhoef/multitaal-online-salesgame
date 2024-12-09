@@ -90,12 +90,12 @@ class GameManager{
   // updateAllBoards = (socket) =>{
   //   const players = this.#userLogger.getAllPlayerObjects();
   //   const playerPositions = players.map(player => player.playerPosition);
-  //   this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+  //   this.#socketManager.emitToRoom(socket,'update_piece_position',playerPositions);
   // }
     updatePiecePositions = (socket) =>{
         // const players = this.#userLogger.getAllPlayerObjects();
         // const playerPositions = players.map(player => player.playerPosition);
-        // this.#socketManager.emitToRoom(socket,'update_position',playerPositions);
+        // this.#socketManager.emitToRoom(socket,'update_piece_position',playerPositions);
         this.#gameScreenDataEmitter.sendNewPositionsData(socket);
     }
 

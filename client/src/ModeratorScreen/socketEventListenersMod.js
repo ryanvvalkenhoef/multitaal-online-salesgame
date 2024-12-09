@@ -23,6 +23,7 @@ export {
     handlePieceAddition,
     handleTileInfo2Update,
     handleTileInfoUpdate,
+    handlePositionsUpdate,
     handleUpdateRound,
     handleGameOverEvent,
     handleLeaderBoardUpdate,

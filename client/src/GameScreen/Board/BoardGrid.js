@@ -3,14 +3,14 @@ import './BoardGridStyle.css'
 import {socket} from "../../client"
 import {
     cleanUpSocketListeners,
-    handlePositionUpdate,
+    handlePositionsUpdate,
     handleValidPositionsUpdate,
 } from "./socketEventListeners";
-import {createTiles, handleTileClick} from "./boardFunctions";
+import {createTiles, handleTileClick, renderPieces, renderStartPieces} from "./boardFunctions";
 
 
 
-const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces}) => {
+const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces,piecePositions,arePiecesRendered}) => {
     const [validPositions, setValidPositions] = useState([])
     const[tilesUseState, setTilesUseState] = useState([]);
 
@@ -30,7 +30,7 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
 
     useEffect(() => {
         handleValidPositionsUpdate(socket,setValidPositions);
-        handlePositionUpdate(socket,validPositions,setPosition, (data) => setPosition(data))
+        handlePositionsUpdate(socket,validPositions,setPosition, (data) => setPosition(data))
 
         return () => {
             cleanUpSocketListeners(socket);
@@ -52,10 +52,29 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
     }, [validPositions])
 
     useEffect(()=>{// The code in this useEffect is creating the tiles
-       const tiles = createTiles({joinedColors,tileInfo,tileInfo2,possiblePositions,validPositions,startPieces,selectedPawn});
+       const tiles = createTiles({joinedColors,tileInfo,tileInfo2,possiblePositions,validPositions,startPieces,selectedPawn,piecePositions});
        setTilesUseState(tiles);//tiles need to be put in useState in order to render the board.
 
+
+
+
     }, [joinedColors,validPositions])
+
+    useEffect(()=>{
+        setTimeout(()=> {
+            console.log("piecePositionssss: " + piecePositions[0]);
+            if(piecePositions[0] === "") {
+                renderStartPieces({startPieces})
+            }
+            else {
+                renderPieces({piecePositions})
+            }
+        },1000)
+    },[piecePositions])
+
+
+
+
 
     return (
             <div className='board-grid'>

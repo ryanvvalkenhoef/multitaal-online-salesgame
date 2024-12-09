@@ -22,11 +22,12 @@ import {
     handleUpdateRound,
     handleGameOverEvent,
     handleReceivePlayerAnswer,
-    handleLeaderBoardUpdate, handleGoToHomeScreen
+    handleLeaderBoardUpdate, handleGoToHomeScreen, handlePositionsUpdate
 } from "./socketEventListenersMod";
 import{
     startRender
 } from "../PlayerScreen/gameScreenFunctions";
+import Pieces from "../GameScreen/Piece/Pieces";
 
 export function ModView() {
     const { t, i18n } = useTranslation('global');
@@ -55,7 +56,9 @@ export function ModView() {
     const [tileInfo2, setTileInfo2] = useState([])
     const [joinedColors, setJoinedColors] = useState([])
     const [startPieces, setStartPieces] = useState([])
-    const[isReadyToRender, setIsReadyToRender] = useState(false);
+    const [isReadyToRender, setIsReadyToRender] = useState(false);
+    const [piecePositions, setPiecePositions] = useState([])
+    const [arePiecesRendered, setArePiecesRendered] = useState(false);
     const navigate = useNavigate();
 
    
@@ -89,6 +92,7 @@ export function ModView() {
         handleTileInfoUpdate({socket, setTileInfo}, (data) => renderManager.setTileInfo(data));
         handleTileInfo2Update({socket, setTileInfo2}, (data) => renderManager.setTileInfo2(data));
         handlePieceAddition({socket, setStartPieces}, (data) => renderManager.setPieces(data));
+        handlePositionsUpdate({socket,setPiecePositions});
         handleColorAddition({socket, setJoinedColors}, (data) => renderManager.setJoinedColors(data));
         handleLeaderBoardUpdate({socket,setData});
         handleUpdateRound({socket,setRoundText,t});
@@ -122,7 +126,7 @@ export function ModView() {
             {isReadyToRender? <div className={showPopup ? 'appBlurred' : 'playboard'}>
                 <button className="Qbutton2" onClick={handleGuide}>?</button>
                 <div className='roundscounter'>{roundText}</div>
-                <BoardGrid
+                    {arePiecesRendered && (<BoardGrid
                     moveMade={moveMade}
                     setMoveMade={setMoveMade}
                     setPosition={setPosition}
@@ -133,6 +137,11 @@ export function ModView() {
                     tileInfo2={tileInfo2}
                     joinedColors={joinedColors}
                     startPieces={startPieces}
+                    piecePositions={piecePositions}
+                />)}
+                <Pieces
+                    startPieces={startPieces}
+                    setArePiecesRendered={setArePiecesRendered}
                 />
                 <DiceContainer
                     setMoveMade={setMoveMade}

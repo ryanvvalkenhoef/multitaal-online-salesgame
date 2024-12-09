@@ -1,7 +1,7 @@
 const React = require("react");
 const {socket} = require("../../client");
 const {Tile} = require("../Tile/Tile");
-const {renderStartPieces} = require("../Piece/pieceFunctions");
+// const {renderStartPieces} = require("../Piece/pieceFunctions");
 const {sendQuestionRequest} = require("./eventEmitters");
 
 const assignColorToTile = (index, joinedColors, tileInfo, tileInfo2) => {
@@ -58,6 +58,44 @@ const createTiles = ({joinedColors,tileInfo,tileInfo2,possiblePositions,validPos
     return tiles;
 }
 
+const renderPieces = ({piecePositions}) =>{
+        console.log("dataPiecePositions: " + JSON.stringify(piecePositions))
+
+    piecePositions.forEach((data) => {
+            const newPosition = data.newPosition;
+            const selectedPawnName = data.selectedPawn;
+            const selectedPawnElement = document.getElementById(selectedPawnName);
+
+
+            if (selectedPawnElement) {
+                const newTile = document.querySelector(`.tile[data-pos="${newPosition}"]`);
+                newTile.appendChild(selectedPawnElement);
+            }
+        });
+
+}
+
+const renderStartPieces = ({startPieces}) =>{
+    console.log("strattegiieenen: ")
+    console.log(startPieces)
+
+    const START_POSITION = '8-5'
+    for(let startPiece of startPieces){
+        const newPosition =  START_POSITION;
+        const selectedPawnElement = document.getElementById(startPiece);
+
+
+        if (selectedPawnElement) {
+            const newTile = document.querySelector(`.tile[data-pos="${newPosition}"]`);
+            newTile.appendChild(selectedPawnElement);
+        }
+
+    }
+}
+
+
+
+
 const handleTileClick = ({event,startPieces,validPositions,selectedPawn,playerColor}) => {
     console.log('click');
     const targetTile = event.target.closest('.tile')
@@ -86,5 +124,7 @@ module.exports = {
     assignColorToTile,
     highLightChecker,
     createTiles,
-    handleTileClick
+    handleTileClick,
+    renderPieces,
+    renderStartPieces
 }

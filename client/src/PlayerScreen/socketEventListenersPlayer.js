@@ -109,6 +109,15 @@ export const handleTurnStatusUpdate = ({socket, setMyTurn}) =>{
     },)
 }
 
+export const handlePositionsUpdate = ({socket,setPiecePositions}) => {
+    socket.on('update_piece_position',(positions)=>{
+        console.log("possssities");
+        console.log(JSON.stringify(positions));
+        setPiecePositions(positions);
+    })
+
+}
+
 export const handleGameOverEvent = ({socket}) =>{
     socket.on('game_over', () => {
         console.log('game over');
@@ -143,6 +152,7 @@ export const cleanUpSocketListeners = (socket) => {
     socket.off('receive_question');
     socket.off('disable_waiting_screen');
     socket.off('players_turn');
+    socket.off('update_piece_position')
     socket.off('set_turn_true');
     socket.off('go_to_home_screen')
     socket.off('game_over');

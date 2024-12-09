@@ -36,6 +36,7 @@ const DiceContainer = (props) => {
                 dice.classList.remove("shake");
                 setDiceValue(data);
                 dice.setAttribute("src", images[data - 1]);
+                console.log("dat.postion: " + position)
                 socket.emit("send_dice_roll_and_position", { diceValue: data, position: position });
             }, 1000);
         };

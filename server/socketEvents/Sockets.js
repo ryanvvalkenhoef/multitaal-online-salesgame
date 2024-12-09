@@ -35,7 +35,7 @@ module.exports = function (io){
         /**@type {GameScreenDataEmitter}*/
         let gameScreenDataEmitter;
 
-        if(RoomGenerator.getRoomList().length === 0) {
+        if(RoomGenerator.getRoomList().length < 1) {
             io.emit('go_to_home_screen');
         }
 
@@ -301,9 +301,9 @@ module.exports = function (io){
             },
 
 
-            // 'update_position': (data) => {
-            //     socketManager.emitToRoom(socket, 'update_position', data);
-            // },
+            'update_piece_position': () => {
+                 gameScreenDataEmitter.sendNewPositionsData(socket);
+            },
 
             'pawns_request_failed': (data) => { // werkt nu  niet correct omdat method nu array geeft ipv een strategie
                 const strategy = gameStateTracker.getStrategies()
@@ -337,27 +337,28 @@ module.exports = function (io){
 
             'question_reviewed': () => {
                 modQuestionQueue.removeQuestionFromQueue(socket);
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
                 modLogger.updateNumberOfQuestionsReviewed();
+                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
 
                 if (questionQueueLength > 0) {
                     const question = modQuestionQueue.getQuestionFromQueue(socket);
-                    gameManager.sendAnswerToModerator(socket, question);
-                }
-                // When queue is empty but not all players have submitted
-                else {
-                    modLogger.setIsReviewingQuestion(false);
+                    gameManager.sendAnswerToModerator(socket,question);
                 }
 
-                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
-                const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
-                if (isRoundFinished && !isReviewingQuestion) { // Update Game state and go to next round
-                    modLogger.resetNumberOfQuestionsReviewed();
-                    userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
-                    gameManager.updateGameState(socket);
-                    gameManager.updatePiecePositions(socket);
-                    gameManager.startRound(socket);
+                else {// Queue is empty
+                    modLogger.setIsReviewingQuestion(false);
+                    const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
+                    if (isRoundFinished) { // Go to next round
+                        modLogger.resetNumberOfQuestionsReviewed();
+                        userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
+                        gameManager.updateGameState(socket);
+                        gameManager.updatePiecePositions(socket);
+                        gameManager.startRound(socket);
+                    }
                 }
+
+
+
             },
 
             /////// Events staan tijdelijk in dit bestand
