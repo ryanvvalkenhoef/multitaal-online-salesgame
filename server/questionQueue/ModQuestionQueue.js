@@ -51,6 +51,7 @@ class ModQuestionQueue extends QuestionQueue {
             return null;
         }
         const question = this.queues[room][playerId].find(question => {
+            console.log('question', question);
             console.log('Checking question.playerId:', question.playerId);
             return question.playerId === playerId;
         });
