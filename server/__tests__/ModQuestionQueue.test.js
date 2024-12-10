@@ -1,5 +1,5 @@
 const modQuestionQueue = require('../questionQueue/ModQuestionQueue');
-
+//this test uses test data for the method parameters
 describe('ModQuestionQueue', () => {
     let queueInstance;
     let socket;
@@ -21,23 +21,23 @@ describe('ModQuestionQueue', () => {
         questionData2 = { playerId: playerId1, text: 'question2' };
         questionData3 = { playerId: playerId2, text: 'question3' };
     });
-    //WHEN the modQuestionQueue is filled with playerquestions/answers
+//WHEN the modQuestionQueue is filled with playerquestions/answers
     test('should add multiple playeranswers to the queue', () => {
         queueInstance.addQuestionToQueue(socket, playerId1, questionData1);
         queueInstance.addQuestionToQueue(socket, playerId1, questionData2);
         queueInstance.addQuestionToQueue(socket, playerId2, questionData3);
-    //THEN the queue should contain the playeranswers
+//THEN the queue should contain the playeranswers
         expect(queueInstance.getQuestionQueueLength(socket, playerId1)).toBe(2);
         expect(queueInstance.getQuestionQueueLength(socket, playerId2)).toBe(1);
         expect(queueInstance.getQuestionQueueLength(socket, playerId3)).toBe(0);
     });
-    //WHEN the modQuestionQueue is filled with playerquestions/answers
+//WHEN the modQuestionQueue is filled with playerquestions/answers
     test('should get all playeranswers from the queue by player', () => {
 
         queueInstance.addQuestionToQueue(socket, playerId1, questionData1);
         queueInstance.addQuestionToQueue(socket, playerId1, questionData2);
         queueInstance.addQuestionToQueue(socket, playerId2, questionData3);
-    //THEN retrieve the playeranswers from the queue
+//THEN retrieve the playeranswers from the queue
         const retrievedQuestion1 = queueInstance.getQuestionFromQueue(socket, playerId1);
         expect(retrievedQuestion1).toEqual(questionData1);
         queueInstance.removeQuestionFromQueue(socket, playerId1);//zonder deze regel zou de test falen
