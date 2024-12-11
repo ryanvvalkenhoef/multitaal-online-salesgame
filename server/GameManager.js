@@ -22,7 +22,6 @@ class GameManager{
   }
 
   sendAnswerToModerator = (socket, questionData) => {
-    console.log('in sendAnswerToModerator ')
     this.#socketManager.emitToMod(socket,"receive_player_answer",questionData);
   };
 
@@ -97,7 +96,7 @@ class GameManager{
         // const players = this.#userLogger.getAllPlayerObjects();
         // const playerPositions = players.map(player => player.playerPosition);
         // this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
-        this.#gameScreenDataEmitter.sendNewPositionsData(socket);
+        this.#gameScreenDataEmitter.sendPositionsData(socket);
     }
 
   //

@@ -113,12 +113,8 @@ class UserLogger {
 
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
-        console.log("oldSocketId: " , oldSocketId)
-        console.log("newSocketedId" , newSocketId)
-        console.log('-------------------------')
         let changedPlayerId = false;
         data.users.forEach(player => {
-            console.log("socketList: ", player.id)
            if(player.id === oldSocketId){
                player.id = newSocketId;
                changedPlayerId = true;
@@ -127,6 +123,7 @@ class UserLogger {
 
         if (changedPlayerId){
             this.#jsonFileHandler.writeData(data);
+            console.log('Player id has been updated');
         }
         else{
             console.warn("Can't replace old player id with new one");
@@ -152,7 +149,6 @@ class UserLogger {
 
 
      getStrategy(socketid) {
-         console.log("socketid getStrategy: ",socketid);
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
@@ -180,7 +176,6 @@ class UserLogger {
     }
 
     getColor(socketid){
-        console.log("socketid getColor: ",socketid);
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 

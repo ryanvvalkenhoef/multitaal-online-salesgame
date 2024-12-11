@@ -216,8 +216,7 @@ module.exports = function (io){
                 const language = userLogger.getLanguage(socket.id);
                 const { question, answer } = await databaseQuestion(data.questionColor, sort = language);
                 let get_player_strategy
-                console.log("Data.userColor: " + data.userColor)
-                console.log("Data.questionColor: " + data.questionColor)
+
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
                     get_player_strategy = data.userColor;
@@ -262,10 +261,8 @@ module.exports = function (io){
 
                 modQuestionQueue.addQuestionToQueue(socket, questionData);
                 const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
-                console.log( "IN send answer to server")
                 // Checks if the mod is already reviewing a question.
                 if (!isReviewingQuestion) {
-                    console.log( "IN if stetmenrt")
                     gameManager.sendAnswerToModerator(socket, questionData);
                     modLogger.setIsReviewingQuestion(true);
                 }
@@ -302,7 +299,7 @@ module.exports = function (io){
 
 
             'update_piece_positions': () => {
-                 gameScreenDataEmitter.sendNewPositionsData(socket);
+                 gameScreenDataEmitter.sendPositionsData(socket);
             },
 
             'pawns_request_failed': (data) => { // werkt nu  niet correct omdat method nu array geeft ipv een strategie
@@ -408,9 +405,6 @@ module.exports = function (io){
             },
 
             'send_dice_roll_and_position': (data) => {
-                console.log("in dice event")
-                console.log(data)
-                console.log(data.position)
                 const coordinate = data.position.split('-');
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
@@ -424,19 +418,13 @@ module.exports = function (io){
             },
 
             'get_pieces': (data) => {
-                console.log("socket getPieces: ",socket.id);
                 const pieces = gameStateTracker.getStrategies();
                 gameScreenDataEmitter.sendPiecesData(socket);
                 socketManager.emitToRoom(socket,'add_player_color',pieces); // moet een eigen event voor komen
 
             },
             'link_player_to_piece': () =>{
-                console.log("Kokm linkkken");
-                console.log(modLogger)
-                console.log(gameManager)
-                console.log(gameScreenDataEmitter)
                 const strategy = userLogger.getStrategy(socket.id);
-                console.log(strategy)
                 socketManager.emitBackToClient(socket,'players_turn',strategy);
             }
 

@@ -32,26 +32,21 @@ class RenderManager {
     }
 
     setPieces(pieces) {
-        console.log("IN manager Pieces")
-        console.log('pieces: ',pieces)
         this.#pieces = pieces;
         this.#checkIfReady();
     }
 
     setTileInfo(tileInfo) {
-        console.log("IN manager info1")
         this.#tileInfo = tileInfo;
         this.#checkIfReady();
     }
 
     setTileInfo2(tileInfo2) {
-        console.log("IN manager info2")
         this.#tileInfo2 = tileInfo2;
         this.#checkIfReady();
     }
 
     setJoinedColors(joinedColors) {
-        console.log("IN manager info3")
         this.#joinedColors = joinedColors   ;
         this.#checkIfReady();
     }

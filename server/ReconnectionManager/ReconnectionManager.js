@@ -116,11 +116,13 @@ class ReconnectionManager {
             console.error("Couldn't find player: #sendPlayerPostion()");
             return;
         }
-        const playerPosition = player.playerPosition.newPosition;
+        // When the player hasn't made a move yet, the playerPosition property is an empty string
+        // So when the player hasn't made a move the start position 8-5 will be sent to the client
+        const playerPosition = player.playerPosition === '' ? '8-5' :  player.playerPosition.newPosition ;
         this.#socketManager.emitBackToClient(socket,'set_player_position', playerPosition);
 
     }
-    #sendPiecesData = (socket) =>{
+    #sendPiecesData = (socket) =>{ //Causes user not found5 warning when the moderator reconnects, but it's not a problem.
         const pieces = this.#gameStateTracker.getStrategies();
         this.#socketManager.emitBackToClient(socket, 'add_piece', pieces);
     }

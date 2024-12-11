@@ -11,11 +11,11 @@ class PlayerQuestionQueue extends QuestionQueue{
         const playerId = socket.id;
 
         if(!this.queues[room]){ // None of the players have a queue so it returns length of 0
-            console.error("None of the players have a question queue")
+            console.log("None of the players have a question queue")
             return 0;
         }
         if (!this.queues[room][playerId]) { // The player doesn't have a queue, so it returns a length of 0
-            console.error("The player doesn't have a question que")
+            console.log("The player doesn't have a question que")
             return 0;
         }
 

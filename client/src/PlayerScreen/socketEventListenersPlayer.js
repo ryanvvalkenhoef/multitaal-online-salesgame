@@ -47,7 +47,6 @@ export const handlePieceAddition = ({socket,setStartPieces}, callback) => {
 export const handleCurrentPlayerRegistration = ({socket,setCurrentPlayer, setPlayerColor}) => {
     socket.on("register_current_player", (data) => {
         setCurrentPlayer(data.strategy);
-        console.log("DaTA.COLOR: "  + data.color);
         setPlayerColor(data.color);
     });
 };
@@ -117,8 +116,6 @@ export const handleTurnStatusUpdate = ({socket, setMyTurn}) =>{
 
 export const handlePositionsUpdate = ({socket,setPiecePositions}) => {
     socket.on('update_piece_positions',(positions)=>{
-        console.log("possssities");
-        console.log(JSON.stringify(positions));
         setPiecePositions(positions);
     })
 
