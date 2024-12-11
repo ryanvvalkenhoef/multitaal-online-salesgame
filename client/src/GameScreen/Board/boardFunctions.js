@@ -1,8 +1,7 @@
 const React = require("react");
 const {socket} = require("../../client");
 const {Tile} = require("../Tile/Tile");
-// const {renderStartPieces} = require("../Piece/pieceFunctions");
-const {sendQuestionRequest} = require("./eventEmitters");
+const {sendQuestionRequest} = require("./eventEmittersBoard");
 
 const assignColorToTile = (index, joinedColors, tileInfo, tileInfo2) => {
 
@@ -52,20 +51,18 @@ const createTiles = ({joinedColors,tileInfo,tileInfo2,possiblePositions,validPos
         const tileClass = `tile ${color} ${isHighlighted ? 'blink' : ''}`
         const position = possiblePositions[index];
 
-        const tile = Tile({index, position, tileClass, renderStartPieces, startPieces, selectedPawn});
+        const tile = Tile({index, position, tileClass, renderStartPieces: setStartPiecesOnTile, startPieces, selectedPawn});
         tiles.push(tile);
     }
     return tiles;
 }
 
-const renderPieces = ({piecePositions}) =>{
-
+const setPiecesOnTile = ({piecePositions}) =>{ // This function is used after the first time
 
     piecePositions.forEach((data) => {
             const newPosition = data.newPosition;
             const selectedPawnName = data.selectedPawn;
             const selectedPawnElement = document.getElementById(selectedPawnName);
-
 
             if (selectedPawnElement) {
                 const newTile = document.querySelector(`.tile[data-pos="${newPosition}"]`);
@@ -75,7 +72,7 @@ const renderPieces = ({piecePositions}) =>{
 
 }
 
-const renderStartPieces = ({startPieces}) =>{
+const setStartPiecesOnTile = ({startPieces}) =>{// This function is used to set the pieces for the first time
 
     const START_POSITION = '8-5'
     for(let startPiece of startPieces){
@@ -123,6 +120,6 @@ module.exports = {
     highLightChecker,
     createTiles,
     handleTileClick,
-    renderPieces,
-    renderStartPieces
+    setPiecesOnTile,
+    setStartPiecesOnTile
 }

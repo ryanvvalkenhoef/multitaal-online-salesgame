@@ -5,14 +5,16 @@ import {
     cleanUpSocketListeners,
     handlePositionsUpdate,
     handleValidPositionsUpdate,
-} from "./socketEventListeners";
-import {createTiles, handleTileClick, renderPieces, renderStartPieces} from "./boardFunctions";
+} from "./eventListenersBoard";
+import {createTiles, handleTileClick, setPiecesOnTile, setStartPiecesOnTile} from "./boardFunctions";
+
 
 
 
 const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces,piecePositions,setIsBoardRendered}) => {
     const [validPositions, setValidPositions] = useState([])
     const[tilesUseState, setTilesUseState] = useState([]);
+    const [isFirstRender, setIsFirstRender] = useState(true);
 
 
     //CO-ORDINATES FOR PAWN MOVEMENT
@@ -58,16 +60,23 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
 
     }, [joinedColors,validPositions])
 
+
     useEffect(()=>{
-        setTimeout(()=> {
-            if(piecePositions[0] === "") {
-                renderStartPieces({startPieces})
+        // During the first render the tiles are not yet loaded into the DOM
+        // Because of that, the pieces can't be set on the first render.
+        if(!isFirstRender) {
+            if (piecePositions[0] === "") {
+                setStartPiecesOnTile({startPieces})
+            } else {
+                setPiecesOnTile({piecePositions})
             }
-            else {
-                renderPieces({piecePositions})
-            }
-        },1000)
-    },[piecePositions])
+        }
+
+    },[piecePositions,isFirstRender])
+
+    useEffect(()=>{
+        setIsFirstRender(false)
+    },[])
 
 
     return (

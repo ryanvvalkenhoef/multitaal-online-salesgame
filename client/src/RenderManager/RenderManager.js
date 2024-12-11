@@ -3,7 +3,7 @@ const {
     handleTileInfo2Update,
     handlePieceAddition,
     handleColorAddition,
-} = require("../GameScreen/Board/socketEventListeners");
+} = require("../GameScreen/Board/eventListenersBoard");
 
 
 class RenderManager {

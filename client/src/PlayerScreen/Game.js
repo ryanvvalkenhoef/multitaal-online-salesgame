@@ -23,11 +23,11 @@ import {
     handleSetRollDice, handleGoToHomeScreen,
     handlePositionsUpdate, handleSetPosition,
 
-} from "./socketEventListenersPlayer";
+} from "./eventListenersPlayer";
 import{
     startRender
-} from "./gameScreenFunctions";
-import { handlePositionUpdate} from "../GameScreen/Board/socketEventListeners";
+} from "./playerScreenFunctions";
+
 
 
 export function Game() {
@@ -121,17 +121,6 @@ export function Game() {
 
     },[])
 
-    // useEffect(() => {
-    //     console.log("voor mount ref")
-    //     console.log(didMountRef.current)
-    //     if(didMountRef.current) {
-    //         socket.emit('link_player_to_piece');
-    //     }
-    // }, [isBoardRendered]);
-    //
-    // useEffect(() => {
-    //     didMountRef.current = true;
-    // }, []);
 
     return (
         <>

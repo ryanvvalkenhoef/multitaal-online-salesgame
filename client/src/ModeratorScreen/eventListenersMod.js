@@ -28,4 +28,4 @@ export {
     handleGameOverEvent,
     handleLeaderBoardUpdate,
     handleGoToHomeScreen
-} from '../PlayerScreen/socketEventListenersPlayer'
+} from '../PlayerScreen/eventListenersPlayer'

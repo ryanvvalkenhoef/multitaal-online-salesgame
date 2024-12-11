@@ -23,10 +23,10 @@ import {
     handleGameOverEvent,
     handleReceivePlayerAnswer,
     handleLeaderBoardUpdate, handleGoToHomeScreen, handlePositionsUpdate
-} from "./socketEventListenersMod";
+} from "./eventListenersMod";
 import{
     startRender
-} from "../PlayerScreen/gameScreenFunctions";
+} from "../PlayerScreen/playerScreenFunctions";
 import Pieces from "../GameScreen/Piece/Pieces";
 
 export function ModView() {
