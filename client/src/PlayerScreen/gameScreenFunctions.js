@@ -8,14 +8,21 @@ export const startRender  =  (socket, isPlayer) => {
             const key = sessionStorage.key(i);
             sessionData[key] = sessionStorage.getItem(key);
         }
-        socket.emit('reconnect_player', sessionData);
+
+        if(isPlayer) {
+            socket.emit('reconnect_player', sessionData);
+        }
+        else{
+            socket.emit('reconnect_mod', sessionData);
+        }
         sessionStorage.setItem('socketId', socket.id);
     }
-
-    socket.emit('get_tileInfo');
-    socket.emit('get_pieces');
-    socket.emit('send_player_colors');
-    socket.emit('update_piece_position');
+else {
+        socket.emit('get_tileInfo');
+        socket.emit('get_pieces');
+        socket.emit('send_player_colors');
+        socket.emit('update_piece_positions');
+    }
     if(isPlayer) {
         socket.emit('get_player_strategy');
     }

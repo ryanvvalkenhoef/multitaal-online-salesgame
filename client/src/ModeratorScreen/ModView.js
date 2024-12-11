@@ -59,6 +59,7 @@ export function ModView() {
     const [isReadyToRender, setIsReadyToRender] = useState(false);
     const [piecePositions, setPiecePositions] = useState([])
     const [arePiecesRendered, setArePiecesRendered] = useState(false);
+    const [isBoardRendered, setIsBoardRendered] = useState(false);
     const navigate = useNavigate();
 
    
@@ -138,6 +139,7 @@ export function ModView() {
                     joinedColors={joinedColors}
                     startPieces={startPieces}
                     piecePositions={piecePositions}
+                    setIsBoardRendered={setIsBoardRendered}
                 />)}
                 <Pieces
                     startPieces={startPieces}

@@ -48,7 +48,7 @@ class GameScreenDataEmitter{
     sendNewPositionsData = (socket) =>{
         const players = this.#userLogger.getAllPlayerObjects();
         const playerPositions = players.map(player => player.playerPosition);
-        this.#socketManager.emitToRoom(socket,'update_piece_position',playerPositions);
+        this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
     }
 
     sendLeaderboardData = (socket) => {

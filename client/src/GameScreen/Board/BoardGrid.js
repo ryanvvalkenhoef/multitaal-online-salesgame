@@ -10,7 +10,7 @@ import {createTiles, handleTileClick, renderPieces, renderStartPieces} from "./b
 
 
 
-const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces,piecePositions,arePiecesRendered}) => {
+const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,tileInfo2,joinedColors,startPieces,piecePositions,setIsBoardRendered}) => {
     const [validPositions, setValidPositions] = useState([])
     const[tilesUseState, setTilesUseState] = useState([]);
 
@@ -30,7 +30,8 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
 
     useEffect(() => {
         handleValidPositionsUpdate(socket,setValidPositions);
-        handlePositionsUpdate(socket,validPositions,setPosition, (data) => setPosition(data))
+        handlePositionsUpdate(socket,validPositions,setPosition, (data) => setPosition(data));
+        setIsBoardRendered(true);
 
         return () => {
             cleanUpSocketListeners(socket);
@@ -42,7 +43,7 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
         const boardGrid = document.querySelector('.board-grid')
         if (gameScreen && boardGrid !== null){
             boardGrid.addEventListener('click', (event) =>
-                handleTileClick({ event, startPieces, selectedPawn, validPositions,playerColor })
+                handleTileClick({ event, startPieces, selectedPawn, validPositions,playerColor,setPosition })
             );
 
         }
@@ -55,14 +56,10 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
        const tiles = createTiles({joinedColors,tileInfo,tileInfo2,possiblePositions,validPositions,startPieces,selectedPawn,piecePositions});
        setTilesUseState(tiles);//tiles need to be put in useState in order to render the board.
 
-
-
-
     }, [joinedColors,validPositions])
 
     useEffect(()=>{
         setTimeout(()=> {
-            console.log("piecePositionssss: " + piecePositions[0]);
             if(piecePositions[0] === "") {
                 renderStartPieces({startPieces})
             }
@@ -71,9 +68,6 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
             }
         },1000)
     },[piecePositions])
-
-
-
 
 
     return (

@@ -21,7 +21,7 @@ import {
     handleDisablingWaitingScreen, handlePlayerTurnUpdate,
     handleTurnStatusUpdate, handleGameOverEvent,
     handleSetRollDice, handleGoToHomeScreen,
-    handlePositionsUpdate,
+    handlePositionsUpdate, handleSetPosition,
 
 } from "./socketEventListenersPlayer";
 import{
@@ -53,7 +53,6 @@ export function Game() {
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
-    const currentQuestionRef = useRef(null);
     const [tileInfo, setTileInfo] = useState([])
     const [tileInfo2, setTileInfo2] = useState([])
     const [joinedColors, setJoinedColors] = useState([])
@@ -61,7 +60,11 @@ export function Game() {
     const [isReadyToRender, setIsReadyToRender] = useState(false);
     const [piecePositions, setPiecePositions] = useState([])
     const [arePiecesRendered, setArePiecesRendered] = useState(false);
+    const [isBoardRendered, setIsBoardRendered] = useState(false);
     const navigate = useNavigate();
+    const currentQuestionRef = useRef(null);
+    const didMountRef = useRef(false);
+
 
 
 
@@ -93,6 +96,7 @@ export function Game() {
         handleDisablingWaitingScreen({socket,setIsWaitingScreenEnabled})
         handlePlayerTurnUpdate({socket,setPosition,setSelectedPawn});
         handlePositionsUpdate({socket,setPiecePositions});
+        handleSetPosition({socket,setPosition});
         handleTurnStatusUpdate({socket,setMyTurn});
         handleSetRollDice({socket,setPlayerRollDice});
         handleGoToHomeScreen({socket,navigate});
@@ -104,6 +108,7 @@ export function Game() {
     },[])
 
 
+
     useEffect(() =>{
         //If there is no sessionData stored the game screen can't be rendered
         //So client goes back to the homepage
@@ -112,10 +117,21 @@ export function Game() {
         }
         else{ //The timeout is used because it takes some time before socketio has created the socket object
             setTimeout(() => startRender(socket,true),500);
-            console.log("roll dice: " + playerRollDice)
         }
 
     },[])
+
+    // useEffect(() => {
+    //     console.log("voor mount ref")
+    //     console.log(didMountRef.current)
+    //     if(didMountRef.current) {
+    //         socket.emit('link_player_to_piece');
+    //     }
+    // }, [isBoardRendered]);
+    //
+    // useEffect(() => {
+    //     didMountRef.current = true;
+    // }, []);
 
     return (
         <>
@@ -132,6 +148,7 @@ export function Game() {
                         joinedColors={joinedColors}
                         startPieces={startPieces}
                         piecePositions={piecePositions}
+                        setIsBoardRendered={setIsBoardRendered}
                     />) }
                     <Pieces
                         startPieces={startPieces}

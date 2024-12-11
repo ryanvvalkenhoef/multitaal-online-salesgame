@@ -27,8 +27,10 @@ class ReconnectionManager {
 
     reconnectPlayer = (socket , sessionData) =>{
         this.#updatePlayerId(socket,sessionData);
+        this.#sendBoardData(socket);
         this.#sendLeaderBoardData(socket);
-        this.#sendPositionsData(socket)
+        this.#sendPositionsData(socket);
+        this.#sendPlayerPosition(socket);
         this.#sendPiecesData(socket);
         this.#sendPlayerColors(socket);
         this.#sendRoundData(socket);
@@ -91,16 +93,32 @@ class ReconnectionManager {
     }
     #sendLeaderBoardData = (socket) =>{
         const userData = this.#userLogger.getAllPlayerObjects();
-        this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);
+        this.#socketManager.emitBackToClient(socket, "update_leaderboard", userData);
     }
     #sendRoundData = (socket) =>{
         const roundInfo = this.#gameStateTracker.getRound();
-        this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
+        this.#socketManager.emitBackToClient(socket, "rounds", roundInfo);
     }
     #sendPositionsData = (socket) =>{
         const players = this.#userLogger.getAllPlayerObjects();
         const playerPositions = players.map(player => player.playerPosition);
-        this.#socketManager.emitBackToClient(socket,'update_piece_position',playerPositions);
+        this.#socketManager.emitBackToClient(socket,'update_piece_positions',playerPositions);
+    }
+    #sendPlayerPosition = (socket) =>{
+        const playerId = socket.id;
+        if(!playerId){
+            console.error('Player id is null or undefined: #sendPlayerPosition()');
+            return;
+        }
+        const players = this.#userLogger.getAllPlayerObjects();
+        const player = players.find(player => player.id === playerId);
+        if(!player){
+            console.error("Couldn't find player: #sendPlayerPostion()");
+            return;
+        }
+        const playerPosition = player.playerPosition.newPosition;
+        this.#socketManager.emitBackToClient(socket,'set_player_position', playerPosition);
+
     }
     #sendPiecesData = (socket) =>{
         const pieces = this.#gameStateTracker.getStrategies();

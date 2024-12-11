@@ -202,7 +202,6 @@ module.exports = function (io){
                     const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
                     if (questionQueueLength > 0) {
                         const question = modQuestionQueue.getQuestionFromQueue(socket);
-                        //modQuestionQueue.removeQuestionFromQueue(socket);
                         gameManager.sendAnswerToModerator(socket, question);
                     }
                 }
@@ -263,9 +262,10 @@ module.exports = function (io){
 
                 modQuestionQueue.addQuestionToQueue(socket, questionData);
                 const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
-
+                console.log( "IN send answer to server")
                 // Checks if the mod is already reviewing a question.
                 if (!isReviewingQuestion) {
+                    console.log( "IN if stetmenrt")
                     gameManager.sendAnswerToModerator(socket, questionData);
                     modLogger.setIsReviewingQuestion(true);
                 }
@@ -301,7 +301,7 @@ module.exports = function (io){
             },
 
 
-            'update_piece_position': () => {
+            'update_piece_positions': () => {
                  gameScreenDataEmitter.sendNewPositionsData(socket);
             },
 
@@ -408,6 +408,9 @@ module.exports = function (io){
             },
 
             'send_dice_roll_and_position': (data) => {
+                console.log("in dice event")
+                console.log(data)
+                console.log(data.position)
                 const coordinate = data.position.split('-');
                 const xPos = parseInt(coordinate[0]);
                 const yPos = parseInt(coordinate[1]);
@@ -426,7 +429,17 @@ module.exports = function (io){
                 gameScreenDataEmitter.sendPiecesData(socket);
                 socketManager.emitToRoom(socket,'add_player_color',pieces); // moet een eigen event voor komen
 
+            },
+            'link_player_to_piece': () =>{
+                console.log("Kokm linkkken");
+                console.log(modLogger)
+                console.log(gameManager)
+                console.log(gameScreenDataEmitter)
+                const strategy = userLogger.getStrategy(socket.id);
+                console.log(strategy)
+                socketManager.emitBackToClient(socket,'players_turn',strategy);
             }
+
 
 
         }

@@ -7,8 +7,8 @@ const handleValidPositionsUpdate = (socket, setValidPositions) => {
 };
 
 const handlePositionsUpdate = (socket, validPositions) => {
-    socket.on("update_piece_position", (newPositionData) => {
-        console.log("data: " + JSON.stringify(newPositionData))
+    socket.on("update_piece_positions", (newPositionData) => {
+        console.log("handlePositionsUpdate: " + JSON.stringify(newPositionData))
         newPositionData.forEach((data) => {
             const newPosition = data.newPosition;
             const selectedPawnName = data.selectedPawn;
@@ -25,7 +25,7 @@ const handlePositionsUpdate = (socket, validPositions) => {
 };
 
 // const handlePositionsUpdate = ({socket,setPiecePositions}) => {
-//     socket.on('update_piece_position',(positions)=>{
+//     socket.on('update_piece_positions',(positions)=>{
 //         console.log("possssities");
 //         console.log(JSON.stringify(positions));
 //         setPiecePositions(positions);
@@ -34,7 +34,7 @@ const handlePositionsUpdate = (socket, validPositions) => {
 // }
 
 // const handlePositionUpdate = (socket, validPositions) => {
-//     socket.on("update_piece_position", (newPositionData) => {
+//     socket.on("update_piece_positions", (newPositionData) => {
 //         console.log("data: " + JSON.stringify(newPositionData))
 //         newPositionData.forEach((data) => {
 //             const newPosition = data.newPosition;
@@ -54,7 +54,7 @@ const handlePositionsUpdate = (socket, validPositions) => {
 
 const cleanUpSocketListeners = (socket) => {
     socket.off("update_valid_positions");
-    socket.off("update_piece_position");
+    socket.off("update_piece_positions");
 
 };
 

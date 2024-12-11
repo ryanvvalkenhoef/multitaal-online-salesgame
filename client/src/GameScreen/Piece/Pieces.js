@@ -1,10 +1,12 @@
 import React, {useEffect} from "react"
 import {Piece} from "./Piece";
+import {socket} from "../../client";
 
 export default  function Pieces({startPieces,setArePiecesRendered}) {
 
     useEffect(() => {
         setArePiecesRendered(true);
+        socket.emit('link_player_to_piece');
     }, []);
 
     return createStartPieces(startPieces,null);

@@ -22,6 +22,7 @@ class GameManager{
   }
 
   sendAnswerToModerator = (socket, questionData) => {
+    console.log('in sendAnswerToModerator ')
     this.#socketManager.emitToMod(socket,"receive_player_answer",questionData);
   };
 
@@ -90,12 +91,12 @@ class GameManager{
   // updateAllBoards = (socket) =>{
   //   const players = this.#userLogger.getAllPlayerObjects();
   //   const playerPositions = players.map(player => player.playerPosition);
-  //   this.#socketManager.emitToRoom(socket,'update_piece_position',playerPositions);
+  //   this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
   // }
     updatePiecePositions = (socket) =>{
         // const players = this.#userLogger.getAllPlayerObjects();
         // const playerPositions = players.map(player => player.playerPosition);
-        // this.#socketManager.emitToRoom(socket,'update_piece_position',playerPositions);
+        // this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
         this.#gameScreenDataEmitter.sendNewPositionsData(socket);
     }
 

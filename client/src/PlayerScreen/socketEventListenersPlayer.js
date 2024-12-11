@@ -91,11 +91,17 @@ export const handlePlayerTurnUpdate = ({socket,setPosition, setSelectedPawn}) =>
     socket.on('players_turn',(strategy) => { //naam van event moet veranderd worden
         try {
             const pawn = document.querySelector('#' + strategy)
-            const parent = pawn.parentElement
-            const parentPosition = parent.getAttribute('data-pos')
-
-            setPosition(parentPosition)
-            console.log('game', parentPosition)
+            // console.log("Pawn: " + pawn)
+            // console.log(pawn)
+            // const parent = pawn.parentElement
+            // console.log('Parent: ' + parent)
+            // console.log(parent)
+            // const parentPosition = parent.getAttribute('data-pos')
+            // console.log("parentPosition: " + parentPosition)
+            //
+            //
+            // setPosition(parentPosition)
+            // console.log('game', parentPosition)
             setSelectedPawn(pawn)
         } catch (TypeError) {
             socket.emit('pawns_request_failed', '')
@@ -110,12 +116,18 @@ export const handleTurnStatusUpdate = ({socket, setMyTurn}) =>{
 }
 
 export const handlePositionsUpdate = ({socket,setPiecePositions}) => {
-    socket.on('update_piece_position',(positions)=>{
+    socket.on('update_piece_positions',(positions)=>{
         console.log("possssities");
         console.log(JSON.stringify(positions));
         setPiecePositions(positions);
     })
 
+}
+
+export const handleSetPosition = ({socket,setPosition}) =>{
+    socket.on('set_player_position', (position) =>{
+        setPosition(position);
+    })
 }
 
 export const handleGameOverEvent = ({socket}) =>{
@@ -152,7 +164,7 @@ export const cleanUpSocketListeners = (socket) => {
     socket.off('receive_question');
     socket.off('disable_waiting_screen');
     socket.off('players_turn');
-    socket.off('update_piece_position')
+    socket.off('update_piece_positions')
     socket.off('set_turn_true');
     socket.off('go_to_home_screen')
     socket.off('game_over');

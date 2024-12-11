@@ -59,7 +59,7 @@ const createTiles = ({joinedColors,tileInfo,tileInfo2,possiblePositions,validPos
 }
 
 const renderPieces = ({piecePositions}) =>{
-        console.log("dataPiecePositions: " + JSON.stringify(piecePositions))
+
 
     piecePositions.forEach((data) => {
             const newPosition = data.newPosition;
@@ -96,7 +96,7 @@ const renderStartPieces = ({startPieces}) =>{
 
 
 
-const handleTileClick = ({event,startPieces,validPositions,selectedPawn,playerColor}) => {
+const handleTileClick = ({event,startPieces,validPositions,selectedPawn,playerColor,setPosition}) => {
     console.log('click');
     const targetTile = event.target.closest('.tile')
     if (startPieces.includes(event.target.id)) {
@@ -105,6 +105,7 @@ const handleTileClick = ({event,startPieces,validPositions,selectedPawn,playerCo
         && targetTile.classList.contains('blink')) {
         const newPosition = targetTile.getAttribute('data-pos')
         if (validPositions.includes(newPosition)) {
+            setPosition(newPosition);
             if (selectedPawn instanceof HTMLElement) {
                 event.target.appendChild(selectedPawn)
                 const color = targetTile.className.split(' ')[1]
