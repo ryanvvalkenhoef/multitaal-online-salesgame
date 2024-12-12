@@ -165,7 +165,5 @@ export const cleanUpSocketListeners = (socket) => {
     socket.off('set_turn_true');
     socket.off('go_to_home_screen')
     socket.off('game_over');
-
-
 };
 

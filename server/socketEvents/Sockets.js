@@ -119,10 +119,8 @@ module.exports = function (io){
                     socketManager.emitToMod(socket,'add_user',"adding");
                     joinStatus = 'available';
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
-                    const pieces = gameStateTracker.getStrategies();
                     gameScreenDataEmitter.sendPiecesData(socket);
-
-                    socketManager.emitBackToClient("add_player_color",pieces);
+                    gameScreenDataEmitter.sendPlayerColors(socket);
 
                 } else {
                     // checks if joinStatus is undefined to prevent overwriting previous assignment.
@@ -387,8 +385,7 @@ module.exports = function (io){
                     'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
                 ]
 
-                socketManager.emitBackToClient(socket,'send_tileInfo', tileInfo);
-                socketManager.emitBackToClient(socket,'send_tileInfo2', tileInfo2);
+                gameScreenDataEmitter.sendBoardData(socket);
             },
 
             'roll_dice' : (playerRollDice) => {
