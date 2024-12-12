@@ -39,6 +39,8 @@ export function JoinGame() {
 
   const handleGame = () => {
       navigate('/game');
+      sessionStorage.setItem("socketId", socket.id);
+      sessionStorage.setItem("room", gamepin)
   };
 
   const handleHome = () => {

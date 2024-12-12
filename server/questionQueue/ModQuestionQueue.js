@@ -24,8 +24,6 @@ class ModQuestionQueue extends QuestionQueue {
 
     addQuestionToQueue(socket, playerId, question) {
         const room = socket.room;
-        console.log('playerId:', playerId);
-        console.log('question:', question);
 
         if (!this.queues[room]) { // Check if mod already has a queue
             this.queues[room] = {};

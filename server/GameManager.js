@@ -1,17 +1,22 @@
 class GameManager{
-  
+  /** @type {UserLogger} */
   #userLogger
   #modLogger
+  /** @type {SocketManager} */
   #socketManager
+  /** @type {GameStateTracker} */
   #gameStateTracker
-  #modQuestionQueue
-  
-  constructor(userLogger, modLogger, socketManager, gameStateTracker, modQuestionQueue) {
+  /**@type {GameScreenDataEmitter}*/
+  #gameScreenDataEmitter
+    #modQuestionQueue
+
+  constructor(userLogger,modLogger,socketManager,gameStateTracker, gameScreenDataEmitter) {
     this.#userLogger = userLogger;
     this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
     this.#modQuestionQueue = modQuestionQueue;
+    this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
 
 
@@ -24,11 +29,6 @@ class GameManager{
     this.#socketManager.emitToMod(socket,"receive_player_answer",questionData);
   };
 
-  // waitForModToFinishReview = async (modLogger) => {
-  //   while (modLogger.checkIfReviewingQuestion()) {
-  //     await new Promise(resolve => setTimeout(resolve, 1000));
-  //   }
-  // };
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
     const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
@@ -46,8 +46,11 @@ class GameManager{
   }
 
   updateGameState = (socket) => { // Sends newest game state to the client
-    this.#updateRounds(socket);
-    this.#updateLeaderboard(socket);
+    // this.#updateRounds(socket);
+    // this.#updateLeaderboard(socket);
+    this.#gameScreenDataEmitter.sendRoundData(socket);
+    this.#gameScreenDataEmitter.sendLeaderboardData(socket);
+
 
     const roundInfo = this.#gameStateTracker.getRound();
     const isGameFinished = this.#gameStateTracker.checkIfGameOver(roundInfo)
@@ -77,25 +80,27 @@ class GameManager{
       this.#userLogger.setCanRollDice(socketId, true);
       this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
     }
-    this.#updateRounds(socket)
-    this.#updateLeaderboard(socket);
+      this.#gameScreenDataEmitter.sendRoundData(socket);
+      this.#gameScreenDataEmitter.sendLeaderboardData(socket);
   }
 
-  updateAllBoards = (socket) => {
-    const players = this.#userLogger.getAllPlayerObjects();
-    const playerPositions = players.map(player => player.playerPosition);
-    this.#socketManager.emitToRoom(socket,'update_position', playerPositions);
-  }
 
-  #updateLeaderboard = (socket) => {
-    const userData = this.#userLogger.getAllPlayerObjects();
-    this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);
-  }
 
-  #updateRounds = (socket) => {
-    const roundInfo = this.#gameStateTracker.getRound();
-    this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
-  }
+  // updateAllBoards = (socket) =>{
+  //   const players = this.#userLogger.getAllPlayerObjects();
+  //   const playerPositions = players.map(player => player.playerPosition);
+  //   this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
+  // }
+    updatePiecePositions = (socket) =>{
+        // const players = this.#userLogger.getAllPlayerObjects();
+        // const playerPositions = players.map(player => player.playerPosition);
+        // this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
+        this.#gameScreenDataEmitter.sendPositionsData(socket);
+    }
+
+
+
+
 }
 
 module.exports = GameManager;

@@ -1,14 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {socket} from '../client'
 import './GameStyle.css';
-import BoardGrid from "../GameScreen/BoardGrid";
-import DiceContainer from '../GameScreen/DiceContainer';
-import LeaderBoard from "../GameScreen/LeaderBoard";
-import PlayerPopUps from "../GameScreen/PlayerPopUps";
+import BoardGrid from "../GameScreen/Board/BoardGrid";
+import DiceContainer from '../GameScreen/Dice/DiceContainer';
+import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
+import PlayerPopUps from "../GameScreen/PopUps/PlayerPopUps";
 import PlayerTurns from "../GameScreen/PlayerTurns";
 import AudioPlayer from "../GameScreen/AudioPlayer";
+import Pieces from '../GameScreen/Piece/Pieces';
 import '../App.css'
 import {useTranslation} from "react-i18next";
+import RenderManager from "../RenderManager/RenderManager";
+import {useNavigate} from "react-router-dom";
+import {
+    cleanUpSocketListeners, handleColorAddition,
+    handlePieceAddition, handleTileInfo2Update,
+    handleTileInfoUpdate, handleCurrentPlayerRegistration,
+    handleUpdateRound, handleNameUpdate,
+    handleLeaderBoardUpdate, handleReceivingQuestion,
+    handleDisablingWaitingScreen, handlePlayerTurnUpdate,
+    handleTurnStatusUpdate, handleGameOverEvent,
+    handleSetRollDice, handleGoToHomeScreen,
+    handlePositionsUpdate, handleSetPosition,
+
+} from "./eventListenersPlayer";
+import{
+    startRender
+} from "./playerScreenFunctions";
+
+
 
 export function Game() {
     const { t, i18n } = useTranslation('global');
@@ -20,8 +40,9 @@ export function Game() {
     const [moveMade, setMoveMade] = useState(false)
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
-    const [popupColor, setPopupColor] = useState('')
-    const [playerRollDice, setPlayerRollDice] = useState(false)
+    const [playerRollDice, setPlayerRollDice] = useState(false);
+    const [get_player_strategy, setGetPlayerStrategy] = useState('');
+    const [myTurn, setMyTurn] = useState(false);
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
     const [isPopUpEnabled, setIsPopUpEnabled] = useState(false)
@@ -32,8 +53,18 @@ export function Game() {
     const [currentRound, setCurrentRound] = useState(0)
     const [totalRounds, setTotalRounds] = useState(0)
     const [roundText, setRoundText] = useState('')
+    const [tileInfo, setTileInfo] = useState([])
+    const [tileInfo2, setTileInfo2] = useState([])
+    const [joinedColors, setJoinedColors] = useState([])
+    const [startPieces, setStartPieces] = useState([])
+    const [isReadyToRender, setIsReadyToRender] = useState(false);
+    const [piecePositions, setPiecePositions] = useState([])
+    const [arePiecesRendered, setArePiecesRendered] = useState(false);
+    const [isBoardRendered, setIsBoardRendered] = useState(false);
+    const navigate = useNavigate();
     const currentQuestionRef = useRef(null);
-    
+    const didMountRef = useRef(false);
+
 
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
@@ -49,101 +80,84 @@ export function Game() {
         socket.emit('update_hasFinishedTurn',true);
     };
 
-    useEffect(() =>{
-        
-        
-        const socketHandlers = {
-            'rounds': (data) => {
-                setTotalRounds(data.totalRounds)
-                setCurrentRound(data.currentRound)
-                setRoundText(t("Game.setRoundText", {data}))
-            },
-            'player_names': (data) => {
-                setPlayerName(data)
-                setTurnText(t("Game.setTurnText", { data }))
-            },
-            'update_leaderboard': (jsonData) => {
-                console.log("leaderbord update")
-                setData(jsonData)
-            },
-            'receive_question': (data) => {
-                currentQuestionRef.current = data;
-                setPopupColor(currentQuestionRef.current.questionColor)
-                setQuestion(currentQuestionRef.current.questionText);
-                setIsPopUpEnabled(true);
-            },
-            'disable_waiting_screen' : (data) => {
-                setIsWaitingScreenEnabled(false)
-                //socket.emit('get_data', 'leaderboard_update');
-            },
-            'players_turn': (strategy) => {
-                try {
-                    const pawn = document.querySelector('#' + strategy)
-                    const parent = pawn.parentElement
-                    const parentPosition = parent.getAttribute('pos')
-                    
-                    setPosition(parentPosition)
-                    console.log('game', parentPosition)
-                    setSelectedPawn(pawn)
-                } catch (TypeError) {
-                    socket.emit('pawns_request_failed', '')
-                }
-            },
-            'set_roll_dice': (boolean) => {
-                setPlayerRollDice(boolean)
-                console.log('can roll dice', playerRollDice);
-            },
-
-            'game_over': () => {
-                console.log('game over');
-                alert("game over");
-            }
-            
-            
-        }
-        Object.keys(socketHandlers).forEach(event => {
-            socket.on(event, socketHandlers[event])
-        })
+    useEffect(() =>{// Adding socketio event listeners
+        const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
+        handleTileInfoUpdate({socket, setTileInfo}, (data) => renderManager.setTileInfo(data));
+        handleTileInfo2Update({socket, setTileInfo2}, (data) => renderManager.setTileInfo2(data));
+        handlePieceAddition({socket, setStartPieces}, (data) => renderManager.setPieces(data));
+        handleColorAddition({socket, setJoinedColors}, (data) => renderManager.setJoinedColors(data));
+        handleCurrentPlayerRegistration({socket,setCurrentPlayer,setPlayerColor});
+        handleUpdateRound({socket,setRoundText,t});
+        handleNameUpdate({socket,setPlayerName});
+        handleLeaderBoardUpdate({socket,setData});
+        handleReceivingQuestion({socket,currentQuestionRef,setGetPlayerStrategy,setQuestion,setIsPopUpEnabled});
+        handleDisablingWaitingScreen({socket,setIsWaitingScreenEnabled})
+        handlePlayerTurnUpdate({socket,setPosition,setSelectedPawn});
+        handlePositionsUpdate({socket,setPiecePositions});
+        handleSetPosition({socket,setPosition});
+        handleTurnStatusUpdate({socket,setMyTurn});
+        handleSetRollDice({socket,setPlayerRollDice});
+        handleGoToHomeScreen({socket,navigate});
+        handleGameOverEvent({socket})
 
         return () => {
-            Object.keys(socketHandlers).forEach(event => {
-                socket.off(event, socketHandlers[event])
-            })
+            cleanUpSocketListeners(socket);
         }
-    },[])//,[currentPlayer]
+    },[])
+
+
+
+    useEffect(() =>{
+        //If there is no sessionData stored the game screen can't be rendered
+        //So client goes back to the homepage
+        if(!sessionStorage.getItem('socketId')){
+            navigate('/home');
+        }
+        else{ //The timeout is used because it takes some time before socketio has created the socket object
+            setTimeout(() => startRender(socket,true),500);
+        }
+
+    },[])
+
 
     return (
-    <>
-        <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
-            <div className='roundscounter'>{roundText}</div>
-            <BoardGrid
-                steps={steps}
-                moveMade={moveMade}
-                setMoveMade={setMoveMade}
-                selectedPawn={selectedPawn}
-                setSelectedPawn={setSelectedPawn}
-                setPosition={setPosition}
-                setCurrentPlayer={setCurrentPlayer}
-                currentPlayer={currentPlayer}
-                playerColor={playerColor}
-                setPlayerColor={setPlayerColor}
-                gameScreen={true}
-                
-                />
-            <DiceContainer
-                setSteps={setSteps}
-                setMoveMade={setMoveMade}
-                position={position}
-                playerRollDice={playerRollDice}
-                setPlayerRollDice={setPlayerRollDice}/>
-            <LeaderBoard
-                sortedUserData={sortedUserData}
-                playerName={playerName}/>
-            <PlayerTurns
-                turnText={turnText}/>
-        </div>
-        <AudioPlayer
-            />
+        <>
+            {isReadyToRender ? (
+                <div className={isPopUpEnabled || isWaitingScreenEnabled ? 'appBlurred' : 'playboard'}>
+                    <div className='roundscounter'>{roundText}</div>
+                    {arePiecesRendered && (< BoardGrid
+                        selectedPawn={selectedPawn}
+                        setPosition={setPosition}
+                        playerColor={playerColor}
+                        gameScreen={true}
+                        tileInfo={tileInfo}
+                        tileInfo2={tileInfo2}
+                        joinedColors={joinedColors}
+                        startPieces={startPieces}
+                        piecePositions={piecePositions}
+                        setIsBoardRendered={setIsBoardRendered}
+                    />) }
+                    <Pieces
+                        startPieces={startPieces}
+                        setArePiecesRendered={setArePiecesRendered}
+                    />
+                    <DiceContainer
+                        setMoveMade={setMoveMade}
+                        position={position}
+                        myTurn={myTurn}
+                        setMyTurn={setMyTurn}
+                        playerRollDice={playerRollDice}
+                        setPlayerRollDice={setPlayerRollDice}
+                    />
+                    <LeaderBoard sortedUserData={sortedUserData} playerName={playerName} />
+                    <PlayerTurns turnText={turnText} />
+                </div>
+            ) : (
+                <div className="loading-screen">
+                    <p>Loading...</p>
+                </div>
+            )}
+            <AudioPlayer />
             <PlayerPopUps
                 setPopupColor={setPopupColor}
                 popupColor={popupColor}

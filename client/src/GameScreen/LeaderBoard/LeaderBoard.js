@@ -13,6 +13,7 @@ const LeaderBoard = ({ sortedUserData, playerName }) => {
         if (leaderboardContainer) {
             leaderboardContainer.style.height = `${heightScoreboard}px`;
         }
+
     }, [sortedUserData]);
 
     return (
