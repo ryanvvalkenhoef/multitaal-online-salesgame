@@ -320,6 +320,17 @@ class UserLogger {
         return player.isAnsweringQuestion;
     }
 
+    checkIfPlayerHasFinishedTurn(socketid){
+        let data = this.#jsonFileHandler.readData()
+        if (!data) {
+            console.warn("Can't read data: checkIfPlayerHasFinishedTurn()");
+            return null;
+        }
+
+        const player = data.users.find(player => player.id === socketid);
+        return player.hasFinishedTurn;
+    }
+
     getPlayerTurnStatus(socketid){
         let data = this.#jsonFileHandler.readData()
         if (!data) {
