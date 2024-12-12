@@ -237,6 +237,8 @@ module.exports = function (io){
 
 
             'points_submitted_question_reviewed': (reviewData) => {
+                //submit points zou niet meteen afgehandeld moeten worden, aangezien er binnen een ronde meerdere keren punten gegeven kunnen worden aan dezelfde speler.
+                //Hierdoor kan in één ronde de previous points al zichtbaar zijn, terwijl dat pas in de volgende ronde zichtbaar moet zijn.
                 const id = reviewData.playerId;
                 const oldTotalPoints = userLogger.getPoints(id);
                 const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
@@ -293,13 +295,22 @@ module.exports = function (io){
             },
 
             'roll_dice' : (playerRollDice) => {
-                const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", diceValue)
-                const canRollDice = userLogger.getCanRollDice(socket.id);
+                try {
+                    const diceValue = Math.floor(Math.random() * 6) + 1;
+                    socket.emit("set_dice", diceValue);
 
-                if (canRollDice && playerRollDice) { //if its truly players turn do this
+                    const canRollDice = userLogger.getCanRollDice(socket.id);
+
+                    if (canRollDice === undefined || canRollDice === null) {
+                        throw new Error("canRollDice is undefined or null");
+                    }
+                    if (canRollDice && playerRollDice) { //if its truly players turn do this
                         userLogger.setCanRollDice(socket.id, false);
                         socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
+                    }
+                } catch (error) {
+                        console.error(`Error in roll_dice: ${error.message}`);
+                        socket.emit('error', { message: 'An error occurred while rolling the dice. Please try again.' });
                 }
             },
 
