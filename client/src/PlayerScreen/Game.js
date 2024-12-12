@@ -41,7 +41,7 @@ export function Game() {
     const [currentPlayer, setCurrentPlayer] = useState ('')
     const [playerColor, setPlayerColor] = useState(null)//Doesn't work if set to empty string
     const [playerRollDice, setPlayerRollDice] = useState(false);
-    const [get_player_strategy, setGetPlayerStrategy] = useState('');
+    const [popupColor, setPopupColor] = useState('');
     const [myTurn, setMyTurn] = useState(false);
     const [selectedPawn , setSelectedPawn] = useState(<div></div>)
     const [position, setPosition] = useState("8-5")
@@ -90,7 +90,7 @@ export function Game() {
         handleUpdateRound({socket,setRoundText,t});
         handleNameUpdate({socket,setPlayerName});
         handleLeaderBoardUpdate({socket,setData});
-        handleReceivingQuestion({socket,currentQuestionRef,setGetPlayerStrategy,setQuestion,setIsPopUpEnabled});
+        handleReceivingQuestion({socket,currentQuestionRef,setPopupColor,setQuestion,setIsPopUpEnabled});
         handleDisablingWaitingScreen({socket,setIsWaitingScreenEnabled})
         handlePlayerTurnUpdate({socket,setPosition,setSelectedPawn});
         handlePositionsUpdate({socket,setPiecePositions});

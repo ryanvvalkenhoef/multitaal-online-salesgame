@@ -15,15 +15,12 @@ import PlayerProgress from './PlayerProgress';
 import RenderManager from "../RenderManager/RenderManager";
 import {useNavigate} from "react-router-dom";
 import {
-    cleanUpSocketListeners,
-    handleColorAddition,
-    handlePieceAddition,
-    handleTileInfo2Update,
-    handleTileInfoUpdate,
-    handleUpdateRound,
-    handleGameOverEvent,
-    handleReceivePlayerAnswer,
-    handleLeaderBoardUpdate, handleGoToHomeScreen, handlePositionsUpdate
+    cleanUpSocketListeners, handleColorAddition,
+    handlePieceAddition, handleTileInfo2Update,
+    handleTileInfoUpdate, handleUpdateRound,
+    handleGameOverEvent, handleReceivePlayerAnswer,
+    handleLeaderBoardUpdate, handleGoToHomeScreen,
+    handlePositionsUpdate
 } from "./eventListenersMod";
 import{
     startRender
@@ -152,7 +149,6 @@ export function ModView() {
                     startPieces={startPieces}
                     setArePiecesRendered={setArePiecesRendered}
                 />
-                    modView={true}/>
                 <PlayerProgress
                     playerProgressData={data}
                     onImageClick={onImageClick}/>

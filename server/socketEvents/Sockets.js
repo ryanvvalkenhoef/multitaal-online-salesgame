@@ -44,7 +44,7 @@ module.exports = function (io){
             //data is an object consisting of playercount and roundscount.
             'create_room': (data) => {
                 const room = RoomGenerator.createRoom();
-                const instances = instanceFactory(room,socketManager);
+                const instances = instanceFactory(room,socketManager,modQuestionQueue);
                 jsonFileHandler = instances.jsonFileHandler;
                 modLogger = instances.modLogger;
                 userLogger = instances.userLogger;
@@ -77,7 +77,7 @@ module.exports = function (io){
             'join_room': (data) => { //join_room is the entry point for the players
                 let room;
                 let joinStatus;
-
+                console.log("Room: " + data.room);
                 const existingRooms = RoomGenerator.getRoomList();
                 const isValidRoom = PreGameManager.checkIfValidRoom(data.room, existingRooms);
                 jsonFileHandler = new JsonFileHandler(data.room);
@@ -94,7 +94,7 @@ module.exports = function (io){
                     socket.room = data.room;
                     room = socket.room;
 
-                    const instances = instanceFactory(room,socketManager);
+                    const instances = instanceFactory(room,socketManager,modQuestionQueue);
                     jsonFileHandler = instances.jsonFileHandler;
                     modLogger = instances.modLogger;
                     userLogger = instances.userLogger;
@@ -120,6 +120,7 @@ module.exports = function (io){
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
                     gameScreenDataEmitter.sendPiecesData(socket);
                     gameScreenDataEmitter.sendPlayerColors(socket);
+                    socketManager.emitBackToClient(socket,)
 
                 } else {
                     // checks if joinStatus is undefined to prevent overwriting previous assignment.
@@ -183,7 +184,6 @@ module.exports = function (io){
                     socket.join(room);
                     socket.join(`${room}mod`);
 
-
                     const instances = instanceFactory(room, socketManager);
                     jsonFileHandler = instances.jsonFileHandler;
                     modLogger = instances.modLogger;
@@ -215,6 +215,7 @@ module.exports = function (io){
                 let popupColor
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
+                    console.log('Data.usercolor: ' + data.userColor )
                     popupColor = data.userColor;
                 }
                 switch (data.questionColor) {
@@ -256,6 +257,7 @@ module.exports = function (io){
             },
 
             'get_player_answer_on_click': (playerId) => {
+                console.log("in get_player_answer_on_click ")
                 gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
             },
 
@@ -267,6 +269,7 @@ module.exports = function (io){
                 if (playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket, 'receive_question', questionData);
+                    playerQuestionQueue.removeQuestionFromQueue(socket);
                 } else {
                     userLogger.setIsAnsweringQuestion(false, socket.id);
                 }
@@ -301,7 +304,7 @@ module.exports = function (io){
             'get_player_strategy': (data) => {
                 const strategy = userLogger.getStrategy(socket.id);
                 const color = userLogger.getColor(socket.id);
-                socketManager.emitBackToClient(socket,"register_currentplayer", {strategy: strategy, color: color});
+                socketManager.emitBackToClient(socket,"register_current_player", {strategy: strategy, color: color});
             },
 
             'get_current' : (data) => { // // werkt nu  niet correct omdat method nu array geeft ipv een strategie
@@ -315,7 +318,7 @@ module.exports = function (io){
 
             'update_hasFinishedTurn': (hasFinishedTurn)=>{
                 userLogger.updateUser(socket.id,{hasFinishedTurn: hasFinishedTurn})
-                socketManager.emitToMod(socket, 'player_has_finished_turn', {playerId: socket.id, hasFinishedTurn: hasFinishedTurn});
+                socketManager.emitToMod(socket,'player_has_finished_turn', {playerId: socket.id, hasFinishedTurn: hasFinishedTurn});
             },
 
             'update_player_position': (playerPosition) => { // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
@@ -323,7 +326,7 @@ module.exports = function (io){
             },
 
 
-            'points_submitted_question_reviewed': () => {
+            'points_submitted_question_reviewed': (reviewData) => {
                 //submit points zou niet meteen afgehandeld moeten worden, aangezien er binnen een ronde meerdere keren punten gegeven kunnen worden aan dezelfde speler.
                 //Hierdoor kan in één ronde de previous points al zichtbaar zijn, terwijl dat pas in de volgende ronde zichtbaar moet zijn.
                 const id = reviewData.playerId;
@@ -382,7 +385,7 @@ module.exports = function (io){
 
             'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", diceValue)
+                socket.emit("set_dice", 4)
                 const canRollDice = userLogger.getCanRollDice(socket.id);
                 console.log('userlogger is prolly not defined' + userLogger);
 

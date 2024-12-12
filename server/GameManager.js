@@ -6,15 +6,19 @@ class GameManager{
   #socketManager
   /** @type {GameStateTracker} */
   #gameStateTracker
+  /** @type {ModQuestionQueue} */
+  #modQuestionQueue
   /**@type {GameScreenDataEmitter}*/
   #gameScreenDataEmitter
-    #modQuestionQueue
 
-  constructor(userLogger,modLogger,socketManager,gameStateTracker, gameScreenDataEmitter) {
+
+  constructor(userLogger,modLogger,socketManager,gameStateTracker, modQuestionQueue,gameScreenDataEmitter) {
     this.#userLogger = userLogger;
     this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
+    console.log('gameStateTracker')
+    console.log(this.#gameStateTracker)
     this.#modQuestionQueue = modQuestionQueue;
     this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
@@ -31,6 +35,7 @@ class GameManager{
 
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
+    console.log("in quueeeeeuee")
     const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
     console.log('questionQueueLength:', questionQueueLength);
     if (questionQueueLength !== 0) {

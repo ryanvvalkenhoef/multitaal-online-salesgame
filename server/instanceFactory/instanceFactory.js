@@ -6,6 +6,7 @@ const GameManager = require("../GameManager");
 const GameScreenDataEmitter = require("../gameDataEmitters/GameScreenDataEmitter");
 
 
+
 const createJsonFileHandler = (room)=>{
     return new JsonFileHandler(room);
 
@@ -26,8 +27,8 @@ const createGameScreenDataEmitter = (userLogger,socketManager, gameStateTracker)
     return new GameScreenDataEmitter(userLogger,socketManager,gameStateTracker)
 }
 
-const createGameManager = (room,userLogger, gameStateTracker ,socketManager, gameScreenDataEmitter ) =>{
-    return new GameManager(userLogger,socketManager,gameStateTracker, gameScreenDataEmitter);
+const createGameManager = (userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue ,gameScreenDataEmitter ) =>{
+    return new GameManager(userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue ,gameScreenDataEmitter);
 }
 
 /**
@@ -41,6 +42,7 @@ const createGameManager = (room,userLogger, gameStateTracker ,socketManager, gam
  *
  * @param {string} room - Unique identifier for the game room
  * @param {SocketManager} socketManager - Socket management for the room
+ * @param {ModQuestionQueue} modQuestionQueue
  *
  * @returns {Object} An object containing all initialized game instances
  *
@@ -54,7 +56,7 @@ const createGameManager = (room,userLogger, gameStateTracker ,socketManager, gam
  * const userLogger = gameInstances.userLogger;
  */
 
-const createInstances = (room, socketManager) =>{
+const createInstances = (room, socketManager,modQuestionQueue) =>{
     let instances = {};
 
     instances.jsonFileHandler = createJsonFileHandler(room);
@@ -62,7 +64,7 @@ const createInstances = (room, socketManager) =>{
     instances.userLogger = createUserLogger(room, instances.jsonFileHandler);
     instances.gameStateTracker = createGameStateTracker(room,instances.jsonFileHandler);
     instances.gameScreenDataEmitter = createGameScreenDataEmitter(instances.userLogger,socketManager,instances.gameStateTracker)
-    instances.gameManager = createGameManager(room,instances.userLogger,instances.gameStateTracker,socketManager, instances.gameScreenDataEmitter )
+    instances.gameManager = createGameManager(instances.userLogger,instances.modLogger,socketManager,instances.gameStateTracker,modQuestionQueue ,instances.gameScreenDataEmitter )
 
     return instances;
 

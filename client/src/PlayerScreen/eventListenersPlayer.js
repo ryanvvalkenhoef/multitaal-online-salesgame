@@ -71,10 +71,10 @@ export const handleLeaderBoardUpdate = ({socket, setData}) =>{
     })
 }
 
-export const handleReceivingQuestion = ({socket,currentQuestionRef,setGetPlayerStrategy,setQuestion,setIsPopUpEnabled}) =>{
+export const handleReceivingQuestion = ({socket,currentQuestionRef,setPopupColor,setQuestion,setIsPopUpEnabled}) =>{
     socket.on('receive_question',(data) => {
         currentQuestionRef.current = data;
-        setGetPlayerStrategy(data.questionColor)
+        setPopupColor(data.questionColor)
         setQuestion(data.questionText);
         setIsPopUpEnabled(true);
     })
