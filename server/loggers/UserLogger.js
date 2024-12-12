@@ -64,6 +64,7 @@ class UserLogger {
             canRollDice: false,
             isAnsweringQuestion: false,
             hasFinishedTurn: false,
+            hasBeenReviewed: false,
             playerPosition: ''}
 
         data.users.push(user);
@@ -241,7 +242,6 @@ class UserLogger {
 
         const player = data.users.find(player => player.id === playerId);
         player.canRollDice = boolean;
-        console.log('de bool', boolean);
         this.#jsonFileHandler.writeData(data)
     }
 
@@ -249,7 +249,10 @@ class UserLogger {
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
-        data.users.forEach(player => (player.hasFinishedTurn = false));
+        data.users.forEach(player => {
+            player.hasFinishedTurn = false;
+            player.hasBeenReviewed = false;
+        });
         this.#jsonFileHandler.writeData(data)
     }
 
@@ -283,6 +286,28 @@ class UserLogger {
 
         const player = data.users.find(player => player.id === socketid);
         return player.isAnsweringQuestion;
+    }
+    setHasBeenReviewed(socketid, boolean) {
+        let data = this.#jsonFileHandler.readData()
+        if (!data) {
+            console.log("Can't read data: setHasBeenReviewed()");
+            return null;
+        }
+
+        const player = data.users.find(player => player.id === socketid);
+        player.hasBeenReviewed = boolean;
+        this.#jsonFileHandler.writeData(data)
+    }
+
+    getPlayerStatus = (room) => {
+        let data = this.#jsonFileHandler.readData();
+        if (!data) return;
+        const playerArray = data.users;
+        let playerStatusArray = [];
+        playerArray.forEach(player => {
+            playerStatusArray.push({[player.strategy]:player.hasFinishedTurn})
+        })
+        return playerStatusArray;
     }
 }
 

@@ -1,13 +1,17 @@
 class GameManager{
   
   #userLogger
+  #modLogger
   #socketManager
   #gameStateTracker
+  #modQuestionQueue
   
-  constructor(userLogger,socketManager,gameStateTracker) {
+  constructor(userLogger, modLogger, socketManager, gameStateTracker, modQuestionQueue) {
     this.#userLogger = userLogger;
+    this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
+    this.#modQuestionQueue = modQuestionQueue;
   }
 
 
@@ -20,6 +24,26 @@ class GameManager{
     this.#socketManager.emitToMod(socket,"receive_player_answer",questionData);
   };
 
+  // waitForModToFinishReview = async (modLogger) => {
+  //   while (modLogger.checkIfReviewingQuestion()) {
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+  //   }
+  // };
+
+  checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
+    const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
+    console.log('questionQueueLength:', questionQueueLength);
+    if (questionQueueLength !== 0) {
+      const questionData = this.#modQuestionQueue.getQuestionFromQueue(socket, playerId);
+      console.log('questionData:', questionData);
+      this.sendAnswerToModerator(socket, questionData);
+      // modQuestionQueue.removeQuestionFromQueue(socket, playerId);
+      this.#modLogger.setIsReviewingQuestion(true);
+    } else {
+      this.#userLogger.setHasBeenReviewed(playerId, true);
+      this.#socketManager.emitBackToClient(socket, 'player_has_been_reviewed', {playerId: playerId, hasBeenReviewed: true});
+    }
+  }
 
   updateGameState = (socket) => { // Sends newest game state to the client
     this.#updateRounds(socket);
@@ -41,7 +65,7 @@ class GameManager{
     console.log("Start round");
 
     const strategies = this.#gameStateTracker.getStrategies(); //is een array
-    const playerNames = this.#gameStateTracker.getPlayerList()
+    const playerNames = this.#gameStateTracker.getPlayerList();
     this.sendPlayerCount(socket);
 
     for(let i = 0; i < playerNames.length; i++){
@@ -56,26 +80,6 @@ class GameManager{
     this.#updateRounds(socket)
     this.#updateLeaderboard(socket);
   }
-
-  // enableRollDice = (socketId) => {
-  //   if (!this.#userLogger) {
-  //     console.error("userLogger is not initialized");
-  //     return;
-  //   }
-  //   console.log("whyyyyyyy", this.#userLogger);
-  //   this.#userLogger.setCanRollDice(socketId, true);
-  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
-  // }
-
-  // disableRollDice = (socketId) => {
-  //   if (!this.#userLogger) {
-  //     console.error("userLogger is not initialized22222");
-  //     return;
-  //   }
-  //   console.log("whyyyyyyy2", this.#userLogger);
-  //   this.#userLogger.setCanRollDice(socketId, false);
-  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', false);
-  // }
 
   updateAllBoards = (socket) => {
     const players = this.#userLogger.getAllPlayerObjects();
@@ -92,8 +96,6 @@ class GameManager{
     const roundInfo = this.#gameStateTracker.getRound();
     this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
   }
-
-
 }
 
 module.exports = GameManager;

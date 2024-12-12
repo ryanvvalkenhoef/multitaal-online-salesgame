@@ -36,6 +36,7 @@
     "leaderboard": "Måltavle",
     "previousPoints": "tidliger",
     "currentPoints": "aktuel",
+    "playerProgress": "Spillerens fremskridt",
     "modWait": "Venter på, at spilleren sender et svar",
     "setRoundText": "Runde {{data.currentRound}} af {{data.totalRounds}}"
   },

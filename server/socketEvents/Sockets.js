@@ -44,7 +44,7 @@ module.exports = function (io){
                 modLogger = new ModLogger(room,jsonFileHandler);
                 userLogger = new UserLogger(room,jsonFileHandler);
                 gameStateTracker = GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler); //Get a GameStateTracker for current room
-                gameManager = new GameManager(userLogger,socketManager,gameStateTracker);
+                gameManager = new GameManager(userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue);
                 modLogger.createMod(socket.id,data);
 
                 PreGameManager.setTotalPlayers(data.playerCount,jsonFileHandler);
@@ -88,7 +88,7 @@ module.exports = function (io){
                     //all objects needed are being created
                     jsonFileHandler = new JsonFileHandler(room);
                     gameStateTracker = GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler);//Get a GameStateTracker for current room
-                    gameManager = new GameManager(userLogger,socketManager,gameStateTracker);
+                    gameManager = new GameManager(userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue);
                     modLogger = new ModLogger(room,jsonFileHandler);
                     userLogger = new UserLogger(room,jsonFileHandler);
 
@@ -147,35 +147,39 @@ module.exports = function (io){
                 }
 
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
-                if (availableColors.includes(data.questionColor)){
-                    const receiver = userLogger.getReceiver(data.questionColor);
-                    const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-                    if(playerIsAnsweringQuestion){
-                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData)
+                if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
+                    const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
+                    if (receiver !== socket.id){//wanneer speler op ander vakje staat staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
+                        userLogger.updateUser(socket.id,{hasBeenReviewed: true});
+                        socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
                     }
-                    else {
+                    const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
+                    if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
+                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
+                        console.log('playerQuestionQueue:', JSON.stringify(playerQuestionQueue));
+                    }
+                    else { //speler kan de vraag direct beantwoorden
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
                         userLogger.setIsAnsweringQuestion(true,receiver);
+                        socketManager.emitToMod(socket, 'player_is_answering', {playerId: receiver, isAnsweringQuestion: true});
                     }
-                } else {
+                } else { // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     userLogger.setIsAnsweringQuestion(true, socket.id);
+                    socketManager.emitToMod(socket, 'player_is_answering', {playerId: socket.id, isAnsweringQuestion: true});
                 }
             },
 
-            'send_answer_to_server': (questionData) => {
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
-                // Check if mod queue contains any questions and if the mod is able to review.
-                if (questionQueueLength === 0 && !isReviewingQuestion) {
-                    gameManager.sendAnswerToModerator(socket,questionData);
-                    modLogger.setIsReviewingQuestion(true);
-                } else {
-                    modQuestionQueue.addQuestionToQueue(socket,questionData);
-                }
+            'get_player_answer_on_click': (playerId) => {
+                gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
+            },
 
+            'send_answer_to_server': (questionData) => {
+                //await gameManager.waitForModToFinishReview(modLogger);
+                modQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
+                console.log('modQuestionQueue:', JSON.stringify(modQuestionQueue));
                 // Check if the question queue of the player who sent the question to the server contains any questions.
-                if(playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
+                if (playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     playerQuestionQueue.removeQuestionFromQueue(socket);
@@ -196,19 +200,6 @@ module.exports = function (io){
             'change_language' : (data) => {
                 userLogger.updateUser(socket.id, {language : data})
             },
-
-
-            'submit_points' : (data) => {
-                const id = data.playerId;
-
-                console.log('id of the player known??', id);
-
-                const oldTotalPoints = userLogger.getPoints(id);
-                const newTotalPoints = Number(oldTotalPoints) + Number(data.totalPoints);
-                console.log('totalpoints??? ', data.totalPoints);
-                userLogger.updateUser(id,{totalPoints : newTotalPoints, previousPoints: oldTotalPoints});
-            },
-
 
             'update_position' : (data) => {
                 socketManager.emitToRoom(socket,'update_position',data);
@@ -237,6 +228,7 @@ module.exports = function (io){
 
             'update_hasFinishedTurn': (hasFinishedTurn)=>{
                 userLogger.updateUser(socket.id,{hasFinishedTurn: hasFinishedTurn})
+                socketManager.emitToMod(socket, 'player_has_finished_turn', {playerId: socket.id, hasFinishedTurn: hasFinishedTurn});
             },
 
             'update_PlayerPosition': (playerPosition) =>{ // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
@@ -244,28 +236,28 @@ module.exports = function (io){
             },
 
 
-            'question_reviewed': () => {
-                const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+            'points_submitted_question_reviewed': (reviewData) => {
+                //submit points zou niet meteen afgehandeld moeten worden, aangezien er binnen een ronde meerdere keren punten gegeven kunnen worden aan dezelfde speler.
+                //Hierdoor kan in één ronde de previous points al zichtbaar zijn, terwijl dat pas in de volgende ronde zichtbaar moet zijn.
+                const id = reviewData.playerId;
+                const oldTotalPoints = userLogger.getPoints(id);
+                const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
+                userLogger.updateUser(id,{totalPoints : newTotalPoints, previousPoints: oldTotalPoints});
+
                 modLogger.updateNumberOfQuestionsReviewed();
+                modQuestionQueue.removeQuestionFromQueue(socket, id);
+                modLogger.setIsReviewingQuestion(false);
+                gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, id);
 
-                if (questionQueueLength > 0) {
-                    const question = modQuestionQueue.getQuestionFromQueue(socket);
-                    modQuestionQueue.removeQuestionFromQueue(socket);
-                    gameManager.sendAnswerToModerator(socket, question);
-                }
-                // When queue is empty but not all players have submitted
-                else {
-                  modLogger.setIsReviewingQuestion(false);
-                }
 
-                const isReviewingQuestion = modLogger.checkIfReviewingQuestion();
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
-                if (isRoundFinished && !isReviewingQuestion) { // Update Game state and go to next round
+                if (isRoundFinished) { // Update Game state and go to next round
                     modLogger.resetNumberOfQuestionsReviewed();
                     userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
                     gameManager.updateGameState(socket);
                     gameManager.updateAllBoards(socket);
                     gameManager.startRound(socket);
+                    socketManager.emitToMod(socket, 'reset_player_progress_styles');
                 }
               },
 
@@ -303,15 +295,22 @@ module.exports = function (io){
             },
 
             'roll_dice' : (playerRollDice) => {
-                const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", diceValue)
-                const canRollDice = userLogger.getCanRollDice(socket.id);
-                console.log('userlogger is prolly not defined' + userLogger);
+                try {
+                    const diceValue = Math.floor(Math.random() * 6) + 1;
+                    socket.emit("set_dice", diceValue);
 
-                if (canRollDice && playerRollDice) { //if its truly players turn do this
+                    const canRollDice = userLogger.getCanRollDice(socket.id);
+
+                    if (canRollDice === undefined || canRollDice === null) {
+                        throw new Error("canRollDice is undefined or null");
+                    }
+                    if (canRollDice && playerRollDice) { //if its truly players turn do this
                         userLogger.setCanRollDice(socket.id, false);
                         socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
-                        console.log('canRollDice vergelijken' + canRollDice + ' en ' + playerRollDice);
+                    }
+                } catch (error) {
+                        console.error(`Error in roll_dice: ${error.message}`);
+                        socket.emit('error', { message: 'An error occurred while rolling the dice. Please try again.' });
                 }
             },
 
