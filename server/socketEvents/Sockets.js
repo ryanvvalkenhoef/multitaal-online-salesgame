@@ -337,7 +337,6 @@ module.exports = function (io){
                             const sortedUsers = users.sort((a, b) => b.totalPoints - a.totalPoints);
 
                             socket.to(room).emit('show_results', sortedUsers);
-                            console.log('final')
                         }
         }
         Object.keys(socketHandlers).forEach(event => {

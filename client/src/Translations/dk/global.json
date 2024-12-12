@@ -50,5 +50,10 @@
     "assign": "Tildel score:",
     "alert": "Vælg punkter før indsendelse",
     "submit": "Indsend"
+  },
+  "Results": {
+    "menuButton": "Vende tilbage til hovedmenuen",
+    "resultHeader": "Resultater",
+    "points": "points"
   }
 }

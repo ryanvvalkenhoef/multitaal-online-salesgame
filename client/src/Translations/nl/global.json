@@ -50,5 +50,10 @@
     "assign": "Punten toekennen",
     "alert": "Selecteer punten voordat je deze toekent",
     "submit": "Verstuur"
+  },
+  "Results": {
+    "menuButton": "Terug naar hoofdmenu",
+    "resultHeader": "Resultaten",
+    "points": "punten"
   }
 }

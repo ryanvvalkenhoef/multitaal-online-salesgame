@@ -26,6 +26,9 @@ export function Results() {
     }
 
     useEffect (() => {
+
+    socket.emit('get_results');
+
         const socketHandlers = {
             'show_results' : (results) => {
               setShowResultArray(results);
@@ -43,13 +46,11 @@ export function Results() {
         };
     });
 
-    console.log('after');
-
     return (
         <>
         <div className="parent-container-results">
             <button className="Qbutton" onClick={handleGuide}>?</button>
-            <h1>{t("Results")}</h1>
+            <h1>{t("Results.resultHeader")}</h1>
                 <div className="Results">
                     {showResultArray.sort((a,b) => {
                       if (a.score > b.score) return -1
@@ -57,11 +58,11 @@ export function Results() {
                      return 0
                      }).map((results, index) => (
                         <div className="Placement" key={index}>
-                            {index + 1}. {results.name}: {results.totalPoints} {t("points")}
+                            {index + 1}. {results.name}: {results.totalPoints} {t("Results.points")}
                         </div>))}
                 </div>
             <button className='home' type="button" onClick={handleReturn}>
-                    {t("Go back to Menu")}
+                    {t("Results.menuButton")}
                 </button>
 
             <div className="languageRow">

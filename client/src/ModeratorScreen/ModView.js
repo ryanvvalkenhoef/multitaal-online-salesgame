@@ -102,7 +102,6 @@ export function ModView() {
             },
 
             'game_over': () => {
-                alert("game over");
                 navigate('/results')
             }
 
