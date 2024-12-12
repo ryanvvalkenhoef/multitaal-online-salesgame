@@ -109,6 +109,14 @@ class UserLogger {
             return null;
         }
     }
+    getScores() {
+            let data = this.#jsonFileHandler.readData()
+            if (!data) return null;
+
+            const users = data.users.map(user => ({id: user.id, totalPoints: user.totalPoints, name: user.name}));
+            return users;
+
+        }
 
     reconnect(newSocketId,oldSocketId){
 

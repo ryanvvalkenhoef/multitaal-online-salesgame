@@ -127,10 +127,10 @@ export const handleSetPosition = ({socket,setPosition}) =>{
     })
 }
 
-export const handleGameOverEvent = ({socket}) =>{
+export const handleGameOverEvent = ({socket, navigate}) =>{
     socket.on('game_over', () => {
         console.log('game over');
-        alert("game over");
+        navigate('/results');
     })
 }
 

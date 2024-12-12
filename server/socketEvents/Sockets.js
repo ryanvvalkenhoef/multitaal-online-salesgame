@@ -418,14 +418,20 @@ module.exports = function (io){
             'link_player_to_piece': () =>{
                 const strategy = userLogger.getStrategy(socket.id);
                 socketManager.emitBackToClient(socket,'players_turn',strategy);
-            }
 
+            },
 
+            'get_results' : () => {
+            console.log('results');
+                            const room = socket.room;
+                            const users = userLogger.getScores();
+                            const sortedUsers = users.sort((a, b) => b.totalPoints - a.totalPoints);
+
+                            socket.to(room).emit('show_results', sortedUsers);
+                        }
         }
         Object.keys(socketHandlers).forEach(event => {
             socket.on(event, socketHandlers[event])
         })
     })
-
-
 }

@@ -51,5 +51,10 @@
     "assign": "Assign score:",
     "alert": "Select points before submitting",
     "submit": "Submit"
+  },
+  "Results": {
+    "menuButton": "Back to Main menu",
+    "resultHeader": "Results",
+    "points": "points"
   }
 }

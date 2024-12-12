@@ -10,8 +10,8 @@ import AudioPlayer from "../GameScreen/AudioPlayer";
 import Pieces from '../GameScreen/Piece/Pieces';
 import '../App.css'
 import {useTranslation} from "react-i18next";
+import { useNavigate } from 'react-router-dom';
 import RenderManager from "../RenderManager/RenderManager";
-import {useNavigate} from "react-router-dom";
 import {
     cleanUpSocketListeners, handleColorAddition,
     handlePieceAddition, handleTileInfo2Update,
@@ -63,6 +63,7 @@ export function Game() {
     const [isBoardRendered, setIsBoardRendered] = useState(false);
     const navigate = useNavigate();
     const currentQuestionRef = useRef(null);
+
     const didMountRef = useRef(false);
 
 
@@ -98,7 +99,10 @@ export function Game() {
         handleTurnStatusUpdate({socket,setMyTurn});
         handleSetRollDice({socket,setPlayerRollDice});
         handleGoToHomeScreen({socket,navigate});
-        handleGameOverEvent({socket})
+        handleGameOverEvent({socket, navigate})
+
+
+
 
         return () => {
             cleanUpSocketListeners(socket);

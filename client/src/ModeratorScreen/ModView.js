@@ -11,9 +11,10 @@ import { useLanguageManager } from '../Translations/LanguageManager';
 import den_flag from '../Assets/den_flag.png';
 import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
+import { useNavigate } from 'react-router-dom';
+
 import PlayerProgress from './PlayerProgress';
 import RenderManager from "../RenderManager/RenderManager";
-import {useNavigate} from "react-router-dom";
 import {
     cleanUpSocketListeners, handleColorAddition,
     handlePieceAddition, handleTileInfo2Update,
@@ -50,6 +51,8 @@ export function ModView() {
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
     const playerCountRef = useRef(0);
     const currentQuestionRef = useRef(null);
+    const navigate = useNavigate();
+
     const [tileInfo, setTileInfo] = useState([])
     const [tileInfo2, setTileInfo2] = useState([])
     const [joinedColors, setJoinedColors] = useState([])
@@ -58,7 +61,6 @@ export function ModView() {
     const [piecePositions, setPiecePositions] = useState([])
     const [arePiecesRendered, setArePiecesRendered] = useState(false);
     const [isBoardRendered, setIsBoardRendered] = useState(false);
-    const navigate = useNavigate();
 
    
 
@@ -105,7 +107,7 @@ export function ModView() {
         handleUpdateRound({socket,setRoundText,t});
         handleReceivePlayerAnswer({socket,reviewQuestion});
         handleGoToHomeScreen({socket,navigate});
-        handleGameOverEvent({socket});
+        handleGameOverEvent({socket, navigate});
 
         return () => {
             cleanUpSocketListeners(socket)
@@ -125,7 +127,11 @@ export function ModView() {
 
     }, []);
 
-
+        useEffect(() => {
+        if (currentRound >= totalRounds && totalRounds > 0) {
+        socket.emit('end_game');
+    }
+}, [currentRound, totalRounds]);
     return (
         <>
             {isReadyToRender? <div className={showPopup ? 'appBlurred' : 'playboard'}>
