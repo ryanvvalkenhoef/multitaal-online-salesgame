@@ -26,6 +26,7 @@ export function JoinGame() {
         socket.emit("join_room", { name: username, room: gamepin, strategy: strategy});
     };
 
+
   useEffect(() =>{
     socket.on('join_succes', (data) => {
         if (data === 'available'){
@@ -38,6 +39,8 @@ export function JoinGame() {
 
   const handleGame = () => {
       navigate('/game');
+      sessionStorage.setItem("socketId", socket.id);
+      sessionStorage.setItem("room", gamepin)
   };
 
   const handleHome = () => {

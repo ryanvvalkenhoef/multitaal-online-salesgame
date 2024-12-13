@@ -4,3 +4,6 @@
 /client/package-lock.json
 /.vs
 /.idea
+/server/data.json
+/server/gameSaves
+/client/build

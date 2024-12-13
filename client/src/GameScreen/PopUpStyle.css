@@ -231,6 +231,18 @@
     align-items: center;
 }
 
+.closeButton {
+    background: hsl(0, 68%, 48%);
+    border: 1px solid white;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 5px 10px;
+}
+
 .correctAnswerText {
     font-family: 'Itim', Arial, sans-serif;
     color: white;

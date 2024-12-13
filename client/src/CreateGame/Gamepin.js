@@ -19,16 +19,20 @@ export function Gamepin() {
     const { handleChangeLanguage, handleGuide } = useLanguageManager();
 
     useEffect(() => {
+      
         socket.on("send_gamepin", (data) => {
             setGamepin(data.room);
+            console.log('sending game pin:, data.room ');
             setPlayerNeeded(data.playerTotal);
         });
         socket.on('add_user', () => {
+            console.log('being added');
             setPlayerCount(prevCount => prevCount + 1);
         });
         socket.on("delete_user", () => {
             setPlayerCount(prevCount => prevCount - 1);
         })
+
         return () => {
             socket.off("send_gamepin");
             socket.off("add_user");
@@ -36,13 +40,13 @@ export function Gamepin() {
     }, []);
 
     const handleGame = () => {
-        if (playerCount <= playerNeeded) {
+        if (playerCount === playerNeeded) {
             socket.emit('start_turn', 'data')
             navigate('/modview');
-        } else if (playerCount < playerNeeded) {
-            setErrorCode('Not enough players')
+            sessionStorage.setItem("socketId", socket.id);
+            sessionStorage.setItem("room", gamepin)
         } else {
-            setErrorCode('Too many players')
+            setErrorCode(`Not all players have joined`);
         }
 
     };

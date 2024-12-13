@@ -11,8 +11,8 @@ import uk_flag from '../Assets/uk_flag.png';
 import nl_flag from '../Assets/nl_flag.png';
 
 export function ModSettings() {
-  const [playerCount, setPlayerCount] = useState(6);
-  const [roundsCount, setRoundsCount] = useState(5);
+  const [playerCount, setPlayerCount] = useState(2);
+  const [roundsCount, setRoundsCount] = useState(3);
   const navigate = useNavigate();
   const {t,i18n} = useTranslation('global');
   const { handleChangeLanguage, handleGuide } = useLanguageManager();

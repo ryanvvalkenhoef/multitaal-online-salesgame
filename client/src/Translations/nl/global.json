@@ -34,6 +34,9 @@
     "setTurnText": "Het is {{data}}'s beurt om met de dobbelsteen te gooien en een vraag te beantwoorden",
     "rollDice": "Gooi dobbelsteen",
     "leaderboard": "Scorebord",
+    "previousPoints": "vorig",
+    "currentPoints": "huidig",
+    "playerProgress": "Spelervoortgang",
     "modWait": "Wachten tot de speler een antwoord heeft ingediend",
     "setRoundText": "Ronde {{data.currentRound}} van {{data.totalRounds}}"
   },
@@ -48,5 +51,10 @@
     "assign": "Punten toekennen",
     "alert": "Selecteer punten voordat je deze toekent",
     "submit": "Verstuur"
+  },
+  "Results": {
+    "menuButton": "Terug naar hoofdmenu",
+    "resultHeader": "Resultaten",
+    "points": "punten"
   }
 }
