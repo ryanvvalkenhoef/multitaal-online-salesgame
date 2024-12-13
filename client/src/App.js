@@ -5,6 +5,7 @@ import { HomeScreen } from './HomeScreen/HomeScreen';
 import { ModSettings } from './CreateGame/ModSettings';
 import { Game } from './PlayerScreen/Game';
 import { JoinGame } from './JoinGame/JoinGame';
+<<<<<<< HEAD
 import { Gamepin } from './CreateGame/Gamepin';
 import { ModView } from './ModeratorScreen/ModView';
 import { LoadGame } from './LoadGame/LoadGame'; // Import LoadGame
@@ -30,6 +31,32 @@ function App() {
             </BrowserRouter>
         </div>
     );
+=======
+import { Gamepin } from './CreateGame/Gamepin'
+import { ModView } from './ModeratorScreen/ModView'
+import musicOn from "./Assets/musicOn.png";
+import musicOff from "./Assets/musicOff.png";
+import { Results } from "./ResultScreen/Result";
+
+function App() {
+
+  return (
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<HomeScreen/>}/>
+            <Route path='/home' element={<HomeScreen/>}/>
+            <Route path='/configuration' element={<ModSettings/>}/>
+            <Route path='/game' element={<Game/>}/>
+            <Route path='/joingame' element={<JoinGame/>}/>
+            <Route path='/gamepin' element={<Gamepin/>}/>
+            <Route path='/modview' element={<ModView/>}/>
+            <Route path='/results' element={<Results/>}/>
+          </Routes>
+        </BrowserRouter>
+      </div>
+  );
+>>>>>>> 6802e08a2c4aac408ec87af86fa6bf8b0767c28a
 }
 
 export default App;

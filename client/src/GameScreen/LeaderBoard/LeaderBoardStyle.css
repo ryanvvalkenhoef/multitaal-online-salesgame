@@ -1,0 +1,50 @@
+.leaderBoard {
+    position: absolute;
+    left: 68%;
+    width: 400px;
+    margin-top: 2%;
+    margin-bottom: 45px;
+    padding: 35px 35px 60px;
+    font-family: 'Itim', Arial, sans-serif;
+    font-size: 23px;
+    color: #F9E513;
+    background-color: #2d2f30;
+    border: 2px solid white;
+}
+
+.leaderboardGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.headerRow {
+    display: contents;
+    font-weight: bold;
+    text-align: center;
+}
+
+.leaderboardItem {
+    display: contents;
+}
+
+.nameLabel, .pointsLabel, .playerName, .pointsLeaderboard {
+    padding: 5px;
+    text-align: center;
+    flex: 1;
+}
+
+.playerName {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    border-bottom: 2px solid yellow;
+}
+
+.playerImage {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-right: 10px;
+}

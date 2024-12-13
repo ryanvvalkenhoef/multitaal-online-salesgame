@@ -86,22 +86,22 @@
 }
 
 .sales {
-    background-image: url('../Assets/Sales.png');
+    background-image: url('../../Assets/Sales.png');
     background-size: cover;
 }
 
 .chance{
-    background-image: url('../Assets/Chance.png');
+    background-image: url('../../Assets/Chance.png');
     background-size: cover;
 }
 
 .rainbow{
-    background-image: url('../Assets/Rainbow.png');
+    background-image: url('../../Assets/Rainbow.png');
     background-size: cover;
 }
 
 .megatrends{
-    background-image: url('../Assets/MegaTrends.png');
+    background-image: url('../../Assets/MegaTrends.png');
     background-size: cover;
 }
 
@@ -145,7 +145,7 @@
 }
 
 .pieceworld {
-    background-image: url('../Assets/TopOfTheWorld.png');
+    background-image: url('../../Assets/TopOfTheWorld.png');
     background-size: cover;
     border-radius: 50%;
     border-color: #2d2f30;
@@ -154,7 +154,7 @@
 }
 
 .piecelunar {
-    background-image: url('../Assets/LUNAR.png');
+    background-image: url('../../Assets/LUNAR.png');
     background-size: cover;
     border-radius: 50%;
     width: 18%;
@@ -162,7 +162,7 @@
 }
 
 .piecedomino {
-    background-image: url('../Assets/DominoHouse.png');
+    background-image: url('../../Assets/DominoHouse.png');
     background-size: cover;
     border-radius: 50%;
     width: 18%;
@@ -170,7 +170,7 @@
 }
 
 .piecesafeline {
-    background-image: url('../Assets/SAFELINE.png');
+    background-image: url('../../Assets/SAFELINE.png');
     background-size: cover;
     border-radius: 50%;
     width: 18%;
@@ -178,7 +178,7 @@
 }
 
 .piecejysk {
-    background-image: url('../Assets/JYSKTelepartner.png');
+    background-image: url('../../Assets/JYSKTelepartner.png');
     background-size: cover;
     border-radius: 50%;
     width: 18%;
@@ -186,7 +186,7 @@
 }
 
 .pieceklaphatten {
-    background-image: url('../Assets/Klaphatten.png');
+    background-image: url('../../Assets/Klaphatten.png');
     background-size: cover;
     border-radius: 50%;
     width: 18%;

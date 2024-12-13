@@ -1,13 +1,26 @@
 class GameManager{
-  
+  /** @type {UserLogger} */
   #userLogger
+  #modLogger
+  /** @type {SocketManager} */
   #socketManager
+  /** @type {GameStateTracker} */
   #gameStateTracker
-  
-  constructor(userLogger,socketManager,gameStateTracker) {
+  /** @type {ModQuestionQueue} */
+  #modQuestionQueue
+  /**@type {GameScreenDataEmitter}*/
+  #gameScreenDataEmitter
+
+
+  constructor(userLogger,modLogger,socketManager,gameStateTracker, modQuestionQueue,gameScreenDataEmitter) {
     this.#userLogger = userLogger;
+    this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
+    console.log('gameStateTracker')
+    console.log(this.#gameStateTracker)
+    this.#modQuestionQueue = modQuestionQueue;
+    this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
 
 
@@ -21,9 +34,28 @@ class GameManager{
   };
 
 
+  checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
+    console.log("in quueeeeeuee")
+    const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
+    console.log('questionQueueLength:', questionQueueLength);
+    if (questionQueueLength !== 0) {
+      const questionData = this.#modQuestionQueue.getQuestionFromQueue(socket, playerId);
+      console.log('questionData:', questionData);
+      this.sendAnswerToModerator(socket, questionData);
+      // modQuestionQueue.removeQuestionFromQueue(socket, playerId);
+      this.#modLogger.setIsReviewingQuestion(true);
+    } else {
+      this.#userLogger.setHasBeenReviewed(playerId, true);
+      this.#socketManager.emitBackToClient(socket, 'player_has_been_reviewed', {playerId: playerId, hasBeenReviewed: true});
+    }
+  }
+
   updateGameState = (socket) => { // Sends newest game state to the client
-    this.#updateRounds(socket);
-    this.#updateLeaderboard(socket);
+    // this.#updateRounds(socket);
+    // this.#updateLeaderboard(socket);
+    this.#gameScreenDataEmitter.sendRoundData(socket);
+    this.#gameScreenDataEmitter.sendLeaderboardData(socket);
+
 
     const roundInfo = this.#gameStateTracker.getRound();
     const isGameFinished = this.#gameStateTracker.checkIfGameOver(roundInfo)
@@ -38,10 +70,9 @@ class GameManager{
   }
 
   startRound = (socket)=>{
-    console.log("Start round");
 
     const strategies = this.#gameStateTracker.getStrategies(); //is een array
-    const playerNames = this.#gameStateTracker.getPlayerList()
+    const playerNames = this.#gameStateTracker.getPlayerList();
     this.sendPlayerCount(socket);
 
     for(let i = 0; i < playerNames.length; i++){
@@ -53,45 +84,25 @@ class GameManager{
       this.#userLogger.setCanRollDice(socketId, true);
       this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
     }
-    this.#updateRounds(socket)
-    this.#updateLeaderboard(socket);
+      this.#gameScreenDataEmitter.sendRoundData(socket);
+      this.#gameScreenDataEmitter.sendLeaderboardData(socket);
   }
 
-  // enableRollDice = (socketId) => {
-  //   if (!this.#userLogger) {
-  //     console.error("userLogger is not initialized");
-  //     return;
-  //   }
-  //   console.log("whyyyyyyy", this.#userLogger);
-  //   this.#userLogger.setCanRollDice(socketId, true);
-  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', true);
+
+
+  // updateAllBoards = (socket) =>{
+  //   const players = this.#userLogger.getAllPlayerObjects();
+  //   const playerPositions = players.map(player => player.playerPosition);
+  //   this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
   // }
+    updatePiecePositions = (socket) =>{
+        // const players = this.#userLogger.getAllPlayerObjects();
+        // const playerPositions = players.map(player => player.playerPosition);
+        // this.#socketManager.emitToRoom(socket,'update_piece_positions',playerPositions);
+        this.#gameScreenDataEmitter.sendPositionsData(socket);
+    }
 
-  // disableRollDice = (socketId) => {
-  //   if (!this.#userLogger) {
-  //     console.error("userLogger is not initialized22222");
-  //     return;
-  //   }
-  //   console.log("whyyyyyyy2", this.#userLogger);
-  //   this.#userLogger.setCanRollDice(socketId, false);
-  //   this.#socketManager.emitToSpecificSocket(socketId, 'set_roll_dice', false);
-  // }
 
-  updateAllBoards = (socket) => {
-    const players = this.#userLogger.getAllPlayerObjects();
-    const playerPositions = players.map(player => player.playerPosition);
-    this.#socketManager.emitToRoom(socket,'update_position', playerPositions);
-  }
-
-  #updateLeaderboard = (socket) => {
-    const userData = this.#userLogger.getAllPlayerObjects();
-    this.#socketManager.emitToRoom(socket, "update_leaderboard", userData);
-  }
-
-  #updateRounds = (socket) => {
-    const roundInfo = this.#gameStateTracker.getRound();
-    this.#socketManager.emitToRoom(socket, "rounds", roundInfo);
-  }
 
 
 }

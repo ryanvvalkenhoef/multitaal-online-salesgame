@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
-import { socket } from "../client";
+import { socket } from "../../client";
 import './Dice.css'
-import Dice1 from '../Assets/Dia1.JPG';
-import Dice2 from '../Assets/Dia2.JPG';
-import Dice3 from '../Assets/Dia3.JPG';
-import Dice4 from '../Assets/Dia4.JPG';
-import Dice5 from '../Assets/Dia5.JPG';
-import Dice6 from '../Assets/Dia6.JPG';
+import Dice1 from '../../Assets/Dia1.JPG';
+import Dice2 from '../../Assets/Dia2.JPG';
+import Dice3 from '../../Assets/Dia3.JPG';
+import Dice4 from '../../Assets/Dia4.JPG';
+import Dice5 from '../../Assets/Dia5.JPG';
+import Dice6 from '../../Assets/Dia6.JPG';
 import {useTranslation} from "react-i18next";
 
 const DiceContainer = (props) => {

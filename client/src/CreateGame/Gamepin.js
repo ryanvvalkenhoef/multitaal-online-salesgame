@@ -22,6 +22,7 @@ export function Gamepin() {
       
         socket.on("send_gamepin", (data) => {
             setGamepin(data.room);
+            console.log('sending game pin:, data.room ');
             setPlayerNeeded(data.playerTotal);
         });
         socket.on('add_user', () => {
@@ -31,6 +32,7 @@ export function Gamepin() {
         socket.on("delete_user", () => {
             setPlayerCount(prevCount => prevCount - 1);
         })
+
         return () => {
             socket.off("send_gamepin");
             socket.off("add_user");
@@ -41,6 +43,8 @@ export function Gamepin() {
         if (playerCount === playerNeeded) {
             socket.emit('start_turn', 'data')
             navigate('/modview');
+            sessionStorage.setItem("socketId", socket.id);
+            sessionStorage.setItem("room", gamepin)
         } else {
             setErrorCode(`Not all players have joined`);
         }

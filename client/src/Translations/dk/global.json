@@ -34,6 +34,9 @@
     "setTurnText": "Det er {{data}}s tur til at kaste terningerne og svare på et spørgsmål",
     "rollDice": "Kaste terningerne",
     "leaderboard": "Måltavle",
+    "previousPoints": "tidliger",
+    "currentPoints": "aktuel",
+    "playerProgress": "Spillerens fremskridt",
     "modWait": "Venter på, at spilleren sender et svar",
     "setRoundText": "Runde {{data.currentRound}} af {{data.totalRounds}}"
   },
@@ -48,5 +51,10 @@
     "assign": "Tildel score:",
     "alert": "Vælg punkter før indsendelse",
     "submit": "Indsend"
+  },
+  "Results": {
+    "menuButton": "Vende tilbage til hovedmenuen",
+    "resultHeader": "Resultater",
+    "points": "points"
   }
 }

@@ -58,11 +58,13 @@ class UserLogger {
             language: 'en',
             room: '',
             name: '',
-            points: 0,
+            previousPoints: 0,
+            totalPoints: 0,
             strategy:'',
             canRollDice: false,
             isAnsweringQuestion: false,
             hasFinishedTurn: false,
+            hasBeenReviewed: false,
             playerPosition: ''}
 
         data.users.push(user);
@@ -107,6 +109,38 @@ class UserLogger {
             return null;
         }
     }
+    getScores() {
+            let data = this.#jsonFileHandler.readData()
+            if (!data) return null;
+
+            const users = data.users.map(user => ({id: user.id, totalPoints: user.totalPoints, name: user.name}));
+            return users;
+
+        }
+
+    reconnect(newSocketId,oldSocketId){
+
+        let data = this.#jsonFileHandler.readData()
+        if (!data) return null;
+        let changedPlayerId = false;
+        data.users.forEach(player => {
+           if(player.id === oldSocketId){
+               player.id = newSocketId;
+               changedPlayerId = true;
+           }
+        })
+
+        if (changedPlayerId){
+            this.#jsonFileHandler.writeData(data);
+            console.log('Player id has been updated');
+        }
+        else{
+            console.warn("Can't replace old player id with new one");
+        }
+
+
+
+    }
 
      getPoints(id) {
         let data = this.#jsonFileHandler.readData()
@@ -114,7 +148,7 @@ class UserLogger {
 
         const user = data.users.find(user => user.id === id);
         if (user) {
-            return user.points;
+            return user.totalPoints;
         } else {
             console.error('User not found3.');
             return null;
@@ -240,7 +274,6 @@ class UserLogger {
 
         const player = data.users.find(player => player.id === playerId);
         player.canRollDice = boolean;
-        console.log('de bool', boolean);
         this.#jsonFileHandler.writeData(data)
     }
 
@@ -248,14 +281,17 @@ class UserLogger {
         let data = this.#jsonFileHandler.readData()
         if (!data) return null;
 
-        data.users.forEach(player => (player.hasFinishedTurn = false));
+        data.users.forEach(player => {
+            player.hasFinishedTurn = false;
+            player.hasBeenReviewed = false;
+        });
         this.#jsonFileHandler.writeData(data)
     }
 
      getAllPlayerObjects() {
         let data = this.#jsonFileHandler.readData()
         if (!data) {
-            console.log("Can't read data: getAllPlayerObjects()");
+            console.warn("Can't read data: getAllPlayerObjects()");
             return null;
         }
         return data.users;
@@ -264,7 +300,7 @@ class UserLogger {
      setIsAnsweringQuestion(boolean, socketid) {
         let data = this.#jsonFileHandler.readData()
         if (!data) {
-            console.log("Can't read data: isAnsweringQuestion()");
+            console.warn("Can't read data: isAnsweringQuestion()");
             return null;
         }
 
@@ -276,12 +312,39 @@ class UserLogger {
      checkIfPlayerIsAnsweringQuestion(socketid) {
         let data = this.#jsonFileHandler.readData()
         if (!data) {
-            console.log("Can't read data: checkIfPlayerIsAnsweringQuestion()");
+            console.warn("Can't read data: checkIfPlayerIsAnsweringQuestion()");
             return null;
         }
 
         const player = data.users.find(player => player.id === socketid);
         return player.isAnsweringQuestion;
+    }
+
+    getPlayerTurnStatus(socketid){
+        let data = this.#jsonFileHandler.readData()
+        if (!data) {
+            console.warn("Can't read data: getPlayerTurnStatus()");
+            return null;
+        }
+
+        const player = data.users.find(player => player.id === socketid);
+        if(!player){
+            console.warn("Can't find player: getPlayerTurnStatus()")
+            return null;
+        }
+        return player.hasFinishedTurn;
+    }
+
+    setHasBeenReviewed(socketid, boolean) {
+        let data = this.#jsonFileHandler.readData()
+        if (!data) {
+            console.log("Can't read data: setHasBeenReviewed()");
+            return null;
+        }
+
+        const player = data.users.find(player => player.id === socketid);
+        player.hasBeenReviewed = boolean;
+        this.#jsonFileHandler.writeData(data)
     }
 }
 
