@@ -1,62 +1,38 @@
 import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import React from 'react'; // Make sure to import React
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import { HomeScreen } from './HomeScreen/HomeScreen';
-import { ModSettings } from './CreateGame/ModSettings';
+import { ModSettings } from './CreateGame/ModSettings'
 import { Game } from './PlayerScreen/Game';
 import { JoinGame } from './JoinGame/JoinGame';
-<<<<<<< HEAD
-import { Gamepin } from './CreateGame/Gamepin';
-import { ModView } from './ModeratorScreen/ModView';
-import { LoadGame } from './LoadGame/LoadGame'; // Import LoadGame
-import TestSaveGame from './__test__/TestSaveGame'; // Import TestSaveGame
-import musicOn from './Assets/musicOn.png'; // Your existing imports
-import musicOff from './Assets/musicOff.png'; // Your existing imports
-
-function App() {
-    return (
-        <div className="App">
-            <BrowserRouter>
-                <Routes>
-                    <Route index element={<HomeScreen />} />
-                    <Route path='/home' element={<HomeScreen />} />
-                    <Route path='/configuration' element={<ModSettings />} />
-                    <Route path='/game' element={<Game />} />
-                    <Route path='/joingame' element={<JoinGame />} />
-                    <Route path='/gamepin' element={<Gamepin />} />
-                    <Route path='/modview' element={<ModView />} />
-                    <Route path='/loadgame' element={<LoadGame />} /> {/* New route for LoadGame */}
-                    <Route path='/test-save' element={<TestSaveGame />} /> {/* New route for TestSaveGame */}
-                </Routes>
-            </BrowserRouter>
-        </div>
-    );
-=======
 import { Gamepin } from './CreateGame/Gamepin'
 import { ModView } from './ModeratorScreen/ModView'
+import { LoadGame } from './LoadGame/LoadGame'; // Import LoadGame
+import TestSaveGame from './__test__/TestSaveGame'; // Import TestSaveGame
+import React from 'react'; // Make sure to import React
 import musicOn from "./Assets/musicOn.png";
 import musicOff from "./Assets/musicOff.png";
 import { Results } from "./ResultScreen/Result";
 
 function App() {
 
-  return (
-      <div className="App">
-        <BrowserRouter>
-          <Routes>
-            <Route index element={<HomeScreen/>}/>
-            <Route path='/home' element={<HomeScreen/>}/>
-            <Route path='/configuration' element={<ModSettings/>}/>
-            <Route path='/game' element={<Game/>}/>
-            <Route path='/joingame' element={<JoinGame/>}/>
-            <Route path='/gamepin' element={<Gamepin/>}/>
-            <Route path='/modview' element={<ModView/>}/>
-            <Route path='/results' element={<Results/>}/>
-          </Routes>
-        </BrowserRouter>
-      </div>
-  );
->>>>>>> 6802e08a2c4aac408ec87af86fa6bf8b0767c28a
+    return (
+        <div className="App">
+            <BrowserRouter>
+                <Routes>
+                    <Route index element={<HomeScreen/>}/>
+                    <Route path='/home' element={<HomeScreen/>}/>
+                    <Route path='/configuration' element={<ModSettings/>}/>
+                    <Route path='/game' element={<Game/>}/>
+                    <Route path='/joingame' element={<JoinGame/>}/>
+                    <Route path='/gamepin' element={<Gamepin/>}/>
+                    <Route path='/modview' element={<ModView/>}/>
+                    <Route path='/results' element={<Results/>}/>
+                    <Route path='/loadgame' element={<LoadGame/>}/> {/* New route for LoadGame */}
+                    <Route path='/test-save' element={<TestSaveGame/>}/> {/* New route for TestSaveGame */}
+                </Routes>
+            </BrowserRouter>
+        </div>
+    );
 }
 
 export default App;
