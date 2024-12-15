@@ -38,9 +38,7 @@ class ReconnectionManager {
         this.#sendPlayerNames(socket);
         this.#setTurnStatusTrue(socket);
         this.#setRollDiceStatus(socket);
-
-
-
+        this.#registerPlayer(socket);
 
     }
 
@@ -148,6 +146,12 @@ class ReconnectionManager {
         if(!hasFinishedTurn) {
             this.#socketManager.emitBackToClient(socket, 'set_roll_dice', true)
         }
+    }
+
+    #registerPlayer = (socket) =>{ //tijdelijke functie
+        const strategy = this.#userLogger.getStrategy(socket.id);
+        const color = this.#userLogger.getColor(socket.id);
+        this.#socketManager.emitBackToClient(socket,"register_current_player", {strategy: strategy, color: color});
     }
 }
 

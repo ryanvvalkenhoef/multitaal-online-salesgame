@@ -21,7 +21,7 @@ import {
     handleDisablingWaitingScreen, handlePlayerTurnUpdate,
     handleTurnStatusUpdate, handleGameOverEvent,
     handleSetRollDice, handleGoToHomeScreen,
-    handlePositionsUpdate, handleSetPosition,
+    handlePositionsUpdate, handleSetPosition
 
 } from "./eventListenersPlayer";
 import{
@@ -64,7 +64,6 @@ export function Game() {
     const navigate = useNavigate();
     const currentQuestionRef = useRef(null);
 
-    const didMountRef = useRef(false);
 
 
     const handleTextBoxChange = (event) => {
@@ -82,6 +81,7 @@ export function Game() {
     };
 
     useEffect(() =>{// Adding socketio event listeners
+        console.log("rollDice: " + playerRollDice)
         const renderManager = new RenderManager(setStartPieces, setTileInfo, setTileInfo2, setJoinedColors, setIsReadyToRender, socket)
         handleTileInfoUpdate({socket, setTileInfo}, (data) => renderManager.setTileInfo(data));
         handleTileInfo2Update({socket, setTileInfo2}, (data) => renderManager.setTileInfo2(data));
@@ -99,7 +99,8 @@ export function Game() {
         handleTurnStatusUpdate({socket,setMyTurn});
         handleSetRollDice({socket,setPlayerRollDice});
         handleGoToHomeScreen({socket,navigate});
-        handleGameOverEvent({socket, navigate})
+        handleGameOverEvent({socket, navigate});
+
 
 
 
@@ -112,14 +113,17 @@ export function Game() {
 
 
     useEffect(() =>{
-        //If there is no sessionData stored the game screen can't be rendered
-        //So client goes back to the homepage
+        // If there is no sessionData stored the game screen can't be rendered
+        // So client goes back to the homepage
+        console.log("socketID in sessionSotrage: "+sessionStorage.getItem('socketId'))
         if(!sessionStorage.getItem('socketId')){
             navigate('/home');
         }
         else{ //The timeout is used because it takes some time before socketio has created the socket object
-            setTimeout(() => startRender(socket,true),500);
+            const currentSocketId = socket.id;
+            setTimeout(() => startRender(socket,currentSocketId,true),500);
         }
+        setTimeout(()=> console.log("rollDice: " + playerRollDice),1000)
 
     },[])
 

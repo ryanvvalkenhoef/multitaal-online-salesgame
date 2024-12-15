@@ -34,9 +34,6 @@ module.exports = function (io){
         /**@type {GameScreenDataEmitter}*/
         let gameScreenDataEmitter;
 
-        if(RoomGenerator.getRoomList().length < 1) {
-            io.emit('go_to_home_screen');
-        }
 
 
         const socketHandlers = {
@@ -77,7 +74,7 @@ module.exports = function (io){
             'join_room': (data) => { //join_room is the entry point for the players
                 let room;
                 let joinStatus;
-                console.log("Room: " + data.room);
+
                 const existingRooms = RoomGenerator.getRoomList();
                 const isValidRoom = PreGameManager.checkIfValidRoom(data.room, existingRooms);
                 jsonFileHandler = new JsonFileHandler(data.room);
@@ -102,6 +99,7 @@ module.exports = function (io){
                     gameManager = instances. gameManager;
                     gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
+
                     //user is being created and values assigned to properties of user object
                     userLogger.createUser(socket.id);
                     userLogger.updateUser(socket.id, {name: data.name});
@@ -120,7 +118,7 @@ module.exports = function (io){
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
                     gameScreenDataEmitter.sendPiecesData(socket);
                     gameScreenDataEmitter.sendPlayerColors(socket);
-                    socketManager.emitBackToClient(socket,)
+                   //socketManager.emitBackToClient(socket,)
 
                 } else {
                     // checks if joinStatus is undefined to prevent overwriting previous assignment.
@@ -138,32 +136,33 @@ module.exports = function (io){
                 try {
                     const room = sessionData.room;
                     const isValidRoom = PreGameManager.checkIfValidRoom(room, RoomGenerator.getRoomList())
-                    if(!isValidRoom){
-                        socketManager.emitBackToClient(socket,'go_to_home_screen');
+
+                    if (!isValidRoom) {
+                        socketManager.emitBackToClient(socket, 'go_to_home_screen');
                     }
+                    else {
+                        socket.room = room;
+                        socket.join(room)
+                        socket.join(`${room}players`)
 
-                    socket.room = room;
-                    socket.join(room)
-                    socket.join(`${room}players`)
+                        const instances = instanceFactory(room, socketManager);
+                        jsonFileHandler = instances.jsonFileHandler;
+                        modLogger = instances.modLogger;
+                        userLogger = instances.userLogger;
+                        gameStateTracker = instances.gameStateTracker;
+                        gameManager = instances.gameManager;
+                        gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                    const instances = instanceFactory(room, socketManager);
-                    jsonFileHandler = instances.jsonFileHandler;
-                    modLogger = instances.modLogger;
-                    userLogger = instances.userLogger;
-                    gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances.gameManager;
-                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
+                        const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
+                        reconnectionManager.reconnectPlayer(socket, sessionData);
 
-                    const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
-                    reconnectionManager.reconnectPlayer(socket, sessionData);
-
-
-                    playerQuestionQueue.reconnectToQueue(socket, sessionData);
-                    const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
-                    if (questionQueueLength > 0) {
-                        const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
-                        socketManager.emitBackToClient(socket, 'receive_question', questionData);
-                        playerQuestionQueue.removeQuestionFromQueue(socket);
+                        playerQuestionQueue.reconnectToQueue(socket, sessionData);
+                        const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
+                        if (questionQueueLength > 0) {
+                            const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
+                            socketManager.emitBackToClient(socket, 'receive_question', questionData);
+                            playerQuestionQueue.removeQuestionFromQueue(socket);
+                        }
                     }
                 }
                 catch (exception){
@@ -176,35 +175,34 @@ module.exports = function (io){
                 try {
                     const room = sessionData.room;
                     const isValidRoom = PreGameManager.checkIfValidRoom(room, RoomGenerator.getRoomList())
-                    if(!isValidRoom){
-                        socketManager.emitBackToClient(socket,'go_to_home_screen');
+                    if (!isValidRoom) {
+                        socketManager.emitBackToClient(socket, 'go_to_home_screen');
                     }
+                    else {
+                        socket.room = room;
+                        socket.join(room);
+                        socket.join(`${room}mod`);
 
-                    socket.room = room;
-                    socket.join(room);
-                    socket.join(`${room}mod`);
+                        const instances = instanceFactory(room, socketManager);
+                        jsonFileHandler = instances.jsonFileHandler;
+                        modLogger = instances.modLogger;
+                        userLogger = instances.userLogger;
+                        gameStateTracker = instances.gameStateTracker;
+                        gameManager = instances.gameManager;
+                        gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                    const instances = instanceFactory(room, socketManager);
-                    jsonFileHandler = instances.jsonFileHandler;
-                    modLogger = instances.modLogger;
-                    userLogger = instances.userLogger;
-                    gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances.gameManager;
-                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
+                        const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
+                        reconnectionManager.reconnectMod(socket, sessionData);
 
-
-                    const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
-                    reconnectionManager.reconnectMod(socket, sessionData);
-
-                    const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                    if (questionQueueLength > 0) {
-                        const question = modQuestionQueue.getQuestionFromQueue(socket);
-                        gameManager.sendAnswerToModerator(socket, question);
+                        const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+                        if (questionQueueLength > 0) {
+                            const question = modQuestionQueue.getQuestionFromQueue(socket);
+                            gameManager.sendAnswerToModerator(socket, question);
+                        }
                     }
                 }
             catch (exception){
                     console.error("Can't reconnect moderator")
-
                 }
             },
 
@@ -215,7 +213,6 @@ module.exports = function (io){
                 let popupColor
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
-                    console.log('Data.usercolor: ' + data.userColor )
                     popupColor = data.userColor;
                 }
                 switch (data.questionColor) {
@@ -257,7 +254,6 @@ module.exports = function (io){
             },
 
             'get_player_answer_on_click': (playerId) => {
-                console.log("in get_player_answer_on_click ")
                 gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
             },
 
@@ -301,7 +297,7 @@ module.exports = function (io){
             },
 
 
-            'get_player_strategy': (data) => {
+            'get_player_strategy': (data) => { // event moet anders
                 const strategy = userLogger.getStrategy(socket.id);
                 const color = userLogger.getColor(socket.id);
                 socketManager.emitBackToClient(socket,"register_current_player", {strategy: strategy, color: color});
@@ -353,33 +349,6 @@ module.exports = function (io){
 
             /////// Events staan tijdelijk in dit bestand
             'get_tileInfo': (data) => {
-
-                //TILE_INFO FOR WHEN 2-6 PLAYERS JOIN
-                const tileInfo = [
-                    'sales', 'color1', 'color3', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color7', 'sales', 'rainbow', 'color12', 'megatrends', 'color10', 'color8',
-                    'color6', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance',
-                    'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color9', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color11',
-                    'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'rainbow',
-                    'rainbow', 'sales', 'color8', 'chance', 'color1', 'megatrends', 'color10', 'start', 'rainbow', 'sales', 'color4', 'megatrends', 'color7', 'color6', 'sales',
-                    'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'sales', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color9',
-                    'color10', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color12', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color4',
-                    'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends',
-                    'sales', 'rainbow', 'color11', 'chance', 'color2', 'color7', 'megatrends', 'rainbow', 'color9', 'sales', 'color8', 'color6', 'chance', 'rainbow', 'color5'
-                ]
-
-                //TILE_INFO FOR WHEN 5 PLAYERS JOIN
-                const tileInfo2 = [
-                    'sales','color1','color5','megatrends','rainbow','color4','chance', 'color2', 'color1', 'sales','rainbow', 'color3','megatrends','color4','color2',
-                    'color3','blank','blank','blank', 'blank','blank', 'blank', 'megatrends', 'blank', 'blank','blank', 'blank', 'blank', 'blank','chance',
-                    'chance','blank','blank','blank','blank','blank', 'blank', 'color5', 'blank','blank','blank', 'blank', 'blank','blank','color5',
-                    'color5','blank','blank','blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank','rainbow',
-                    'rainbow','sales','color2','chance', 'color1','megatrends', 'color4', 'start', 'rainbow', 'sales','color4', 'megatrends', 'color1','color3', 'sales',
-                    'megatrends','blank','blank', 'blank', 'blank','blank', 'blank', 'sales', 'blank', 'blank','blank', 'blank', 'blank','blank', 'color5',
-                    'color4','blank', 'blank', 'blank', 'blank','blank', 'blank', 'color3', 'blank', 'blank','blank','blank','blank','blank','color4',
-                    'color5', 'blank', 'blank', 'blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank', 'megatrends',
-                    'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
-                ]
-
                 gameScreenDataEmitter.sendBoardData(socket);
             },
 
