@@ -154,11 +154,7 @@ export function ModView() {
                 />)}
                 <Pieces
                     startPieces={startPieces}
-                    setArePiecesRendered={setArePiecesRendered}
-                />
-                <PlayerProgress
-                    playerProgressData={data}
-                    onImageClick={onImageClick}/>
+                    setArePiecesRendered={setArePiecesRendered}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}
@@ -176,17 +172,19 @@ export function ModView() {
                     <p>Loading...</p>
                 </div>
             )}
-                <ModeratorPopUps
-                    answer={answer}
-                    popupColor={popupColor}
-                    showPopup={showPopup}
-                    setShowPopup={setShowPopup}
-                    question={question}
-                    submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
-                    selectedPoints={selectedPoints}
-                    handleSubmitPoints={handleSubmitPoints}
-                    handleUpdatePoints={handleUpdatePoints}
-                />
+            <PlayerProgress
+                playerProgressData={data}
+                onImageClick={onImageClick}/>
+            <ModeratorPopUps
+                answer={answer}
+                popupColor={popupColor}
+                showPopup={showPopup}
+                setShowPopup={setShowPopup}
+                question={question}
+                submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
+                selectedPoints={selectedPoints}
+                handleSubmitPoints={handleSubmitPoints}
+                handleUpdatePoints={handleUpdatePoints}/>
         </>
     );
 }
