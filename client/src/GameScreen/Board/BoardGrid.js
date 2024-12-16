@@ -66,6 +66,10 @@ const BoardGrid = ({selectedPawn, setPosition, playerColor, gameScreen,tileInfo,
         // Because of that, the pieces can't be set on the first render.
         if(!isFirstRender) {
             if (piecePositions[0] === "") {
+                // Having two separate functions is a temporary fix.
+                // It also causes a bug where if the page is refreshed during the first round,
+                // and one player hasn't made a move, but the other has, the piece of the player
+                // that hasn't made a move won't be set on the board.
                 setStartPiecesOnTile({startPieces})
             } else {
                 setPiecesOnTile({piecePositions})
