@@ -234,8 +234,11 @@ module.exports = function (io){
 
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
-                    const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
-                    if (receiver !== socket.id){//wanneer speler op ander vakje staat staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
+                    const receiver = userLogger.getReceiver(data.questionColor);
+                    const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(socket.id);
+                    console.log('playerFinishedTurn????:', playerFinishedTurn);//jesus dit is een hoofdbreker
+                    //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
+                    if (receiver !== socket.id && !playerFinishedTurn){//wanneer speler op ander vakje staat staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
                         userLogger.updateUser(socket.id,{hasBeenReviewed: true});
                         socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
                     }
@@ -385,7 +388,7 @@ module.exports = function (io){
 
             'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", 4)
+                socket.emit("set_dice", diceValue);
                 const canRollDice = userLogger.getCanRollDice(socket.id);
                 console.log('userlogger is prolly not defined' + userLogger);
 
