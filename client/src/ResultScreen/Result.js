@@ -24,10 +24,17 @@ export function Results() {
     const handleExit = () => {
         window.open('', '_self', '').close();
     }
+    const clearSessionStorage = () => { // The game is finished so the session data stored in the browser can be removed
+        sessionStorage.removeItem('socketId');
+        sessionStorage.removeItem('room');
+    }
 
     useEffect (() => {
 
-    socket.emit('get_results');
+        if(sessionStorage.getItem('socketId')) {
+            socket.emit('get_results');
+            clearSessionStorage();
+        }
 
         const socketHandlers = {
             'show_results' : (results) => {
@@ -44,7 +51,9 @@ export function Results() {
                 socket.off(event, socketHandlers[event])
             })
         };
-    });
+    },[]);
+
+
 
     return (
         <>

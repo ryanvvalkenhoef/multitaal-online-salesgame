@@ -21,6 +21,7 @@ const DiceContainer = (props) => {
     };
 
     useEffect(() => {
+        console.log("rollDice in dicecontainer1111: " + playerRollDice)
 
         const setDice = (data) => {
             const dice = document.querySelector(".diceImage");
@@ -42,11 +43,14 @@ const DiceContainer = (props) => {
 
         socket.on("set_dice", setDice);
         socket.on("player_names", setPlayerName);
+        console.log("rollDice in dicecontainer: " + playerRollDice)
 
         return () => {
             socket.off("set_dice", setDice);
             socket.off("player_names", setPlayerName);
         };
+
+
     }, [position]);
 
     return (

@@ -114,24 +114,25 @@ export function ModView() {
         };
     }, []);
 
-
-
-    useEffect(() => {
-
+    useEffect(()=> {
         if(!sessionStorage.getItem('socketId')){ //If there is no sessionData stored the game screen can't be rendered
             navigate('/home');
         }
         else{ //The timeout is used because it takes some time before socketio has created the socket object
-            setTimeout(() => startRender(socket,false),500);
+            const currentSocketId = socket.id;
+            setTimeout(() => startRender(socket,currentSocketId,false),500);
         }
 
-    }, []);
+    },[])
 
-        useEffect(() => {
+
+
+    useEffect(() => {
         if (currentRound >= totalRounds && totalRounds > 0) {
-        socket.emit('end_game');
-    }
-}, [currentRound, totalRounds]);
+            socket.emit('end_game');
+        }
+
+    }, [currentRound, totalRounds])
     return (
         <>
             {isReadyToRender? <div className={showPopup ? 'appBlurred' : 'playboard'}>
@@ -153,11 +154,7 @@ export function ModView() {
                 />)}
                 <Pieces
                     startPieces={startPieces}
-                    setArePiecesRendered={setArePiecesRendered}
-                />
-                <PlayerProgress
-                    playerProgressData={data}
-                    onImageClick={onImageClick}/>
+                    setArePiecesRendered={setArePiecesRendered}/>
                 <DiceContainer
                     setMoveMade={setMoveMade}
                     position={position}
@@ -175,17 +172,19 @@ export function ModView() {
                     <p>Loading...</p>
                 </div>
             )}
-                <ModeratorPopUps
-                    answer={answer}
-                    popupColor={popupColor}
-                    showPopup={showPopup}
-                    setShowPopup={setShowPopup}
-                    question={question}
-                    submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
-                    selectedPoints={selectedPoints}
-                    handleSubmitPoints={handleSubmitPoints}
-                    handleUpdatePoints={handleUpdatePoints}
-                />
+            <PlayerProgress
+                playerProgressData={data}
+                onImageClick={onImageClick}/>
+            <ModeratorPopUps
+                answer={answer}
+                popupColor={popupColor}
+                showPopup={showPopup}
+                setShowPopup={setShowPopup}
+                question={question}
+                submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
+                selectedPoints={selectedPoints}
+                handleSubmitPoints={handleSubmitPoints}
+                handleUpdatePoints={handleUpdatePoints}/>
         </>
     );
 }

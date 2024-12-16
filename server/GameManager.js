@@ -17,8 +17,6 @@ class GameManager{
     this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
-    console.log('gameStateTracker')
-    console.log(this.#gameStateTracker)
     this.#modQuestionQueue = modQuestionQueue;
     this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
@@ -61,6 +59,7 @@ class GameManager{
     const isGameFinished = this.#gameStateTracker.checkIfGameOver(roundInfo)
     if(isGameFinished){
       this.#socketManager.emitToRoom(socket,'game_over');
+
 
     }
     else {
