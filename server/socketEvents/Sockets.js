@@ -145,7 +145,7 @@ module.exports = function (io){
                         socket.join(room)
                         socket.join(`${room}players`)
 
-                        const instances = instanceFactory(room, socketManager);
+                        const instances = instanceFactory(room, socketManager,modQuestionQueue);
                         jsonFileHandler = instances.jsonFileHandler;
                         modLogger = instances.modLogger;
                         userLogger = instances.userLogger;
@@ -183,7 +183,7 @@ module.exports = function (io){
                         socket.join(room);
                         socket.join(`${room}mod`);
 
-                        const instances = instanceFactory(room, socketManager);
+                        const instances = instanceFactory(room, socketManager,modQuestionQueue);
                         jsonFileHandler = instances.jsonFileHandler;
                         modLogger = instances.modLogger;
                         userLogger = instances.userLogger;
@@ -354,7 +354,7 @@ module.exports = function (io){
 
             'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", 4)
+                socket.emit("set_dice", diceValue)
                 const canRollDice = userLogger.getCanRollDice(socket.id);
                 console.log('userlogger is prolly not defined' + userLogger);
 

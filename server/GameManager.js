@@ -17,8 +17,6 @@ class GameManager{
     this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
-    console.log('gameStateTracker')
-    console.log(this.#gameStateTracker)
     this.#modQuestionQueue = modQuestionQueue;
     this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
