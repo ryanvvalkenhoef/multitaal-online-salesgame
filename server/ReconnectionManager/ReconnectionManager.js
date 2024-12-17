@@ -163,19 +163,25 @@ class ReconnectionManager {
         }
 
         players.forEach((player) => {
-            this.#socketManager.emitToMod(socket, 'player_has_finished_turn', {
-                playerId: player.id,
-                hasFinishedTurn: player.hasFinishedTurn,
-            });
+            if (player.isAnsweringQuestion) {
+                this.#socketManager.emitToMod(socket, 'player_is_answering', {
+                    playerId: player.id,
+                    isAnsweringQuestion: player.isAnsweringQuestion,
+                });
+            }
+            if (player.hasFinishedTurn) {
+                this.#socketManager.emitToMod(socket, 'player_has_finished_turn', {
+                    playerId: player.id,
+                    hasFinishedTurn: player.hasFinishedTurn,
+                });
+            }
+            if (player.hasBeenReviewed) {
+                this.#socketManager.emitToMod(socket, 'player_has_been_reviewed', {
+                    playerId: player.id,
+                    hasBeenReviewed: player.hasBeenReviewed,
+                });
+            }
         });
-
-
-
-
     }
 }
-
-
-
-
 module.exports = ReconnectionManager;

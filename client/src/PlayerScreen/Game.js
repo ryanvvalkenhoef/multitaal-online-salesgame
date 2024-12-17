@@ -65,7 +65,6 @@ export function Game() {
     const currentQuestionRef = useRef(null);
 
 
-
     const handleTextBoxChange = (event) => {
         setTextBoxContent(event.target.value);
     };
@@ -101,21 +100,14 @@ export function Game() {
         handleGoToHomeScreen({socket,navigate});
         handleGameOverEvent({socket, navigate});
 
-
-
-
-
         return () => {
             cleanUpSocketListeners(socket);
         }
     },[])
 
-
-
     useEffect(() =>{
         // If there is no sessionData stored the game screen can't be rendered
         // So client goes back to the homepage
-        console.log("socketID in sessionSotrage: "+sessionStorage.getItem('socketId'))
         if(!sessionStorage.getItem('socketId')){
             navigate('/home');
         }
