@@ -33,12 +33,9 @@ class GameManager{
 
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
-    console.log("in quueeeeeuee")
     const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
-    console.log('questionQueueLength:', questionQueueLength);
     if (questionQueueLength !== 0) {
       const questionData = this.#modQuestionQueue.getQuestionFromQueue(socket, playerId);
-      console.log('questionData:', questionData);
       this.sendAnswerToModerator(socket, questionData);
       // modQuestionQueue.removeQuestionFromQueue(socket, playerId);
       this.#modLogger.setIsReviewingQuestion(true);

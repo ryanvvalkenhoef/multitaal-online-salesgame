@@ -1,14 +1,14 @@
 const databaseQuestion = require("../database/database");
 const databaseAnswer = require("../database/database");
 const getMovesFromCoordinate = require("../positionCalculator");
-const SocketManager = require("../Socket/SocketManager");
+const SocketManager = require("../socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
 const RoomGenerator = require('../roomGenerator/RoomGenerator');
 const PreGameManager = require('../preGameManager/PreGameManager')
 const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
 const instanceFactory = require("../instanceFactory/instanceFactory");
-const ReconnectionManager = require("../ReconnectionManager/ReconnectionManager");
+const ReconnectionManager = require("../reconnectionManager/ReconnectionManager");
 
 
 
@@ -157,10 +157,10 @@ module.exports = function (io){
 
                         playerQuestionQueue.reconnectToQueue(socket, sessionData);
                         const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
+                        console.log("lengte bij reconnecten", questionQueueLength);
                         if (questionQueueLength > 0) {
                             const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                             socketManager.emitBackToClient(socket, 'receive_question', questionData);
-                            playerQuestionQueue.removeQuestionFromQueue(socket);
                         }
                     }
                 }
@@ -231,6 +231,7 @@ module.exports = function (io){
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
                     const receiver = userLogger.getReceiver(data.questionColor);
+                    playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
                     const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(socket.id);
                     //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
                     if (receiver !== socket.id && !playerFinishedTurn){//wanneer speler op ander vakje komt staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
@@ -238,16 +239,13 @@ module.exports = function (io){
                         socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
                     }
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-                    if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
-                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
-                        console.log('playerQuestionQueue:', JSON.stringify(playerQuestionQueue));
-                    }
-                    else { //speler kan de vraag direct beantwoorden
+                    if (!playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
                         userLogger.setIsAnsweringQuestion(true,receiver);
                         socketManager.emitToMod(socket, 'player_is_answering', {playerId: receiver, isAnsweringQuestion: true});
                     }
                 } else { // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
+                    playerQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     userLogger.setIsAnsweringQuestion(true, socket.id);
                     socketManager.emitToMod(socket, 'player_is_answering', {playerId: socket.id, isAnsweringQuestion: true});
@@ -261,12 +259,11 @@ module.exports = function (io){
             'send_answer_to_server': (questionData) => {
                 //await gameManager.waitForModToFinishReview(modLogger);
                 modQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
-                console.log('modQuestionQueue:', JSON.stringify(modQuestionQueue));
                 // Check if the question queue of the player who sent the question to the server contains any questions.
+                playerQuestionQueue.removeQuestionFromQueue(socket);
                 if (playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket, 'receive_question', questionData);
-                    playerQuestionQueue.removeQuestionFromQueue(socket);
                 } else {
                     userLogger.setIsAnsweringQuestion(false, socket.id);
                 }
