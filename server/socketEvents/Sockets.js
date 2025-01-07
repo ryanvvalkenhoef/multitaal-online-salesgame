@@ -62,13 +62,8 @@ module.exports = function (io){
                 socket.join(room);
             },
 
-            'disconnect': (reason) => { // Moet later naar gekeken worden
-                // const room = userLogger(room, "getRoom", socket.id)
-                // const name = userLogger(room, 'getPlayerNames', socket.id)
-                // modLogger(room, 'removeUser', socket.id, {name: name, room: room})
-                // socket.to(userLogger(room, "getRoom", socket.id)).emit('delete_user', "deleting")
-                // userLogger(room, "delete", socket.id)
-                // modLogger(room, "delete", socket.id)
+            'disconnect': () => {//niet zeker of dit werkt, moeilijk te testen
+                socket.emit('go_to_home_screen');
             },
 
             'join_room': (data) => { //join_room is the entry point for the players
@@ -157,7 +152,6 @@ module.exports = function (io){
 
                         playerQuestionQueue.reconnectToQueue(socket, sessionData);
                         const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
-                        console.log("lengte bij reconnecten", questionQueueLength);
                         if (questionQueueLength > 0) {
                             const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                             socketManager.emitBackToClient(socket, 'receive_question', questionData);
@@ -321,8 +315,6 @@ module.exports = function (io){
 
 
             'points_submitted_question_reviewed': (reviewData) => {
-                //submit points zou niet meteen afgehandeld moeten worden, aangezien er binnen een ronde meerdere keren punten gegeven kunnen worden aan dezelfde speler.
-                //Hierdoor kan in één ronde de previous points al zichtbaar zijn, terwijl dat pas in de volgende ronde zichtbaar moet zijn.
                 const id = reviewData.playerId;
                 const oldTotalPoints = userLogger.getPoints(id);
                 const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
@@ -352,12 +344,16 @@ module.exports = function (io){
 
             'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", diceValue)
-                const canRollDice = userLogger.getCanRollDice(socket.id);
-
-                if (canRollDice && playerRollDice) { //if its truly players turn do this
+                socket.emit("set_dice", diceValue);
+                //try/catch tegen crashen maar onduidelijk waarom userlogger soms na tijdje niks doen undefined is
+                try {
+                    const canRollDice = userLogger.getCanRollDice(socket.id);
+                    if (canRollDice && playerRollDice) { //if its truly players turn do this
                         userLogger.setCanRollDice(socket.id, false);
                         socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
+                    }
+                } catch (error) {
+                    console.error('Error getting canRollDice', error);
                 }
             },
 
