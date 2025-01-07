@@ -332,24 +332,39 @@ module.exports = function (io){
                 const id = reviewData.playerId;
                 const oldTotalPoints = userLogger.getPoints(id);
                 const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
-                userLogger.updateUser(id,{totalPoints : newTotalPoints, previousPoints: oldTotalPoints});
+                userLogger.updateUser(id, {totalPoints: newTotalPoints, previousPoints: oldTotalPoints});
 
                 modLogger.updateNumberOfQuestionsReviewed();
                 modQuestionQueue.removeQuestionFromQueue(socket, id);
                 modLogger.setIsReviewingQuestion(false);
+
                 gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, id);
 
-
                 const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
-                if (isRoundFinished) { // Update Game state and go to next round
-                    modLogger.resetNumberOfQuestionsReviewed();
-                    userLogger.resetHasFinishedTurn(); // Is waarschijnlijk niet meer nodig
-                    gameManager.updateGameState(socket);
-                    gameManager.startRound(socket);
-                    gameManager.updatePiecePositions(socket);
-                    socketManager.emitToMod(socket, 'reset_player_progress_styles');
+                if (isRoundFinished) {
+                socketManager.emitToMod (socket, 'is_next_round_button_disabled', false);
                 }
-              },
+            },
+
+            'start_next_round': () => {
+
+                    // checks if the round is finished
+                    const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
+
+                    if (isRoundFinished) {
+                        modLogger.resetNumberOfQuestionsReviewed();
+                        userLogger.resetHasFinishedTurn();
+                        gameManager.updateGameState(socket);
+                        gameManager.startRound(socket);
+                        gameManager.updatePiecePositions(socket);
+                        socketManager.emitToMod (socket, 'is_next_round_button_disabled', true);
+                        socketManager.emitToMod(socket, 'reset_player_progress_styles');
+
+                    } else {
+                        console.log("Round is not finished yet. Manual trigger ignored.");
+                    }
+
+            },
 
             /////// Events staan tijdelijk in dit bestand
             'get_tileInfo': (data) => {
@@ -435,3 +450,6 @@ module.exports = function (io){
         })
     })
 }
+
+
+

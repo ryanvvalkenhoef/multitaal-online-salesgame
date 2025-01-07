@@ -245,3 +245,47 @@ path {
     text-align: center;
     position: relative;
 }
+
+.next-round-container {
+    position: fixed;
+    bottom: 65px;
+    right: 250px;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.next-round-button {
+    background-color: #DAB24B;
+    color: black;
+    border: none;
+    padding: 24px 36px;
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 12px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* schadow */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* effect with an hover */
+}
+
+.next-round-button:hover {
+    background-color: #DAB24B;
+    transform: scale(1.05);
+}
+
+.next-round-button:active {
+    background-color: #DAB24B;
+    transform: scale(0.95);
+}
+.next-round-button:disabled {
+    background-color: #cccccc; /* Grey background */
+    color: #777777; /* Grey text */
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+    opacity: 0.7;
+}
+
+
+

@@ -5,6 +5,12 @@ export const handleReceivePlayerAnswer = ({socket,reviewQuestion}) =>{
     })
 }
 
+export const handleRoundFinished = ({socket, setIsDisabled}) =>{
+    socket.on('is_next_round_button_disabled', (boolean)=> {
+        setIsDisabled(boolean)
+    })
+}
+
 export const cleanUpSocketListeners = (socket) =>{
     socket.off("send_tileInfo");
     socket.off("send_tileInfo2");
@@ -14,8 +20,11 @@ export const cleanUpSocketListeners = (socket) =>{
     socket.off('update_leaderboard');
     socket.off('receive_player_answer');
     socket.off('game_over');
+    socket.off('is_next_round_button_disabled');
 
 }
+
+
 
 
 export {

@@ -21,7 +21,7 @@ import {
     handleTileInfoUpdate, handleUpdateRound,
     handleGameOverEvent, handleReceivePlayerAnswer,
     handleLeaderBoardUpdate, handleGoToHomeScreen,
-    handlePositionsUpdate
+    handlePositionsUpdate, handleRoundFinished
 } from "./eventListenersMod";
 import{
     startRender
@@ -62,6 +62,7 @@ export function ModView() {
     const [arePiecesRendered, setArePiecesRendered] = useState(false);
     const [isBoardRendered, setIsBoardRendered] = useState(false);
 
+    const [isDisabled, setIsDisabled] = useState(true);
    
 
     const handleUpdatePoints = (points) => {
@@ -108,6 +109,7 @@ export function ModView() {
         handleReceivePlayerAnswer({socket,reviewQuestion});
         handleGoToHomeScreen({socket,navigate});
         handleGameOverEvent({socket, navigate});
+        handleRoundFinished({socket,setIsDisabled});
 
         return () => {
             cleanUpSocketListeners(socket)
@@ -137,7 +139,7 @@ export function ModView() {
             {isReadyToRender? <div className={showPopup ? 'appBlurred' : 'playboard'}>
                 <button className="Qbutton2" onClick={handleGuide}>?</button>
                 <div className='roundscounter'>{roundText}</div>
-                    {arePiecesRendered && (<BoardGrid
+                {arePiecesRendered && (<BoardGrid
                     moveMade={moveMade}
                     setMoveMade={setMoveMade}
                     setPosition={setPosition}
@@ -158,31 +160,50 @@ export function ModView() {
                 <PlayerProgress
                     playerProgressData={data}
                     onImageClick={onImageClick}/>
-                <DiceContainer
-                    setMoveMade={setMoveMade}
-                    position={position}
-                    diceValue={diceValue}
-                    isModeratorScreen={true}/>
+                {/*<DiceContainer*/}
+                {/*    setMoveMade={setMoveMade}*/}
+                {/*    position={position}*/}
+                {/*    diceValue={diceValue}*/}
+                {/*    isModeratorScreen={true}/>*/}
+
+
+                <div className="next-round-container">
+                    <button
+                        className="next-round-button"
+                        disabled={isDisabled}
+                        onClick={() => {
+                            socket.emit('start_next_round', );
+                        }}
+                    >
+                        Next Round
+                    </button>
+                </div>
+
+
+
                 <LeaderBoard
                     sortedUserData={sortedUserData}
                     playerName={playerName}/>
                 {/*flags use audio.css*/}
-                <div><img className='flagImg6' id='DEN' src={den_flag} alt='Danish' onClick={() => handleChangeLanguage('dk')} /></div>
-                <div><img className='flagImg7' id='EN' src={uk_flag} alt='English' onClick={() => handleChangeLanguage('en')} /></div>
-                <div><img className='flagImg8' id='NL' src={nl_flag} alt='Dutch' onClick={() => handleChangeLanguage('nl')} /></div>
+                <div><img className='flagImg6' id='DEN' src={den_flag} alt='Danish'
+                          onClick={() => handleChangeLanguage('dk')}/></div>
+                <div><img className='flagImg7' id='EN' src={uk_flag} alt='English'
+                          onClick={() => handleChangeLanguage('en')}/></div>
+                <div><img className='flagImg8' id='NL' src={nl_flag} alt='Dutch'
+                          onClick={() => handleChangeLanguage('nl')}/></div>
             </div> : (
                 <div className="loading-screen">
                     <p>Loading...</p>
                 </div>
             )}
-                <ModeratorPopUps
-                    answer={answer}
-                    popupColor={popupColor}
-                    showPopup={showPopup}
-                    setShowPopup={setShowPopup}
-                    question={question}
-                    submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
-                    selectedPoints={selectedPoints}
+            <ModeratorPopUps
+                answer={answer}
+                popupColor={popupColor}
+                showPopup={showPopup}
+                setShowPopup={setShowPopup}
+                question={question}
+                submittedAnswer={currentQuestionRef.current && currentQuestionRef.current.playerAnswer}// When the game starts currentQuestion will be null
+                selectedPoints={selectedPoints}
                     handleSubmitPoints={handleSubmitPoints}
                     handleUpdatePoints={handleUpdatePoints}
                 />
