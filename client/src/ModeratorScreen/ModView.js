@@ -63,7 +63,7 @@ export function ModView() {
     const [isBoardRendered, setIsBoardRendered] = useState(false);
 
     const [isDisabled, setIsDisabled] = useState(true);
-   
+
 
     const handleUpdatePoints = (points) => {
         setSelectedPoints(points);
@@ -116,24 +116,25 @@ export function ModView() {
         };
     }, []);
 
-
-
-    useEffect(() => {
-
+    useEffect(()=> {
         if(!sessionStorage.getItem('socketId')){ //If there is no sessionData stored the game screen can't be rendered
             navigate('/home');
         }
         else{ //The timeout is used because it takes some time before socketio has created the socket object
-            setTimeout(() => startRender(socket,false),500);
+            const currentSocketId = socket.id;
+            setTimeout(() => startRender(socket,currentSocketId,false),500);
         }
 
-    }, []);
+    },[])
 
-        useEffect(() => {
+
+
+    useEffect(() => {
         if (currentRound >= totalRounds && totalRounds > 0) {
-        socket.emit('end_game');
-    }
-}, [currentRound, totalRounds]);
+            socket.emit('end_game');
+        }
+
+    }, [currentRound, totalRounds])
     return (
         <>
             {isReadyToRender? <div className={showPopup ? 'appBlurred' : 'playboard'}>

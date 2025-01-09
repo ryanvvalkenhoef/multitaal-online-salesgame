@@ -34,14 +34,11 @@ class ModQuestionQueue extends QuestionQueue {
         }
 
         this.queues[room][playerId].push(question); // Add question to player's queue
-        console.log('Updated queue:', JSON.stringify(this.queues[room][playerId]));
-        console.log('Updated queue length:', this.queues[room][playerId].length);
         return true;
     }
 
     getQuestionFromQueue(socket, playerId) {
         const room = socket.room;
-        console.log('playerId:', playerId);
         if(!this.queues[room]){ // Mod doesn't have a queue
             return null;
         }
@@ -49,16 +46,11 @@ class ModQuestionQueue extends QuestionQueue {
             return null;
         }
         const question = this.queues[room][playerId].find(question => {
-            console.log('question', question);
-            console.log('Checking question.playerId:', question.playerId);
             return question.playerId === playerId;
         });
         if (!question) {
             console.log('No matching question found for playerId:', playerId);
         }
-
-        console.log('Found question:', question);
-
         return question || null;
     }
 

@@ -38,9 +38,7 @@ class ReconnectionManager {
         this.#sendPlayerNames(socket);
         this.#setTurnStatusTrue(socket);
         this.#setRollDiceStatus(socket);
-
-
-
+        this.#registerPlayer(socket);
 
     }
 
@@ -52,6 +50,7 @@ class ReconnectionManager {
         this.#sendPiecesData(socket);
         this.#sendPlayerColors(socket);
         this.#sendRoundData(socket);
+        this.#sendPlayerProgressModScreen(socket);
     }
 
     #updatePlayerId = (socket, sessionData) =>{
@@ -149,9 +148,40 @@ class ReconnectionManager {
             this.#socketManager.emitBackToClient(socket, 'set_roll_dice', true)
         }
     }
+
+    #registerPlayer = (socket) =>{ //tijdelijke functie
+        const strategy = this.#userLogger.getStrategy(socket.id);
+        const color = this.#userLogger.getColor(socket.id);
+        this.#socketManager.emitBackToClient(socket,"register_current_player", {strategy: strategy, color: color});
+    }
+
+    #sendPlayerProgressModScreen = (socket) =>{
+        const players = this.#userLogger.getAllPlayerObjects();
+        if(!players){
+            console.error("Can't get players: #sendPlayerProgressModScreen()");
+            return;
+        }
+
+        players.forEach((player) => {
+            if (player.isAnsweringQuestion) {
+                this.#socketManager.emitToMod(socket, 'player_is_answering', {
+                    playerId: player.id,
+                    isAnsweringQuestion: player.isAnsweringQuestion,
+                });
+            }
+            if (player.hasFinishedTurn) {
+                this.#socketManager.emitToMod(socket, 'player_has_finished_turn', {
+                    playerId: player.id,
+                    hasFinishedTurn: player.hasFinishedTurn,
+                });
+            }
+            if (player.hasBeenReviewed) {
+                this.#socketManager.emitToMod(socket, 'player_has_been_reviewed', {
+                    playerId: player.id,
+                    hasBeenReviewed: player.hasBeenReviewed,
+                });
+            }
+        });
+    }
 }
-
-
-
-
 module.exports = ReconnectionManager;

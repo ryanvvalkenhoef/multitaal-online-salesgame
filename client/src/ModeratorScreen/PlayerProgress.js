@@ -24,6 +24,7 @@ const PlayerProgress = ({playerProgressData, onImageClick}) => {
     const { t, i18n } = useTranslation('global');
 
     useEffect(() => {
+
         socket.on('player_is_answering', (data) => {
             setPlayersAnsweringQuestion((playerIdState) => {
                 if (data.isAnsweringQuestion) {

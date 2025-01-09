@@ -32,7 +32,7 @@ Lastly, you should start both sides (client and server) of the project:
 
 
 IMPORTANT NOTE:
-Everytime your pc is restarted or something in this category, you will need to do the following things again to start the project:
+Everytime your pc is restarted or if you did not correctly end running the program (ctrl + y in terminals to stop running), you will need to do the following things again to start the project:
 Database:
 1. Startup XAMPP
 2. Start Apache
@@ -46,10 +46,16 @@ Client:
 8. On the second window type "cd client"
 9. Type "npm start" to run the application
 
-
-
-
+POTENTIAL PROBLEM:
+MySql is not starting: you see red text in the XAMPP control panel. Make sure with taskmanager if it is not already running,
+if it is running, end it and start it again.
 
 IMPORTANT when pushing codes, the following file and folder must not be pushed:
 - 'package-lock.json' (file in server and client)
 - 'node_modules' (folder in server and client)
+
+DEPENDENCIES VERSIONS:
+- NodeJS: v20.17.0
+- npm: 10.8.2
+- XAMPP: 3.3.0 (windows) 8.2.4 (mac)
+

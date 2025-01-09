@@ -23,6 +23,10 @@ export function JoinGame() {
             setInformation("Please enter a name");
             return;
         }
+        if (username.length > 12) {
+            setInformation("Username cannot be longer than 12 characters");
+            return;
+        }
         socket.emit("join_room", { name: username, room: gamepin, strategy: strategy});
     };
 

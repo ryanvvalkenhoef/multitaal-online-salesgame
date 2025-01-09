@@ -17,8 +17,6 @@ class GameManager{
     this.#modLogger = modLogger;
     this.#socketManager = socketManager
     this.#gameStateTracker = gameStateTracker;
-    console.log('gameStateTracker')
-    console.log(this.#gameStateTracker)
     this.#modQuestionQueue = modQuestionQueue;
     this.#gameScreenDataEmitter = gameScreenDataEmitter;
   }
@@ -35,12 +33,9 @@ class GameManager{
 
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
-    console.log("in quueeeeeuee")
     const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(socket, playerId);
-    console.log('questionQueueLength:', questionQueueLength);
     if (questionQueueLength !== 0) {
       const questionData = this.#modQuestionQueue.getQuestionFromQueue(socket, playerId);
-      console.log('questionData:', questionData);
       this.sendAnswerToModerator(socket, questionData);
       // modQuestionQueue.removeQuestionFromQueue(socket, playerId);
       this.#modLogger.setIsReviewingQuestion(true);
@@ -61,6 +56,7 @@ class GameManager{
     const isGameFinished = this.#gameStateTracker.checkIfGameOver(roundInfo)
     if(isGameFinished){
       this.#socketManager.emitToRoom(socket,'game_over');
+
 
     }
     else {

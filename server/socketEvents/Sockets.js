@@ -1,14 +1,14 @@
 const databaseQuestion = require("../database/database");
 const databaseAnswer = require("../database/database");
 const getMovesFromCoordinate = require("../positionCalculator");
-const SocketManager = require("../Socket/SocketManager");
+const SocketManager = require("../socket/SocketManager");
 const PlayerQuestionQueue = require('../questionQueue/PlayerQuestionQueue');
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
 const RoomGenerator = require('../roomGenerator/RoomGenerator');
 const PreGameManager = require('../preGameManager/PreGameManager')
 const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
 const instanceFactory = require("../instanceFactory/instanceFactory");
-const ReconnectionManager = require("../ReconnectionManager/ReconnectionManager");
+const ReconnectionManager = require("../reconnectionManager/ReconnectionManager");
 
 
 
@@ -34,9 +34,6 @@ module.exports = function (io){
         /**@type {GameScreenDataEmitter}*/
         let gameScreenDataEmitter;
 
-        if(RoomGenerator.getRoomList().length < 1) {
-            io.emit('go_to_home_screen');
-        }
 
 
         const socketHandlers = {
@@ -65,19 +62,14 @@ module.exports = function (io){
                 socket.join(room);
             },
 
-            'disconnect': (reason) => { // Moet later naar gekeken worden
-                // const room = userLogger(room, "getRoom", socket.id)
-                // const name = userLogger(room, 'getPlayerNames', socket.id)
-                // modLogger(room, 'removeUser', socket.id, {name: name, room: room})
-                // socket.to(userLogger(room, "getRoom", socket.id)).emit('delete_user', "deleting")
-                // userLogger(room, "delete", socket.id)
-                // modLogger(room, "delete", socket.id)
+            'disconnect': () => {//niet zeker of dit werkt, moeilijk te testen
+                socket.emit('go_to_home_screen');
             },
 
             'join_room': (data) => { //join_room is the entry point for the players
                 let room;
                 let joinStatus;
-                console.log("Room: " + data.room);
+
                 const existingRooms = RoomGenerator.getRoomList();
                 const isValidRoom = PreGameManager.checkIfValidRoom(data.room, existingRooms);
                 jsonFileHandler = new JsonFileHandler(data.room);
@@ -120,7 +112,7 @@ module.exports = function (io){
                     socketManager.emitBackToClient(socket, 'join_succes', joinStatus);
                     gameScreenDataEmitter.sendPiecesData(socket);
                     gameScreenDataEmitter.sendPlayerColors(socket);
-                    socketManager.emitBackToClient(socket,)
+                   //socketManager.emitBackToClient(socket,)
 
                 } else {
                     // checks if joinStatus is undefined to prevent overwriting previous assignment.
@@ -138,32 +130,32 @@ module.exports = function (io){
                 try {
                     const room = sessionData.room;
                     const isValidRoom = PreGameManager.checkIfValidRoom(room, RoomGenerator.getRoomList())
-                    if(!isValidRoom){
-                        socketManager.emitBackToClient(socket,'go_to_home_screen');
+
+                    if (!isValidRoom) {
+                        socketManager.emitBackToClient(socket, 'go_to_home_screen');
                     }
+                    else {
+                        socket.room = room;
+                        socket.join(room)
+                        socket.join(`${room}players`)
 
-                    socket.room = room;
-                    socket.join(room)
-                    socket.join(`${room}players`)
+                        const instances = instanceFactory(room, socketManager,modQuestionQueue);
+                        jsonFileHandler = instances.jsonFileHandler;
+                        modLogger = instances.modLogger;
+                        userLogger = instances.userLogger;
+                        gameStateTracker = instances.gameStateTracker;
+                        gameManager = instances.gameManager;
+                        gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                    const instances = instanceFactory(room, socketManager);
-                    jsonFileHandler = instances.jsonFileHandler;
-                    modLogger = instances.modLogger;
-                    userLogger = instances.userLogger;
-                    gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances.gameManager;
-                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
+                        const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
+                        reconnectionManager.reconnectPlayer(socket, sessionData);
 
-                    const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
-                    reconnectionManager.reconnectPlayer(socket, sessionData);
-
-
-                    playerQuestionQueue.reconnectToQueue(socket, sessionData);
-                    const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
-                    if (questionQueueLength > 0) {
-                        const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
-                        socketManager.emitBackToClient(socket, 'receive_question', questionData);
-                        playerQuestionQueue.removeQuestionFromQueue(socket);
+                        playerQuestionQueue.reconnectToQueue(socket, sessionData);
+                        const questionQueueLength = playerQuestionQueue.getQuestionQueueLength(socket);
+                        if (questionQueueLength > 0) {
+                            const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
+                            socketManager.emitBackToClient(socket, 'receive_question', questionData);
+                        }
                     }
                 }
                 catch (exception){
@@ -176,35 +168,34 @@ module.exports = function (io){
                 try {
                     const room = sessionData.room;
                     const isValidRoom = PreGameManager.checkIfValidRoom(room, RoomGenerator.getRoomList())
-                    if(!isValidRoom){
-                        socketManager.emitBackToClient(socket,'go_to_home_screen');
+                    if (!isValidRoom) {
+                        socketManager.emitBackToClient(socket, 'go_to_home_screen');
                     }
+                    else {
+                        socket.room = room;
+                        socket.join(room);
+                        socket.join(`${room}mod`);
 
-                    socket.room = room;
-                    socket.join(room);
-                    socket.join(`${room}mod`);
+                        const instances = instanceFactory(room, socketManager,modQuestionQueue);
+                        jsonFileHandler = instances.jsonFileHandler;
+                        modLogger = instances.modLogger;
+                        userLogger = instances.userLogger;
+                        gameStateTracker = instances.gameStateTracker;
+                        gameManager = instances.gameManager;
+                        gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
-                    const instances = instanceFactory(room, socketManager);
-                    jsonFileHandler = instances.jsonFileHandler;
-                    modLogger = instances.modLogger;
-                    userLogger = instances.userLogger;
-                    gameStateTracker = instances.gameStateTracker;
-                    gameManager = instances.gameManager;
-                    gameScreenDataEmitter = instances.gameScreenDataEmitter;
+                        const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
+                        reconnectionManager.reconnectMod(socket, sessionData);
 
-
-                    const reconnectionManager = new ReconnectionManager(userLogger, modLogger, gameScreenDataEmitter, gameManager, socketManager, gameStateTracker);
-                    reconnectionManager.reconnectMod(socket, sessionData);
-
-                    const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
-                    if (questionQueueLength > 0) {
-                        const question = modQuestionQueue.getQuestionFromQueue(socket);
-                        gameManager.sendAnswerToModerator(socket, question);
+                        const questionQueueLength = modQuestionQueue.getQuestionQueueLength(socket);
+                        if (questionQueueLength > 0) {
+                            const question = modQuestionQueue.getQuestionFromQueue(socket);
+                            gameManager.sendAnswerToModerator(socket, question);
+                        }
                     }
                 }
             catch (exception){
                     console.error("Can't reconnect moderator")
-
                 }
             },
 
@@ -215,7 +206,6 @@ module.exports = function (io){
                 let popupColor
                 if (data.questionColor === 'rainbow') {
                     data.questionColor = data.userColor
-                    console.log('Data.usercolor: ' + data.userColor )
                     popupColor = data.userColor;
                 }
                 switch (data.questionColor) {
@@ -234,22 +224,22 @@ module.exports = function (io){
 
                 const questionData = {questionText: question, questionColor: popupColor, playerColor: data.userColor, answer: answer};
                 if (availableColors.includes(data.questionColor)){ //is het een kleurvraag?
-                    const receiver = userLogger.getReceiver(data.questionColor); //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf
-                    if (receiver !== socket.id){//wanneer speler op ander vakje staat staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
+                    const receiver = userLogger.getReceiver(data.questionColor);
+                    playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
+                    const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(socket.id);
+                    //naar wie moet de vraag? kleur van het vakje bepalende factor, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
+                    if (receiver !== socket.id && !playerFinishedTurn){//wanneer speler op ander gekleurd vakje komt, staat deze als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
                         userLogger.updateUser(socket.id,{hasBeenReviewed: true});
                         socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
                     }
                     const playerIsAnsweringQuestion = userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-                    if (playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
-                        playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
-                        console.log('playerQuestionQueue:', JSON.stringify(playerQuestionQueue));
-                    }
-                    else { //speler kan de vraag direct beantwoorden
+                    if (!playerIsAnsweringQuestion){ //vraag in de queue als speler al bezig is met antwoorden
                         socketManager.emitToSpecificSocket(receiver, 'receive_question', questionData);
                         userLogger.setIsAnsweringQuestion(true,receiver);
                         socketManager.emitToMod(socket, 'player_is_answering', {playerId: receiver, isAnsweringQuestion: true});
                     }
                 } else { // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
+                    playerQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
                     socketManager.emitBackToClient(socket,'receive_question',questionData);
                     userLogger.setIsAnsweringQuestion(true, socket.id);
                     socketManager.emitToMod(socket, 'player_is_answering', {playerId: socket.id, isAnsweringQuestion: true});
@@ -257,19 +247,17 @@ module.exports = function (io){
             },
 
             'get_player_answer_on_click': (playerId) => {
-                console.log("in get_player_answer_on_click ")
                 gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, playerId);
             },
 
             'send_answer_to_server': (questionData) => {
                 //await gameManager.waitForModToFinishReview(modLogger);
                 modQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
-                console.log('modQuestionQueue:', JSON.stringify(modQuestionQueue));
                 // Check if the question queue of the player who sent the question to the server contains any questions.
+                playerQuestionQueue.removeQuestionFromQueue(socket);
                 if (playerQuestionQueue.getQuestionQueueLength(socket) > 0 ){
                     const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
                     socketManager.emitBackToClient(socket, 'receive_question', questionData);
-                    playerQuestionQueue.removeQuestionFromQueue(socket);
                 } else {
                     userLogger.setIsAnsweringQuestion(false, socket.id);
                 }
@@ -301,7 +289,7 @@ module.exports = function (io){
             },
 
 
-            'get_player_strategy': (data) => {
+            'get_player_strategy': (data) => { // event moet anders
                 const strategy = userLogger.getStrategy(socket.id);
                 const color = userLogger.getColor(socket.id);
                 socketManager.emitBackToClient(socket,"register_current_player", {strategy: strategy, color: color});
@@ -327,8 +315,6 @@ module.exports = function (io){
 
 
             'points_submitted_question_reviewed': (reviewData) => {
-                //submit points zou niet meteen afgehandeld moeten worden, aangezien er binnen een ronde meerdere keren punten gegeven kunnen worden aan dezelfde speler.
-                //Hierdoor kan in één ronde de previous points al zichtbaar zijn, terwijl dat pas in de volgende ronde zichtbaar moet zijn.
                 const id = reviewData.playerId;
                 const oldTotalPoints = userLogger.getPoints(id);
                 const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
@@ -368,46 +354,21 @@ module.exports = function (io){
 
             /////// Events staan tijdelijk in dit bestand
             'get_tileInfo': (data) => {
-
-                //TILE_INFO FOR WHEN 2-6 PLAYERS JOIN
-                const tileInfo = [
-                    'sales', 'color1', 'color3', 'megatrends', 'rainbow', 'color4', 'chance', 'color2', 'color7', 'sales', 'rainbow', 'color12', 'megatrends', 'color10', 'color8',
-                    'color6', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance',
-                    'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color9', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color11',
-                    'color5', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'rainbow',
-                    'rainbow', 'sales', 'color8', 'chance', 'color1', 'megatrends', 'color10', 'start', 'rainbow', 'sales', 'color4', 'megatrends', 'color7', 'color6', 'sales',
-                    'megatrends', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'sales', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color9',
-                    'color10', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color12', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'color4',
-                    'color3', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'chance', 'blank', 'blank', 'blank', 'blank', 'blank', 'blank', 'megatrends',
-                    'sales', 'rainbow', 'color11', 'chance', 'color2', 'color7', 'megatrends', 'rainbow', 'color9', 'sales', 'color8', 'color6', 'chance', 'rainbow', 'color5'
-                ]
-
-                //TILE_INFO FOR WHEN 5 PLAYERS JOIN
-                const tileInfo2 = [
-                    'sales','color1','color5','megatrends','rainbow','color4','chance', 'color2', 'color1', 'sales','rainbow', 'color3','megatrends','color4','color2',
-                    'color3','blank','blank','blank', 'blank','blank', 'blank', 'megatrends', 'blank', 'blank','blank', 'blank', 'blank', 'blank','chance',
-                    'chance','blank','blank','blank','blank','blank', 'blank', 'color5', 'blank','blank','blank', 'blank', 'blank','blank','color5',
-                    'color5','blank','blank','blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank','rainbow',
-                    'rainbow','sales','color2','chance', 'color1','megatrends', 'color4', 'start', 'rainbow', 'sales','color4', 'megatrends', 'color1','color3', 'sales',
-                    'megatrends','blank','blank', 'blank', 'blank','blank', 'blank', 'sales', 'blank', 'blank','blank', 'blank', 'blank','blank', 'color5',
-                    'color4','blank', 'blank', 'blank', 'blank','blank', 'blank', 'color3', 'blank', 'blank','blank','blank','blank','blank','color4',
-                    'color5', 'blank', 'blank', 'blank', 'blank','blank', 'blank', 'chance', 'blank', 'blank','blank', 'blank', 'blank','blank', 'megatrends',
-                    'sales', 'rainbow', 'color5', 'chance', 'color2','color1', 'megatrends', 'rainbow', 'color5', 'sales','color2','color3', 'chance', 'rainbow', 'color5'
-                ]
-
                 gameScreenDataEmitter.sendBoardData(socket);
             },
 
             'roll_dice' : (playerRollDice) => {
                 const diceValue = Math.floor(Math.random() * 6) + 1;
-                socket.emit("set_dice", 4)
-                const canRollDice = userLogger.getCanRollDice(socket.id);
-                console.log('userlogger is prolly not defined' + userLogger);
-
-                if (canRollDice && playerRollDice) { //if its truly players turn do this
+                socket.emit("set_dice", diceValue);
+                //try/catch tegen crashen maar onduidelijk waarom userlogger soms na tijdje niks doen undefined is
+                try {
+                    const canRollDice = userLogger.getCanRollDice(socket.id);
+                    if (canRollDice && playerRollDice) { //if its truly players turn do this
                         userLogger.setCanRollDice(socket.id, false);
                         socketManager.emitToSpecificSocket(socket.id, 'set_roll_dice', false);
-                        console.log('canRollDice vergelijken' + canRollDice + ' en ' + playerRollDice);
+                    }
+                } catch (error) {
+                    console.error('Error getting canRollDice', error);
                 }
             },
 
@@ -442,7 +403,7 @@ module.exports = function (io){
                             const users = userLogger.getScores();
                             const sortedUsers = users.sort((a, b) => b.totalPoints - a.totalPoints);
 
-                            socket.to(room).emit('show_results', sortedUsers);
+                            socketManager.emitBackToClient(socket,'show_results', sortedUsers);
                         }
         }
         Object.keys(socketHandlers).forEach(event => {

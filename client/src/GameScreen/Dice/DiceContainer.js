@@ -21,13 +21,14 @@ const DiceContainer = (props) => {
     };
 
     useEffect(() => {
+        console.log("rollDice in dicecontainer1111: " + playerRollDice)
 
         const setDice = (data) => {
             const dice = document.querySelector(".diceImage");
             dice.classList.add("shake");
 
             const interval = setInterval(() => {
-                const diceValue = Math.floor(Math.random() * 6) + 1;
+                const diceValue = Math.floor(Math.random() * 6) + 1; // purely for the animation
                 dice.setAttribute("src", images[diceValue - 1]);
             }, 100);
 
@@ -42,11 +43,14 @@ const DiceContainer = (props) => {
 
         socket.on("set_dice", setDice);
         socket.on("player_names", setPlayerName);
+        console.log("rollDice in dicecontainer: " + playerRollDice)
 
         return () => {
             socket.off("set_dice", setDice);
             socket.off("player_names", setPlayerName);
         };
+
+
     }, [position]);
 
     return (
