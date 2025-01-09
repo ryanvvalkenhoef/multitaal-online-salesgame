@@ -28,7 +28,7 @@ const DiceContainer = (props) => {
             dice.classList.add("shake");
 
             const interval = setInterval(() => {
-                const diceValue = Math.floor(Math.random() * 6) + 1;
+                const diceValue = Math.floor(Math.random() * 6) + 1; // purely for the animation
                 dice.setAttribute("src", images[diceValue - 1]);
             }, 100);
 
