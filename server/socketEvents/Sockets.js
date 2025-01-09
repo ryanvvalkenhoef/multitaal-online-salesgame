@@ -227,8 +227,8 @@ module.exports = function (io){
                     const receiver = userLogger.getReceiver(data.questionColor);
                     playerQuestionQueue.addQuestionToQueue(socket,receiver,questionData);
                     const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(socket.id);
-                    //naar wie moet de vraag? gaat om de kleur van het vakje, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
-                    if (receiver !== socket.id && !playerFinishedTurn){//wanneer speler op ander vakje komt staat deze gelijk als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
+                    //naar wie moet de vraag? kleur van het vakje bepalende factor, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
+                    if (receiver !== socket.id && !playerFinishedTurn){//wanneer speler op ander gekleurd vakje komt, staat deze als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
                         userLogger.updateUser(socket.id,{hasBeenReviewed: true});
                         socketManager.emitToMod(socket, 'player_has_been_reviewed', {playerId: socket.id, hasBeenReviewed: true});
                     }
