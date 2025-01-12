@@ -5,31 +5,46 @@ const GameStateTrackerManager = require("../gameState/GameStateTrackerManager");
 const GameManager = require("../GameManager");
 const GameScreenDataEmitter = require("../gameDataEmitters/GameScreenDataEmitter");
 
+const createJsonFileHandler = (room) => {
+  return new JsonFileHandler(room);
+};
+const createModLogger = (room, jsonFileHandler) => {
+  return new ModLogger(room, jsonFileHandler);
+};
 
+const createUserLogger = (room, jsonFileHandler) => {
+  return new UserLogger(room, jsonFileHandler);
+};
 
-const createJsonFileHandler = (room)=>{
-    return new JsonFileHandler(room);
+const createGameStateTracker = (room, jsonFileHandler) => {
+  return GameStateTrackerManager.getGameStateTracker(room, jsonFileHandler);
+};
 
-}
-const createModLogger = (room ,jsonFileHandler)=>{
-    return new ModLogger(room, jsonFileHandler);
-}
+const createGameScreenDataEmitter = (
+  userLogger,
+  socketManager,
+  gameStateTracker,
+) => {
+  return new GameScreenDataEmitter(userLogger, socketManager, gameStateTracker);
+};
 
-const createUserLogger = (room, jsonFileHandler ) =>{
-    return new UserLogger(room,jsonFileHandler);
-}
-
-const createGameStateTracker = (room, jsonFileHandler) =>{
-    return GameStateTrackerManager.getGameStateTracker(room,jsonFileHandler);
-}
-
-const createGameScreenDataEmitter = (userLogger,socketManager, gameStateTracker) =>{
-    return new GameScreenDataEmitter(userLogger,socketManager,gameStateTracker)
-}
-
-const createGameManager = (userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue ,gameScreenDataEmitter ) =>{
-    return new GameManager(userLogger, modLogger, socketManager,gameStateTracker, modQuestionQueue ,gameScreenDataEmitter);
-}
+const createGameManager = (
+  userLogger,
+  modLogger,
+  socketManager,
+  gameStateTracker,
+  modQuestionQueue,
+  gameScreenDataEmitter,
+) => {
+  return new GameManager(
+    userLogger,
+    modLogger,
+    socketManager,
+    gameStateTracker,
+    modQuestionQueue,
+    gameScreenDataEmitter,
+  );
+};
 
 /**
  * @module InstanceFactory
@@ -56,20 +71,31 @@ const createGameManager = (userLogger, modLogger, socketManager,gameStateTracker
  * const userLogger = gameInstances.userLogger;
  */
 
-const createInstances = (room, socketManager,modQuestionQueue) =>{
-    let instances = {};
+const createInstances = (room, socketManager, modQuestionQueue) => {
+  let instances = {};
 
-    instances.jsonFileHandler = createJsonFileHandler(room);
-    instances.modLogger = createModLogger(room, instances.jsonFileHandler);
-    instances.userLogger = createUserLogger(room, instances.jsonFileHandler);
-    instances.gameStateTracker = createGameStateTracker(room,instances.jsonFileHandler);
-    instances.gameScreenDataEmitter = createGameScreenDataEmitter(instances.userLogger,socketManager,instances.gameStateTracker)
-    instances.gameManager = createGameManager(instances.userLogger,instances.modLogger,socketManager,instances.gameStateTracker,modQuestionQueue ,instances.gameScreenDataEmitter )
+  instances.jsonFileHandler = createJsonFileHandler(room);
+  instances.modLogger = createModLogger(room, instances.jsonFileHandler);
+  instances.userLogger = createUserLogger(room, instances.jsonFileHandler);
+  instances.gameStateTracker = createGameStateTracker(
+    room,
+    instances.jsonFileHandler,
+  );
+  instances.gameScreenDataEmitter = createGameScreenDataEmitter(
+    instances.userLogger,
+    socketManager,
+    instances.gameStateTracker,
+  );
+  instances.gameManager = createGameManager(
+    instances.userLogger,
+    instances.modLogger,
+    socketManager,
+    instances.gameStateTracker,
+    modQuestionQueue,
+    instances.gameScreenDataEmitter,
+  );
 
-    return instances;
-
-}
+  return instances;
+};
 
 module.exports = createInstances;
-
-

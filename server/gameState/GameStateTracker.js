@@ -17,66 +17,68 @@
  */
 
 class GameStateTracker {
+  #room;
+  #jsonFileHandler;
 
-    #room
-    #jsonFileHandler
+  constructor(room, jsonFileHandler) {
+    this.#room = room;
+    this.#jsonFileHandler = jsonFileHandler;
+  }
 
-    constructor(room,jsonFileHandler) {
-        this.#room = room;
-        this.#jsonFileHandler = jsonFileHandler;
-    }
+  getRoom() {
+    return this.#room;
+  }
 
-    
-    getRoom(){
-        return this.#room;
-    }
+  getStrategies() {
+    // is also used to get the pieces
+    const data = this.#jsonFileHandler.readData();
+    return data && data.gameState
+      ? data.gameState.strategies
+      : "No players found";
+  }
 
+  getPlayerNames() {
+    const data = this.#jsonFileHandler.readData();
+    return data ? data.gameState.playerNames : null;
+  }
 
-    getStrategies() {  // is also used to get the pieces
-        const data = this.#jsonFileHandler.readData()
-        return data && data.gameState ? data.gameState.strategies : "No players found";
-    }
+  nextRound() {
+    const data = this.#jsonFileHandler.readData();
+    if (!data) return null;
+    data.gameState.currentRound++;
+    this.#jsonFileHandler.writeData(data);
+  }
 
-    getPlayerNames() {
-        const data = this.#jsonFileHandler.readData()
-        return data ? data.gameState.playerNames : null;
-    }
+  getRound() {
+    const data = this.#jsonFileHandler.readData();
+    return data
+      ? {
+          currentRound: data.gameState.currentRound,
+          totalRounds: data.gameState.totalRounds,
+        }
+      : null;
+  }
 
-    nextRound(){
-        const data = this.#jsonFileHandler.readData()
-        if(!data) return null;
-        data.gameState.currentRound ++;
-        this.#jsonFileHandler.writeData(data);
-    }
+  getPlayerCount() {
+    const data = this.#jsonFileHandler.readData();
+    return data ? data.gameState.totalPlayers : null;
+  }
 
-    getRound() {
-        const data = this.#jsonFileHandler.readData()
-        return data ? { currentRound: data.gameState.currentRound, totalRounds: data.gameState.totalRounds } : null;
-    }
+  getPlayerList() {
+    const data = this.#jsonFileHandler.readData();
+    return data ? data.users : null;
+  }
 
+  checkIfRoundIsFinished() {
+    const data = this.#jsonFileHandler.readData();
+    return data
+      ? data.gameState.totalPlayers === data.mod.numberOfQuestionsReviewed
+      : null;
+  }
 
-    getPlayerCount() {
-        const data = this.#jsonFileHandler.readData()
-        return data ? data.gameState.totalPlayers : null;
-    }
-
-
-    getPlayerList() {
-        const data = this.#jsonFileHandler.readData()
-        return data ? data.users : null;
-    }
-
-    checkIfRoundIsFinished() {
-        const data = this.#jsonFileHandler.readData()
-        return data ? data.gameState.totalPlayers === data.mod.numberOfQuestionsReviewed : null;
-    }
-
-
-    checkIfGameOver = (roundInfo) =>{
-        return roundInfo.currentRound === roundInfo.totalRounds;
-    }
-
-
+  checkIfGameOver = (roundInfo) => {
+    return roundInfo.currentRound === roundInfo.totalRounds;
+  };
 }
 
 module.exports = GameStateTracker;

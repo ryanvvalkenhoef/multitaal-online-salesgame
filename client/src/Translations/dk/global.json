@@ -17,10 +17,10 @@
   },
 
   "ModSettings": {
-  "players": "Antal spillere",
-  "rounds": "Antal runder",
-  "continue": "Blive ved"
-},
+    "players": "Antal spillere",
+    "rounds": "Antal runder",
+    "continue": "Blive ved"
+  },
 
   "GamePin": {
     "gamepin": "Værelseskode",
@@ -28,7 +28,7 @@
     "start": "Start Spil!",
     "home": "Startskærmen"
   },
-  "Game":{
+  "Game": {
     "wait": "Venter på, at moderator starter spillet",
     "TurnText": "kaster terningerne",
     "setTurnText": "Det er {{data}}s tur til at kaste terningerne og svare på et spørgsmål",

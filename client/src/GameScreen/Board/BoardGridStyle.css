@@ -1,291 +1,297 @@
 .board-grid {
-    width: 65%;
-    float: left;
-    display: grid;
-    grid-template-columns: repeat(15, 70px);
-    grid-template-rows: repeat(9, 70px);
-    margin-top: 5%;
-    margin-left: 0;
-    justify-content: center;
-    align-content: center;
+  width: 65%;
+  float: left;
+  display: grid;
+  grid-template-columns: repeat(15, 70px);
+  grid-template-rows: repeat(9, 70px);
+  margin-top: 5%;
+  margin-left: 0;
+  justify-content: center;
+  align-content: center;
 }
 
 .tile {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    margin: 2%;
-    position: relative;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 0;
-    border-radius: 20%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  margin: 2%;
+  position: relative;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 0;
+  border-radius: 20%;
 }
 
 .tile.blink {
-    animation: blink-Border 0.6s infinite alternate;
+  animation: blink-Border 0.6s infinite alternate;
 }
 
 @keyframes blink-Border {
-    0% {
-        border: 3px solid transparent;
-    }
-    100% {
-        border: 3px solid #ffdfba;
-    }
+  0% {
+    border: 3px solid transparent;
+  }
+  100% {
+    border: 3px solid #ffdfba;
+  }
 }
 
 .yellow {
-    background-color: #DAB24B;
+  background-color: #dab24b;
 }
-.pieceyellow{
-    color:#DAB24B
+.pieceyellow {
+  color: #dab24b;
 }
 
 .blue {
-    background-color: #47A1C8;
+  background-color: #47a1c8;
 }
-.pieceblue{
-    color:#47A1C8
+.pieceblue {
+  color: #47a1c8;
 }
 
 .red {
-    background-color: #BA4040;
+  background-color: #ba4040;
 }
-.piecered{
-    color:#BA4040
+.piecered {
+  color: #ba4040;
 }
 
 .green {
-    background-color: #53A65B;
+  background-color: #53a65b;
 }
-.piecegreen{
-    color:#53A65B
+.piecegreen {
+  color: #53a65b;
 }
 
 .orange {
-    background-color: #C66732;
+  background-color: #c66732;
 }
-.pieceorange{
-    color:#C66732
+.pieceorange {
+  color: #c66732;
 }
 
 .purple {
-    background-color: #A83E8A;
+  background-color: #a83e8a;
 }
-.piecepurple{
-    color:#A83E8A
+.piecepurple {
+  color: #a83e8a;
 }
 
 .black {
-    background-color: #000000;
+  background-color: #000000;
 }
 
 .start {
-    background-color: black;
+  background-color: black;
 }
 
 .sales {
-    background-image: url('../../Assets/Sales.png');
-    background-size: cover;
+  background-image: url("../../Assets/Sales.png");
+  background-size: cover;
 }
 
-.chance{
-    background-image: url('../../Assets/Chance.png');
-    background-size: cover;
+.chance {
+  background-image: url("../../Assets/Chance.png");
+  background-size: cover;
 }
 
-.rainbow{
-    background-image: url('../../Assets/Rainbow.png');
-    background-size: cover;
+.rainbow {
+  background-image: url("../../Assets/Rainbow.png");
+  background-size: cover;
 }
 
-.megatrends{
-    background-image: url('../../Assets/MegaTrends.png');
-    background-size: cover;
+.megatrends {
+  background-image: url("../../Assets/MegaTrends.png");
+  background-size: cover;
 }
 
 .startpieces {
-    position: relative;
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 50%;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 50%;
 }
 .black-border-piece {
-    inset: -1px;
-    background: #000000;
-
+  inset: -1px;
+  background: #000000;
 }
 
 .gradient-background {
-    position: absolute;
-    inset: -1px;
-    background: linear-gradient(-45deg, #00ff66, #00ffff, #ff00ff, #ff0099, #099fff, #00ff66);
-    background-size: 400%;
-    border-radius: 50%;
-    z-index: -1;
-    animation: change 10s linear infinite;
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(
+    -45deg,
+    #00ff66,
+    #00ffff,
+    #ff00ff,
+    #ff0099,
+    #099fff,
+    #00ff66
+  );
+  background-size: 400%;
+  border-radius: 50%;
+  z-index: -1;
+  animation: change 10s linear infinite;
 }
 
 @keyframes change {
-    0% {
-        background-position: 0, 0;
-    }
-    50% {
-        background-position: 400%, 0;
-    }
-    100% {
-        background-position: 0, 0;
-    }
+  0% {
+    background-position: 0, 0;
+  }
+  50% {
+    background-position: 400%, 0;
+  }
+  100% {
+    background-position: 0, 0;
+  }
 }
 
-.round-border::after{
-    filter:blur(5px);
-    opacity: 0.5;
+.round-border::after {
+  filter: blur(5px);
+  opacity: 0.5;
 }
 
 .pieceworld {
-    background-image: url('../../Assets/TopOfTheWorld.png');
-    background-size: cover;
-    border-radius: 50%;
-    border-color: #2d2f30;
-    width: 18%;
-    height: 3vw;
+  background-image: url("../../Assets/TopOfTheWorld.png");
+  background-size: cover;
+  border-radius: 50%;
+  border-color: #2d2f30;
+  width: 18%;
+  height: 3vw;
 }
 
 .piecelunar {
-    background-image: url('../../Assets/LUNAR.png');
-    background-size: cover;
-    border-radius: 50%;
-    width: 18%;
-    height: 3vw;
+  background-image: url("../../Assets/LUNAR.png");
+  background-size: cover;
+  border-radius: 50%;
+  width: 18%;
+  height: 3vw;
 }
 
 .piecedomino {
-    background-image: url('../../Assets/DominoHouse.png');
-    background-size: cover;
-    border-radius: 50%;
-    width: 18%;
-    height: 3vw;
+  background-image: url("../../Assets/DominoHouse.png");
+  background-size: cover;
+  border-radius: 50%;
+  width: 18%;
+  height: 3vw;
 }
 
 .piecesafeline {
-    background-image: url('../../Assets/SAFELINE.png');
-    background-size: cover;
-    border-radius: 50%;
-    width: 18%;
-    height: 3vw;
+  background-image: url("../../Assets/SAFELINE.png");
+  background-size: cover;
+  border-radius: 50%;
+  width: 18%;
+  height: 3vw;
 }
 
 .piecejysk {
-    background-image: url('../../Assets/JYSKTelepartner.png');
-    background-size: cover;
-    border-radius: 50%;
-    width: 18%;
-    height: 3vw;
+  background-image: url("../../Assets/JYSKTelepartner.png");
+  background-size: cover;
+  border-radius: 50%;
+  width: 18%;
+  height: 3vw;
 }
 
 .pieceklaphatten {
-    background-image: url('../../Assets/Klaphatten.png');
-    background-size: cover;
-    border-radius: 50%;
-    width: 18%;
-    height: 3vw;
+  background-image: url("../../Assets/Klaphatten.png");
+  background-size: cover;
+  border-radius: 50%;
+  width: 18%;
+  height: 3vw;
 }
 
 .startpieces:only-child {
-    width: 35px;
-    height: 35px;
+  width: 35px;
+  height: 35px;
 }
 
 .startpieces:not(:only-child) {
-    width: 18px;
-    height: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .tile img {
-    width: 20px;
-    height: 20px;
-    position: relative;
+  width: 20px;
+  height: 20px;
+  position: relative;
 }
 
 path {
-    position: relative;
+  position: relative;
 }
 
-.flagImg6{
-    right: -20%;
-    margin-top: 8%;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 2cm;
-    height: 2cm;
-    text-align: center;
-    position: relative;
+.flagImg6 {
+  right: -20%;
+  margin-top: 8%;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 2cm;
+  height: 2cm;
+  text-align: center;
+  position: relative;
 }
 
-.flagImg7{
-    right: -20%;
-    margin-top: 2%;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 2cm;
-    height: 2cm;
-    text-align: center;
-    position: relative;
+.flagImg7 {
+  right: -20%;
+  margin-top: 2%;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 2cm;
+  height: 2cm;
+  text-align: center;
+  position: relative;
 }
 
-.flagImg8{
-    right: -20%;
-    margin-top: 2%;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 2cm;
-    height: 2cm;
-    text-align: center;
-    position: relative;
+.flagImg8 {
+  right: -20%;
+  margin-top: 2%;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 2cm;
+  height: 2cm;
+  text-align: center;
+  position: relative;
 }
 
 .next-round-container {
-    position: fixed;
-    bottom: 65px;
-    right: 250px;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  bottom: 65px;
+  right: 250px;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .next-round-button {
-    background-color: #DAB24B;
-    color: black;
-    border: none;
-    padding: 24px 36px;
-    font-size: 22px;
-    font-weight: bold;
-    border-radius: 12px;
-    box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.1); /* schadow */
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* effect with an hover */
+  background-color: #dab24b;
+  color: black;
+  border: none;
+  padding: 24px 36px;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 12px;
+  box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.1); /* schadow */
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease; /* effect with an hover */
 }
 
 .next-round-button:hover {
-    background-color: #DAB24B;
-    transform: scale(1.05);
+  background-color: #dab24b;
+  transform: scale(1.05);
 }
 
 .next-round-button:active {
-    background-color: #DAB24B;
-    transform: scale(0.95);
+  background-color: #dab24b;
+  transform: scale(0.95);
 }
 .next-round-button:disabled {
-    background-color: #cccccc; /* Grey background */
-    color: #777777; /* Grey text */
-    cursor: not-allowed;
-    pointer-events: none;
-    transform: none;
-    opacity: 0.7;
+  background-color: #cccccc; /* Grey background */
+  color: #777777; /* Grey text */
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  opacity: 0.7;
 }
-
-
-

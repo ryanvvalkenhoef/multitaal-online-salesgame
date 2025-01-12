@@ -1,77 +1,82 @@
 .flicker {
-    animation: flicker 1s linear infinite;
+  animation: flicker 1s linear infinite;
 }
 
 @keyframes flicker {
-    0% { opacity: 1; }
-    50% { opacity: 0.25; }
-    100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .flicker {
-    animation: flicker 1s linear infinite;
+  animation: flicker 1s linear infinite;
 }
 
 .rowpopup {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#player{
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 36px;
-    color: white;
-    margin: 30px 0;
-    font-weight: 500;
-    position: absolute;
-    top: 80%;
-    left: 4%;
+#player {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 36px;
+  color: white;
+  margin: 30px 0;
+  font-weight: 500;
+  position: absolute;
+  top: 80%;
+  left: 4%;
 }
 
-
-.shake{
-    animation: shake 0.5s infinite;
+.shake {
+  animation: shake 0.5s infinite;
 }
-@keyframes shake{
-    0%{
-        transform: rotate(10deg);
-    }
-    50%{
-        transform: rotate(-10deg);
-    }
-    100%{
-        transform: rotate(10deg);
-    }
+@keyframes shake {
+  0% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
 }
 
 .playboard-container {
-    position: fixed;
-    left: 40%;
-    top: 25%;
+  position: fixed;
+  left: 40%;
+  top: 25%;
 }
 
 .blurred {
-    filter: blur(5px);
+  filter: blur(5px);
 }
 
 .playerTurn {
-    position: absolute;
-    font-family: 'Itim', Arial, sans-serif;
-    font-size: 35px;
-    color: #F9E513;
-    margin-left: 4%;
-    margin-top: 42%;
+  position: absolute;
+  font-family: "Itim", Arial, sans-serif;
+  font-size: 35px;
+  color: #f9e513;
+  margin-left: 4%;
+  margin-top: 42%;
 }
 
 .turnsModView {
-    font-family: 'Itim', Arial, sans-serif;
-    font-size: 35px;
+  font-family: "Itim", Arial, sans-serif;
+  font-size: 35px;
 }
 
-.roundscounter{
-    position: absolute;
-    font-size: 35px;
-    color: #F9E513;
-    left: 4%;
+.roundscounter {
+  position: absolute;
+  font-size: 35px;
+  color: #f9e513;
+  left: 4%;
 }

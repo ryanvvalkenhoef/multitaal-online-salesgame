@@ -28,7 +28,7 @@
     "start": "Start!",
     "home": "Home"
   },
-  "Game":{
+  "Game": {
     "wait": "Waiting for moderator to start game",
     "TurnText": "is rolling the dice",
     "setTurnText": "It's {{data}}'s turn to roll the dice and answer a question",
