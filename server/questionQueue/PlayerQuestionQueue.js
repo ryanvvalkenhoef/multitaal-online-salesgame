@@ -1,84 +1,86 @@
-const QuestionQueue = require('./questionQueue');
+const QuestionQueue = require("./questionQueue");
 
-class PlayerQuestionQueue extends QuestionQueue{
+class PlayerQuestionQueue extends QuestionQueue {
+  constructor() {
+    super();
+  }
 
-    constructor() {
-        super();
+  getQuestionQueueLength(socket) {
+    const room = socket.room;
+    const playerId = socket.id;
+
+    if (!this.queues[room]) {
+      // None of the players have a queue so it returns length of 0
+      console.log("None of the players have a question queue");
+      return 0;
+    }
+    if (!this.queues[room][playerId]) {
+      // The player doesn't have a queue, so it returns a length of 0
+      console.log("The player doesn't have a question que");
+      return 0;
     }
 
-    getQuestionQueueLength(socket) {
-        const room = socket.room;
-        const playerId = socket.id;
+    return this.queues[room][playerId].length;
+  }
 
-        if(!this.queues[room]){ // None of the players have a queue so it returns length of 0
-            console.log("None of the players have a question queue")
-            return 0;
-        }
-        if (!this.queues[room][playerId]) { // The player doesn't have a queue, so it returns a length of 0
-            console.log("The player doesn't have a question que")
-            return 0;
-        }
+  addQuestionToQueue(socket, receiverId, question) {
+    const room = socket.room;
 
-        return this.queues[room][playerId].length;
+    if (!question) {
+      console.error("Can't add question to player queue");
+      return false;
     }
 
-    addQuestionToQueue(socket,receiverId,question) {
-        const room = socket.room;
-
-        if(!question){
-            console.error("Can't add question to player queue");
-            return false;
-        }
-
-        if(!this.queues[room]){ // check if rooms already has an object to hold the queues and makes one if not.
-            this.queues[room] = {};
-        }
-
-        const currentQueue = this.queues[room][receiverId] || [];  // Initialize an empty array (queue) if player's queue is missing
-        this.queues[room][receiverId] = [...currentQueue,question];
-        return true;
+    if (!this.queues[room]) {
+      // check if rooms already has an object to hold the queues and makes one if not.
+      this.queues[room] = {};
     }
 
-    getQuestionFromQueue(socket) {
-        const room = socket.room;
-        const playerId = socket.id;
+    const currentQueue = this.queues[room][receiverId] || []; // Initialize an empty array (queue) if player's queue is missing
+    this.queues[room][receiverId] = [...currentQueue, question];
+    return true;
+  }
 
-        if(!this.queues[room]){ // None of the players have a queue
-            return null;
-        }
-        if (!this.queues[room][playerId]) { // The player doesn't have a queue
-            return null;
-        }
+  getQuestionFromQueue(socket) {
+    const room = socket.room;
+    const playerId = socket.id;
 
-        return this.queues[room][playerId][0];
+    if (!this.queues[room]) {
+      // None of the players have a queue
+      return null;
+    }
+    if (!this.queues[room][playerId]) {
+      // The player doesn't have a queue
+      return null;
     }
 
-    removeQuestionFromQueue(socket){
-        const room = socket.room;
-        const playerId = socket.id;
-        if (!this.queues[room]) {
-            return null;
-        }
-        if (!this.queues[room][playerId]) { // The player doesn't have a queue
-            return null;
-        }
+    return this.queues[room][playerId][0];
+  }
 
-        this.queues[room][playerId].shift();
+  removeQuestionFromQueue(socket) {
+    const room = socket.room;
+    const playerId = socket.id;
+    if (!this.queues[room]) {
+      return null;
+    }
+    if (!this.queues[room][playerId]) {
+      // The player doesn't have a queue
+      return null;
     }
 
-    reconnectToQueue(socket, sessionData){
-        const room = socket.room;
-        const oldSocketId = sessionData.socketId;
-        const newSocketId = socket.id;
-        if(this.queues[room] && this.queues[room][oldSocketId]) { //Checks if player has a queue that needs to be reconnected to.
-            this.queues[room][newSocketId] = this.queues[room][oldSocketId];
-            delete this.queues[room][oldSocketId];
-        }
+    this.queues[room][playerId].shift();
+  }
 
+  reconnectToQueue(socket, sessionData) {
+    const room = socket.room;
+    const oldSocketId = sessionData.socketId;
+    const newSocketId = socket.id;
+    if (this.queues[room] && this.queues[room][oldSocketId]) {
+      //Checks if player has a queue that needs to be reconnected to.
+      this.queues[room][newSocketId] = this.queues[room][oldSocketId];
+      delete this.queues[room][oldSocketId];
     }
-
-
-
+  }
 }
 
-module.exports =  PlayerQuestionQueue;
+module.exports = PlayerQuestionQueue;

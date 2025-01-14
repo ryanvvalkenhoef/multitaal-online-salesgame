@@ -17,10 +17,10 @@
   },
 
   "ModSettings": {
-  "players": "Aantal spelers",
-  "rounds": "Aantal rondes",
-  "continue": "Doorgaan"
-},
+    "players": "Aantal spelers",
+    "rounds": "Aantal rondes",
+    "continue": "Doorgaan"
+  },
 
   "GamePin": {
     "gamepin": "Room code",
@@ -28,7 +28,7 @@
     "start": "Start spel!",
     "home": "Startscherm"
   },
-  "Game":{
+  "Game": {
     "wait": "Wachten tot de moderator het spel start",
     "TurnText": "gooit dobbelsteen",
     "setTurnText": "Het is {{data}}'s beurt om met de dobbelsteen te gooien en een vraag te beantwoorden",
