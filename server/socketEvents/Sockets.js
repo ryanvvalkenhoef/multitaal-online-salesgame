@@ -302,8 +302,7 @@ module.exports = function (io) {
           playerColor: data.userColor,
           answer: answer,
         };
-        if (availableColors.includes(data.questionColor)) {
-          //is het een kleurvraag?
+        if (availableColors.includes(data.questionColor)) {//is het een kleurvraag?
           const receiver = userLogger.getReceiver(data.questionColor);
           playerQuestionQueue.addQuestionToQueue(
             socket,
@@ -368,11 +367,7 @@ module.exports = function (io) {
         playerQuestionQueue.removeQuestionFromQueue(socket);
         if (playerQuestionQueue.getQuestionQueueLength(socket) > 0) {
           const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
-          socketManager.emitBackToClient(
-            socket,
-            "receive_question",
-            questionData,
-          );
+          socketManager.emitBackToClient(socket, "receive_question", questionData);
         } else {
           userLogger.setIsAnsweringQuestion(false, socket.id);
         }
@@ -454,11 +449,7 @@ module.exports = function (io) {
 
         const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
         if (isRoundFinished) {
-          socketManager.emitToMod(
-            socket,
-            "is_next_round_button_disabled",
-            false,
-          );
+          socketManager.emitToMod(socket, "is_next_round_button_disabled", false);
         }
       },
 

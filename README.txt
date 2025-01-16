@@ -55,7 +55,8 @@ IMPORTANT when pushing codes, the following file and folder must not be pushed:
 - 'node_modules'
 
 Linter is used in this project, go into package.json in root folder to see the run commands.
-Linter is used to check for errors in the code, it is recommended to run the linter before pushing code to the repository.
+Linter is used to check for errors in the code (you'll probably see a lot of red "errors" due to the linter, this is normal)
+It is recommended to run the linter FORMATTER before pushing code to the repository.
 This way code stays consistent and clean.
 
 DEPENDENCIES VERSIONS:
