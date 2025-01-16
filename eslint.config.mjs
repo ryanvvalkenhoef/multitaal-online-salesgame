@@ -2,46 +2,35 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import pluginReact from "eslint-plugin-react";
 import prettierConfig from "eslint-config-prettier";
-import pluginPrettier from "eslint-plugin-prettier";
 
-/** @type {import('eslint').Linter.Config[]} */
+/** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
+  // Base config for JavaScript and Node.js
   {
     files: ["**/*.{js,mjs,cjs,jsx}"],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
     },
     rules: {
-      // ESLint rules
+      // ESLint rules for code quality (no formatting rules here!)
       semi: ["error", "always"],
-      quotes: [
-        "error",
-        "single",
-        {
-          allowTemplateLiterals: true, // Allow backticks
-          avoidEscape: true, // Avoid escaping quotes unnecessarily
-        },
-      ],
-      indent: ["error", 2],
       "no-trailing-spaces": "error",
       "eol-last": ["error", "always"],
       "space-before-function-paren": ["error", "never"],
       "no-multiple-empty-lines": [
         "error",
         {
-          max: 1, // Maximum number of consecutive empty lines
-          maxEOF: 1, // Maximum number of empty lines at the end of the file
-          maxBOF: 0, // Maximum number of empty lines at the beginning of the file
+          max: 1,
+          maxEOF: 1,
+          maxBOF: 0,
         },
       ],
-      // Prettier rules
-      "prettier/prettier": "error",
-    },
-    plugins: {
-      prettier: pluginPrettier,
     },
   },
+  // Recommended JS rules
   pluginJs.configs.recommended,
+  // React rules
   pluginReact.configs.flat.recommended,
+  // Prettier config to disable conflicting ESLint rules
   prettierConfig,
 ];
