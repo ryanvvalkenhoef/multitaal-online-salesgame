@@ -25,61 +25,61 @@ export function HomeScreen() {
   };
 
   return (
-      <div className="parent-container-home">
-        <div className="logoRow">
-          <img className="logoGif" src="/Logo.gif" alt="Logo" />
-          <button className="Qbutton" onClick={handleGuide}>
-            ?
-          </button>
-        </div>
-
-        <div className="homeButtonRow">
-          <button
-              type="submit"
-              className="homeGameButton homeButtonLeftUpper"
-              onClick={handleLoadGame}
-          >
-            {t("load Game")}
-          </button>
-          <button
-              type="submit"
-              className="homeGameButton homeButtonLeft"
-              onClick={handleJoinGame}
-          >
-            {t("HomeScreen.join")}
-          </button>
-          <button
-              type="submit"
-              className="homeGameButton homeButtonRight"
-              onClick={handleCreateGame}
-          >
-            {t("HomeScreen.create")}
-          </button>
-        </div>
-
-        <div className="languageRow">
-          <img
-              className="flagImg"
-              id="DEN"
-              src={den_flag}
-              alt="Danish"
-              onClick={() => handleChangeLanguage("dk")}
-          />
-          <img
-              className="flagImg"
-              id="EN"
-              src={uk_flag}
-              alt="English"
-              onClick={() => handleChangeLanguage("en")}
-          />
-          <img
-              className="flagImg"
-              id="NL"
-              src={nl_flag}
-              alt="Dutch"
-              onClick={() => handleChangeLanguage("nl")}
-          />
-        </div>
+    <div className="parent-container-home">
+      <div className="logoRow">
+        <img className="logoGif" src="/Logo.gif" alt="Logo" />
+        <button className="Qbutton" onClick={handleGuide}>
+          ?
+        </button>
       </div>
+
+      <div className="homeButtonRow">
+        <button
+          type="submit"
+          className="homeGameButton homeButtonLeftUpper"
+          onClick={handleLoadGame}
+        >
+          {t("load Game")}
+        </button>
+        <button
+          type="submit"
+          className="homeGameButton homeButtonLeft"
+          onClick={handleJoinGame}
+        >
+          {t("HomeScreen.join")}
+        </button>
+        <button
+          type="submit"
+          className="homeGameButton homeButtonRight"
+          onClick={handleCreateGame}
+        >
+          {t("HomeScreen.create")}
+        </button>
+      </div>
+
+      <div className="languageRow">
+        <img
+          className="flagImg"
+          id="DEN"
+          src={den_flag}
+          alt="Danish"
+          onClick={() => handleChangeLanguage("dk")}
+        />
+        <img
+          className="flagImg"
+          id="EN"
+          src={uk_flag}
+          alt="English"
+          onClick={() => handleChangeLanguage("en")}
+        />
+        <img
+          className="flagImg"
+          id="NL"
+          src={nl_flag}
+          alt="Dutch"
+          onClick={() => handleChangeLanguage("nl")}
+        />
+      </div>
+    </div>
   );
 }

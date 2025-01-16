@@ -9,7 +9,7 @@ import { ModView } from "./ModeratorScreen/ModView";
 import musicOn from "./Assets/musicOn.png";
 import musicOff from "./Assets/musicOff.png";
 import { Results } from "./ResultScreen/Result";
-import {LoadGame} from "./LoadGame/LoadGame";
+import { LoadGame } from "./LoadGame/LoadGame";
 
 function App() {
   return (
@@ -21,7 +21,8 @@ function App() {
           <Route path="/configuration" element={<ModSettings />} />
           <Route path="/game" element={<Game />} />
           <Route path="/joingame" element={<JoinGame />} />
-          <Route path='/loadgame' element={<LoadGame/>}/> {/* New route for LoadGame */}
+          <Route path="/loadgame" element={<LoadGame />} />{" "}
+          {/* New route for LoadGame */}
           <Route path="/gamepin" element={<Gamepin />} />
           <Route path="/modview" element={<ModView />} />
           <Route path="/results" element={<Results />} />
