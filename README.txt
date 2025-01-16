@@ -52,7 +52,11 @@ if it is running, end it and start it again.
 
 IMPORTANT when pushing codes, the following file and folder must not be pushed:
 - 'package-lock.json' (file in server and client)
-- 'node_modules' (folder in server and client)
+- 'node_modules'
+
+Linter is used in this project, go into package.json in root folder to see the run commands.
+Linter is used to check for errors in the code, it is recommended to run the linter before pushing code to the repository.
+This way code stays consistent and clean.
 
 DEPENDENCIES VERSIONS:
 - NodeJS: v20.17.0
