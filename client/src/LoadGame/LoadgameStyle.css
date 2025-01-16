@@ -1,0 +1,71 @@
+.parent-container-loadgame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+}
+
+
+.gamepinLoadGame, .nameLoadGame {
+    display: grid;
+    grid-template: 1fr / 0.5fr 1fr 0.2fr 1fr 0.5fr;
+}
+
+.gamepinLoadGameLabel, .nameLoadGameLabel {
+    grid-area: 1 / 2 / 1 / 2;
+}
+
+.gamepinLoadGameInput, .nameLoadGameInput {
+    grid-area: 1 / 4 / 1 / 4;
+}
+
+@media (max-width: 800px) {
+    .gamepinLoadGame, .nameLoadGame {
+        grid-template: 1fr 1fr / 1fr;
+    }
+
+    .gamepinLoadGameLabel, .nameLoadGameLabel {
+        grid-area: 1 / 1 / 1 / 1;
+    }
+
+    .gamepinLoadGameInput, .nameLoadGameInput {
+        grid-area: 2 / 1 / 2 / 1;
+    }
+}
+
+
+.errorLoadGame, .loadgameLabel {
+    color: #F9E513;
+    font-size: calc(8vh * 0.6);
+}
+
+
+.inputLoadGame {
+    font-family: itim;
+    border-radius: 10px;
+    border: 3px solid white;
+    width: 40vw;
+    min-width: 350px;
+    height: 6vh;
+    font-size: min(calc(6vh * 0.6), calc(40vw * 0.15));
+}
+
+
+.loadgame {
+    border: 3px solid white;
+    background-color: #195678;
+    color: #F9E513;
+    border-radius: 10px;
+    font-family: itim;
+    cursor: pointer;
+    width: 30vw;
+    height: 8vh;
+    font-size: min(calc(8vh * 0.6), calc(40vw * 0.15));
+}
+
+.loadgame:hover {
+    background-color: #3f6072;
+    font-weight: bold;
+}
