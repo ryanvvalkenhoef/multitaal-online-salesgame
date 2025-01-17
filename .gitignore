@@ -8,3 +8,6 @@
 /server/data.json
 /server/gameSaves
 /client/build
+.DS_Store
+client/.DS_Store
+server/.DS_Store
