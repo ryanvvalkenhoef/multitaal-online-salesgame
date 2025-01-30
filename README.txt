@@ -27,6 +27,7 @@ IMPORTANT: do not click other buttons or switches in the import screen unless yo
 IMPORTANT for anyone wanting to change the database, if the database is not started with the correct configurations (read database.js) the server will not start
 
 Lastly, you should start both sides (client and server) of the project:
+- Add a directory called gameSaves to the server directory, when you start the game for the first time.
 - Type "npm start" in the 'server' window
 - Type "npm start" in the 'client' window
 
