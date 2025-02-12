@@ -27,6 +27,7 @@ export function JoinGame() {
       setInformation("Username cannot be longer than 12 characters");
       return;
     }
+    // Sends an event named "join_room" from the client to the server via Socket.IO and gives data object
     socket.emit("join_room", {
       name: username,
       room: gamepin,
@@ -36,6 +37,7 @@ export function JoinGame() {
 
   useEffect(() => {
     socket.on("join_succes", (data) => {
+      // Callback function
       if (data === "available") {
         handleGame();
       } else {
