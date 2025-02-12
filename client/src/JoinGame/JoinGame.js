@@ -36,15 +36,20 @@ export function JoinGame() {
   };
 
   useEffect(() => {
-    socket.on("join_succes", (data) => {
+    // Add cleanup function and dependency array
+    const handleJoinSucces = (data) => {
       // Callback function
       if (data === "available") {
         handleGame();
       } else {
         setInformation(data);
       }
-    });
-  });
+    };
+    socket.on("join_succes", handleJoinSucces);
+    return () => {
+      socket.off("join_succes", handleJoinSucces); // Cleanup om dubbele listeners te voorkomen
+    };
+  }, []);
 
   const handleGame = () => {
     navigate("/game");

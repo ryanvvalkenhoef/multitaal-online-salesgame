@@ -19,6 +19,7 @@ export function Gamepin() {
   const { handleChangeLanguage, handleGuide } = useLanguageManager();
 
   useEffect(() => {
+    // Add event listeners
     socket.on("send_gamepin", (data) => {
       setGamepin(data.room);
       console.log("sending game pin:, data.room ");
@@ -31,11 +32,14 @@ export function Gamepin() {
     socket.on("delete_user", () => {
       setPlayerCount((prevCount) => prevCount - 1);
     });
+  
+    // Cleanup-function to remove all listeners
     return () => {
       socket.off("send_gamepin");
       socket.off("add_user");
+      socket.off("delete_user"); // Add to remove all event listeners
     };
-  }, []);
+  }, []); // Only at mount/unmount
 
   const handleGame = () => {
     if (playerCount === playerNeeded) {

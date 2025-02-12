@@ -58,7 +58,7 @@ const BoardGrid = ({
   useEffect(() => {
     const boardGrid = document.querySelector(".board-grid");
     if (gameScreen && boardGrid !== null) {
-      boardGrid.addEventListener("click", (event) =>
+      const handleClick = (event) =>
         handleTileClick({
           event,
           startPieces,
@@ -66,11 +66,18 @@ const BoardGrid = ({
           validPositions,
           playerColor,
           setPosition,
-        }),
-      );
+        });
+  
+      boardGrid.addEventListener("click", handleClick);
+      console.log("Board re-rendering due to update");
+  
+      // Cleanup function
+      return () => {
+        if (boardGrid) {
+          boardGrid.removeEventListener("click", handleClick);
+        }
+      };
     }
-
-    console.log("Board re-rendering due to update");
   }, [validPositions]);
 
   useEffect(() => {

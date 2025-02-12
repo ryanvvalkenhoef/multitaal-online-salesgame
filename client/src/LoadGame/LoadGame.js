@@ -26,7 +26,7 @@ export function LoadGame() {
   };
 
   useEffect(() => {
-    socket.on("load_success", (data) => {
+    const handleLoadSuccess = (data) => {
       if (data) {
         // Load the game data into ModView.js
         socket.emit("resume_game", { gameData: data });
@@ -34,7 +34,12 @@ export function LoadGame() {
       } else {
         setInformation("Game not found.");
       }
-    });
+    };
+    socket.on("load_success", handleLoadSuccess);
+    // Cleanup function
+    return () => {
+      socket.off("load_success", handleLoadSuccess);
+    };
   }, [navigate]);
 
   const handleHome = () => {
