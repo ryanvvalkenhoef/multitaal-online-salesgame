@@ -1,19 +1,59 @@
-import { useEffect, useState } from "react";
-import boardManager from "@/managers/BoardManager";
-import TileComponent from "./TileComponent";
+import React from "react";
+import "./BoardGridStyle.css";
+import BoardManager from "../../modules/boardModule/BoardManager";
 
-const BoardGrid = () => {
-    const [boardState, setBoardState] = useState({ tiles: [], pieces: [] });
+const BoardGrid = ({
+  tilesUseState,          // The created tiles
+  validPositions,         // Valid positions for pawns
+  selectedPawn,           // The selected pawn for player
+  setPosition,            // Function to update position of pawn
+  playerColor,            // Color of the player
+  startPieces,            // Startpieces for the players
+  piecePositions,         // Positions of the pieces on the board
+  handleTileClick,        // Function to handle the click on tile
+}) => {
 
-    useEffect(() => {
-        
-    }, []);
+    BoardManager({
+        socket,
+        setValidPositions,
+        setPosition,
+        validPositions,
+        setIsBoardRendered,
+        startPieces,
+        piecePositions,
+        setTilesUseState,
+        joinedColors,
+        tileInfo,
+        tileInfo2,
+        possiblePositions,
+        selectedPawn,
+        gameScreen
+      });
 
-    const handleTileClick = (tileId) => {
-    };
-
-    return (
-    );
+  return (
+    <div className="board-grid">
+      {/* Render the tiles */}
+      {tilesUseState.map((tile, index) => (
+        <div
+          key={index}
+          className={`tile ${validPositions.includes(tile.position) ? "valid" : ""}`}
+          onClick={(event) =>
+            handleTileClick({
+              event,
+              startPieces,
+              selectedPawn,
+              validPositions,
+              playerColor,
+              setPosition,
+            })
+          }
+        >
+          {/* Show the contents of the tile */}
+          {tile.content}
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default BoardGrid;

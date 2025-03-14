@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { socket } from "../client";
 import "./GameStyle.css";
-import BoardGrid from "../GameScreen/Board/BoardGrid";
+import BoardGrid from "../components/UI/BoardGrid";
 import DiceContainer from "../GameScreen/Dice/DiceContainer";
 import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
 import PlayerPopUps from "../GameScreen/PopUps/PlayerPopUps";
