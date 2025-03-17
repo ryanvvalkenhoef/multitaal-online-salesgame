@@ -1,6 +1,7 @@
 import React from "react";
 import "./BoardGridStyle.css";
 import BoardManager from "../../modules/boardModule/BoardManager";
+import PlayerPopUps from "../../GameScreen/PopUps/PlayerPopUps";
 
 const BoardGrid = ({
   tilesUseState,          // The created tiles
@@ -14,6 +15,7 @@ const BoardGrid = ({
 }) => {
 
     BoardManager({
+        ...props,
         socket,
         setValidPositions,
         setPosition,

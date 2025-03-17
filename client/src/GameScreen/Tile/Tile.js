@@ -1,6 +1,6 @@
 import React from "react";
 import "../Board/BoardGridStyle.css";
-import { renderStartPieces } from "../Piece/pieceFunctions";
+import { renderStartPieces } from "../../modules/pieceModule/PieceUtils";
 
 export const Tile = ({
   position,

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Piece } from "../../components/UI/Piece";
+import { Piece } from "./Piece";
 import { socket } from "../../client";
 
     const Pieces = ({ startPieces, setArePiecesRendered }) => {
