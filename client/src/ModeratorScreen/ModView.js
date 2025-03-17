@@ -30,7 +30,7 @@ import {
   handleRoundFinished,
 } from "./eventListenersMod";
 import { startRender } from "../PlayerScreen/playerScreenFunctions";
-import Pieces from "../GameScreen/Piece/Pieces";
+import Pieces from "../modules/pieceModule/PieceManager";
 
 export function ModView() {
   const { t, i18n } = useTranslation("global");

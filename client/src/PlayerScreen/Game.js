@@ -7,7 +7,7 @@ import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
 import PlayerPopUps from "../GameScreen/PopUps/PlayerPopUps";
 import PlayerTurns from "../GameScreen/PlayerTurns";
 import AudioPlayer from "../GameScreen/AudioPlayer";
-import Pieces from "../GameScreen/Piece/Pieces";
+import Pieces from "../modules/pieceModule/PieceManager";
 import "../App.css";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

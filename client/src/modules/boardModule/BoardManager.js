@@ -5,7 +5,7 @@ import {
   handlePositionsUpdate,
   handleValidPositionsUpdate,
 } from "./BoardEvents";
-import { createTiles, handleTileClick, setPiecesOnTile, setStartPiecesOnTile } from "./boardFunctions";
+import { createTiles, handleTileClick, setPiecesOnTile, setStartPiecesOnTile } from "./BoardUtils";
 
 const BoardManager = ({
   selectedPawn,
