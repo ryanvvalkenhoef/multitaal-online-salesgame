@@ -2,7 +2,7 @@ import React from "react";
 import "./PopUpStyle.css";
 import { useTranslation } from "react-i18next";
 
-const ModeratorPopUps = ({
+const ModPopUps = ({
   setShowPopup,
   showPopup,
   question,

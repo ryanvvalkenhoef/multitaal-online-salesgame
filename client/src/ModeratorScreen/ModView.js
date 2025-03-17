@@ -4,7 +4,7 @@ import "../App.css";
 import { socket } from "../client";
 import DiceContainer from "../GameScreen/Dice/DiceContainer";
 import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
-import ModeratorPopUps from "../GameScreen/PopUps/ModeratorPopUps";
+import ModeratorPopUps from "../components/UI/ModPopUps";
 import BoardGrid from "../GameScreen/Board/BoardGrid";
 import { useTranslation } from "react-i18next";
 import { useLanguageManager } from "../Translations/LanguageManager";
