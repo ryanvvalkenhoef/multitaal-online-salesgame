@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./Audio.css";
+import "./AudioPlayerStyle.css";
 import musicOn from "../Assets/musicOn.png";
 import musicOff from "../Assets/musicOff.png";
-import { useLanguageManager } from "../Translations/LanguageManager";
+import { useLanguageManager } from "../../Translations/LanguageManager";
 import den_flag from "../Assets/den_flag.png";
 import uk_flag from "../Assets/uk_flag.png";
 import nl_flag from "../Assets/nl_flag.png";

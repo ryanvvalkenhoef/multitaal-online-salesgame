@@ -1,6 +1,7 @@
 import React from "react";
 import "./PopUpStyle.css";
 import { useTranslation } from "react-i18next";
+import ModViewWrapper from '../../GameSettings/ModViewWrapper';
 
 const ModPopUps = ({
   setShowPopup,
@@ -16,6 +17,7 @@ const ModPopUps = ({
   const { t, i18n } = useTranslation("global");
 
   return (
+    <ModViewWrapper>
     <>
       {showPopup && (
         <div className="scorePopup">
@@ -147,6 +149,7 @@ const ModPopUps = ({
         </div>
       )}
     </>
+    </ModViewWrapper>
   );
 };
-export default ModeratorPopUps;
+export default ModPopUps;

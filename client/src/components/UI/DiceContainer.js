@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { socket } from "../../client";
-import "./Dice.css";
+import "./DiceStyle.css";
 import Dice1 from "../../Assets/Dia1.JPG";
 import Dice2 from "../../Assets/Dia2.JPG";
 import Dice3 from "../../Assets/Dia3.JPG";

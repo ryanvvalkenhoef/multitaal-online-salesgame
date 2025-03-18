@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { socket } from "../client";
 import "./GameStyle.css";
-import BoardGrid from "../components/UI/BoardGrid";
+import BoardGrid from "./UI/BoardGrid";
 import DiceContainer from "../GameScreen/Dice/DiceContainer";
 import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
 import PlayerPopUps from "../GameScreen/PopUps/PlayerPopUps";
@@ -31,8 +31,8 @@ import {
   handleGoToHomeScreen,
   handlePositionsUpdate,
   handleSetPosition,
-} from "./eventListenersPlayer";
-import { startRender } from "./playerScreenFunctions";
+} from "../PlayerScreen/eventListenersPlayer";
+import { startRender } from "../screenRenderer";
 
 export function Game() {
   const { t, i18n } = useTranslation("global");

@@ -1,15 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import "./gamepinStyle.css";
-import { socket } from "../client";
+import "./GamePinStyle.css";
+import { socket } from "../../client";
 import React, { useEffect, useState } from "react";
 import back from "../Assets/back-button.png";
 import { useTranslation } from "react-i18next";
 import den_flag from "../Assets/den_flag.png";
 import uk_flag from "../Assets/uk_flag.png";
 import nl_flag from "../Assets/nl_flag.png";
-import { useLanguageManager } from "../Translations/LanguageManager";
+import { useLanguageManager } from "../../Translations/LanguageManager";
+import { handleGame, handleBack, handlePlayerCountChange, copygamepin } from "../../GameSettings/GamePinHandler";
 
-export function Gamepin() {
+export function GamePin() {
   const [gamepin, setGamepin] = useState("");
   const navigate = useNavigate();
   const [playerCount, setPlayerCount] = useState(0);
@@ -40,37 +41,6 @@ export function Gamepin() {
       socket.off("delete_user"); // Add to remove all event listeners
     };
   }, []); // Only at mount/unmount
-
-  const handleGame = () => {
-    if (playerCount === playerNeeded) {
-      socket.emit("start_turn", "data");
-      navigate("/modview");
-      sessionStorage.setItem("socketId", socket.id);
-      sessionStorage.setItem("room", gamepin);
-    } else {
-      setErrorCode(`Not all players have joined`);
-    }
-  };
-
-  const handleHome = () => {
-    navigate("/home");
-    socket.emit("delete_mod", "data");
-  };
-
-  const handleBack = () => {
-    navigate("/configuration");
-    socket.emit("delete_mod", "data");
-  };
-
-  const handlePlayerCountChange = (event) => {
-    setPlayerCount(parseInt(event.target.value));
-  };
-
-  const copygamepin = (event) => {
-    event.target.select();
-    document.execCommand("copy");
-    // alert('copied gamepin');
-  };
 
   return (
     <div className="parent-container-gamepin">

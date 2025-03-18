@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../PlayerScreen/GameStyle.css";
 import "../App.css";
-import { socket } from "../client";
+import { socket } from "../../client";
 import DiceContainer from "../GameScreen/Dice/DiceContainer";
 import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
-import ModeratorPopUps from "../components/UI/ModPopUps";
+import ModeratorPopUps from "./ModPopUps";
 import BoardGrid from "../GameScreen/Board/BoardGrid";
 import { useTranslation } from "react-i18next";
-import { useLanguageManager } from "../Translations/LanguageManager";
+import { useLanguageManager } from "../../Translations/LanguageManager";
 import den_flag from "../Assets/den_flag.png";
 import uk_flag from "../Assets/uk_flag.png";
 import nl_flag from "../Assets/nl_flag.png";
 import { useNavigate } from "react-router-dom";
 
 import PlayerProgress from "./PlayerProgress";
-import RenderManager from "../RenderManager/RenderManager";
+import RenderManager from "../../RenderManager/RenderManager";
 import {
   cleanUpSocketListeners,
   handleColorAddition,
@@ -29,8 +29,9 @@ import {
   handlePositionsUpdate,
   handleRoundFinished,
 } from "./eventListenersMod";
-import { startRender } from "../PlayerScreen/playerScreenFunctions";
+import { startRender } from "../../screenRenderer";
 import Pieces from "../modules/pieceModule/PieceManager";
+import ModViewWrapper from '../../GameSettings/ModViewWrapper';
 
 export function ModView() {
   const { t, i18n } = useTranslation("global");
@@ -39,18 +40,12 @@ export function ModView() {
   const sortedUserData = [...data].sort(
     (a, b) => b.totalPoints - a.totalPoints,
   );
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
   const [moveMade, setMoveMade] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState(0);
-  const [popupColor, setColor] = useState("");
-  const [userColor, setUserColor] = useState("");
   const [playerName, setPlayerName] = useState("");
   const [selectedPawn, setSelectedPawn] = useState();
-  const [showPopup, setShowPopup] = useState(false);
   const [position, setPosition] = useState("8-5");
   const [diceValue, setDiceValue] = useState(1);
-  const [selectedPoints, setSelectedPoints] = useState(null);
   const [currentRound, setCurrentRound] = useState(0);
   const [totalRounds, setTotalRounds] = useState(0);
   const [roundText, setRoundText] = useState("");
@@ -69,43 +64,6 @@ export function ModView() {
   const [isBoardRendered, setIsBoardRendered] = useState(false);
 
   const [isDisabled, setIsDisabled] = useState(true);
-
-  const handleUpdatePoints = (points) => {
-    setSelectedPoints(points);
-  };
-
-  const reviewQuestion = (questionData) => {
-    console.log("questionData", questionData);
-    if (!questionData || !questionData.questionText) {
-      console.error("Invalid question data:", questionData);
-      return;
-    }
-    setQuestion(questionData.questionText);
-    setColor(questionData.questionColor);
-    setUserColor(questionData.playerColor);
-    setAnswer(questionData.answer);
-    currentQuestionRef.current = questionData;
-  };
-
-  const submitPoints = () => {
-    setShowPopup(false);
-    socket.emit("points_submitted_question_reviewed", {
-      totalPoints: selectedPoints,
-      color: userColor,
-      playerId: currentQuestionRef.current.playerId,
-      hasBeenReviewed: true,
-    });
-    setSelectedPoints([]);
-  };
-
-  const handleSubmitPoints = () => {
-    submitPoints();
-  };
-
-  const onImageClick = (playerId) => {
-    socket.emit("get_player_answer_on_click", playerId);
-    setShowPopup(true);
-  };
 
   useEffect(() => {
     // Adding socketio event listeners
@@ -159,6 +117,7 @@ export function ModView() {
     }
   }, [currentRound, totalRounds]);
   return (
+    <ModViewWrapper>
     <>
       {isReadyToRender ? (
         <div className={showPopup ? "appBlurred" : "playboard"}>
@@ -260,5 +219,6 @@ export function ModView() {
         handleUpdatePoints={handleUpdatePoints}
       />
     </>
+    </ModViewWrapper>
   );
 }

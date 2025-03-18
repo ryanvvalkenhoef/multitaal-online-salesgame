@@ -2,13 +2,13 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomeScreen } from "./HomeScreen/HomeScreen";
 import { ModSettings } from "./CreateGame/ModSettings";
-import { Game } from "./PlayerScreen/Game";
-import { JoinGame } from "./JoinGame/JoinGame";
-import { Gamepin } from "./CreateGame/Gamepin";
-import { ModView } from "./ModeratorScreen/ModView";
+import { Game } from "./components/Game";
+import { JoinGame } from "./components/JoinGame";
+import { GamePin } from "./components/UI/GamePin";
+import { ModView } from "./components/UI/ModView";
 import musicOn from "./Assets/musicOn.png";
 import musicOff from "./Assets/musicOff.png";
-import { Results } from "./ResultScreen/Result";
+import { ResultScreen } from "./components/ResultScreen";
 import { LoadGame } from "./LoadGame/LoadGame";
 
 function App() {

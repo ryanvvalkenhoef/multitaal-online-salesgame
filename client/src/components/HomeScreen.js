@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./startStyle.css";
+import "./HomeScreenStyle.css";
 import den_flag from "../Assets/den_flag.png";
 import uk_flag from "../Assets/uk_flag.png";
 import nl_flag from "../Assets/nl_flag.png";

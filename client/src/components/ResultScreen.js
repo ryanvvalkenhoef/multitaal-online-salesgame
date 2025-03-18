@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../PlayerScreen/GameStyle.css";
-import "./ResultScreen.css";
+import "./ResultScreenStyle.css";
 import "../App.css";
 import { socket } from "../client";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ import uk_flag from "../Assets/uk_flag.png";
 import nl_flag from "../Assets/nl_flag.png";
 import { useTranslation } from "react-i18next";
 
-export function Results() {
+export function ResultScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation("global");
   const { language, handleChangeLanguage, handleGuide } = useLanguageManager();

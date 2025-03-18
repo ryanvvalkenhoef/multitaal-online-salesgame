@@ -1,3 +1,5 @@
+import { sendQuestionRequest } from "./BoardEvents";
+
 class BoardUtils {
     
     constructor() {}
