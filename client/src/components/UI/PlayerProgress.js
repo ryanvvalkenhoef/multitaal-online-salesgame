@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "./PlayerProgressStyles.css";
-import { socket } from "../client";
+import "./PlayerProgressStyle.css";
+import { socket } from "../../client";
 import { useTranslation } from "react-i18next";
 
 const PlayerProgress = ({ playerProgressData, onImageClick }) => {
@@ -10,55 +10,17 @@ const PlayerProgress = ({ playerProgressData, onImageClick }) => {
   const { t, i18n } = useTranslation("global");
 
   useEffect(() => {
-    socket.on("player_is_answering", (data) => {
-      setPlayersAnsweringQuestion((playerIdState) => {
-        if (data.isAnsweringQuestion) {
-          // Add the player to the list if not already present
-          return playerIdState.includes(data.playerId)
-            ? playerIdState
-            : [...playerIdState, data.playerId];
-        } else {
-          // Remove the player from the list if they stop answering
-          return playerIdState.filter((id) => id !== data.playerId);
-        }
-      });
-    });
-    socket.on("player_has_finished_turn", (data) => {
-      setPlayersFinishedTurn((playerIdState) => {
-        if (data.hasFinishedTurn) {
-          setPlayersAnsweringQuestion((prev) =>
-            prev.filter((id) => id !== data.playerId),
-          );
-          return playerIdState.includes(data.playerId)
-            ? playerIdState
-            : [...playerIdState, data.playerId];
-        } else {
-          return playerIdState.filter((id) => id !== data.playerId);
-        }
-      });
-    });
-    socket.on("player_has_been_reviewed", (data) => {
-      setPlayersReviewed((playerIdState) => {
-        if (data.hasBeenReviewed) {
-          setPlayersFinishedTurn((prev) =>
-            prev.filter((id) => id !== data.playerId),
-          );
-          return playerIdState.includes(data.playerId)
-            ? playerIdState
-            : [...playerIdState, data.playerId];
-        } else {
-          return playerIdState.filter((id) => id !== data.playerId);
-        }
-      });
-    });
-    socket.on("reset_player_progress_styles", (data) => {
-      setPlayersAnsweringQuestion([]);
-      setPlayersFinishedTurn([]);
-      setPlayersReviewed([]);
-    });
+    const playerState = new PlayerState(
+      setPlayersAnsweringQuestion,
+      setPlayersFinishedTurn,
+      setPlayersReviewed,
+      socket
+    );
+
+    playerState.initSocketListeners();
 
     return () => {
-      socket.off("player_answering_question");
+      socket.off("player_is_answering");
       socket.off("player_has_finished_turn");
       socket.off("player_has_been_reviewed");
       socket.off("reset_player_progress_styles");
