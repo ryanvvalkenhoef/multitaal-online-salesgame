@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./PlayerProgressStyle.css";
 import { socket } from "../../client";
 import { useTranslation } from "react-i18next";
+import PlayerState from "../../modules/playerModule/PlayerState";
 
 const PlayerProgress = ({ playerProgressData, onImageClick }) => {
   const [playersAnsweringQuestion, setPlayersAnsweringQuestion] = useState([]);

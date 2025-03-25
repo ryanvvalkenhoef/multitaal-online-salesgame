@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { modViewHandler } from "./ModViewHandler";
+import { ModView } from "../components/UI/ModView";
+
+const ModViewContext = createContext();
 
 const ModViewWrapper = ({ children }) => {
+
   const [state, setState] = useState({
     selectedPoints: null,
     question: "",
@@ -53,4 +58,4 @@ const ModViewWrapper = ({ children }) => {
   );
 };
 
-export default ModViewWrapper;
+export default { ModViewWrapper, ModViewContext };

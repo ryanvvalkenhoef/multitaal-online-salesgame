@@ -1,56 +1,68 @@
-import { useNavigate } from "react-router-dom";
+import { socket } from "../client.js";
+import React, { Component } from 'react';
 
-class ModSettings {
+class ModSettings extends Component {
 
-  constructor(setPlayerCount, setRoundsCount) {
-    this.setPlayerCount = setPlayerCount;
-    this.setRoundsCount = setRoundsCount;
-  }
+  static instance = null;
 
-  createRoom = () => {
-    socket.emit("create_room", { playerCount, roundsCount });
-  };
-
-  handleGame = () => {
-    useNavigate("/Gamepin");
-  };
-
-  handleHome = () => {
-    useNavigate("/home");
-  };
-
-  decrementPlayerCount = () => {
-    if (playerCount > 2) {
-      setPlayerCount(playerCount - 1);
+    constructor(props) {
+      super(props);
+        if (!ModSettings.instance) {
+            this.state = {
+                playerCount: 2,
+                roundsCount: 3, 
+              };
+            ModSettings.instance = this;
+        }
+        return ModSettings.instance;
     }
-  };
 
-  incrementPlayerCount = () => {
-    if (playerCount < 6) {
-      setPlayerCount(playerCount + 1);
+    init(setState) {
+        this.setState = setState;
     }
-  };
 
-  decrementRoundsCount = () => {
-    if (roundsCount > 3) {
-      setRoundsCount(roundsCount - 1);
+    setPlayerCount = (playerCount) => {
+      this.setState(prevState => ({ ...prevState, playerCount: playerCount }));
+      this.state.playerCount = playerCount;
     }
-  };
 
-  incrementRoundsCount = () => {
-    if (roundsCount < 30) {
-      setRoundsCount(roundsCount + 1);
+    setRoundsCount = (roundsCount) => {
+      this.setState(prevState => ({ ...prevState, roundsCount: roundsCount }));
+      this.state.roundsCount = roundsCount;
     }
-  };
 
-  handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Form submitted");
-    createRoom();
-    handleGame();
-  };
+    createRoom = () => {
+      const playerCount = this.state.playerCount;
+      const roundsCount = this.state.roundsCount;
+      socket.emit("create_room", {
+        playerCount: playerCount,
+        roundsCount: roundsCount });
+    };
 
-  
+    decrementPlayerCount = () => {
+      if (this.state.playerCount > 2) {
+        this.setPlayerCount(this.state.playerCount - 1);
+      }
+    };
+
+    incrementPlayerCount = () => {
+      if (this.state.playerCount < 6) {
+        this.setPlayerCount(this.state.playerCount + 1);
+      }
+    };
+
+    decrementRoundsCount = () => {
+      if (this.state.roundsCount > 3) {
+        this.setRoundsCount(this.state.roundsCount - 1);
+      }
+    };
+
+    incrementRoundsCount = () => {
+      if (this.state.roundsCount < 30) {
+        this.setRoundsCount(this.state.roundsCount + 1);
+      }
+    };
+    
 }
 
 export default ModSettings;

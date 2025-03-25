@@ -1,30 +1,52 @@
+import { socket } from "../client.js";
+import { useNavigate } from "react-router-dom";
+
 class GamePinHandler {
     
-    constructor() {}
+      static instance = null;
+
+      constructor() {
+          if (!GamePinHandler.instance) {
+              this.state = {
+                  playerCount: 0,
+                  playerNeeded: 0,
+                  gamepin: "",
+                  errorCode: "‎ ",
+                };
+              GamePinHandler.instance = this;
+          }
+          return GamePinHandler.instance;
+      }
+
+      setErrorCode = (errorCode) => {
+        this.state.errorCode = errorCode;
+      }
+
+      setPlayerCount = (playerCount) => {
+        this.state.playerCount = playerCount;
+      }
+
+      setPlayerNeeded = (playerNeeded) => {
+        this.state.playerNeeded = playerNeeded;
+      }
+
+      init(setState) {
+          this.setState = setState;
+      }
 
       handleGame = () => {
-        if (playerCount === playerNeeded) {
+        if (this.state.playerCount === this.state.playerNeeded) {
           socket.emit("start_turn", "data");
-          navigate("/modview");
+          useNavigate("/modview");
           sessionStorage.setItem("socketId", socket.id);
-          sessionStorage.setItem("room", gamepin);
+          sessionStorage.setItem("room", this.state.gamepin);
         } else {
-          setErrorCode(`Not all players have joined`);
+          this.setErrorCode(`Not all players have joined`);
         }
       };
     
-      handleHome = () => {
-        navigate("/home");
-        socket.emit("delete_mod", "data");
-      };
-    
-      handleBack = () => {
-        navigate("/configuration");
-        socket.emit("delete_mod", "data");
-      };
-    
       handlePlayerCountChange = (event) => {
-        setPlayerCount(parseInt(event.target.value));
+        this.setPlayerCount(parseInt(event.target.value));
       };
     
       copygamepin = (event) => {
@@ -34,3 +56,5 @@ class GamePinHandler {
       };
 
 }
+
+export default GamePinHandler;

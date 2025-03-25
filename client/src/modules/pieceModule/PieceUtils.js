@@ -15,4 +15,4 @@ class PieceUtils {
       };
 }
 
-module.exports = PieceUtils;
+export default PieceUtils;

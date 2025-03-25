@@ -1,14 +1,16 @@
+import { socket } from "../../client.js";
+
 class BoardEvents {
 
     constructor() {  }
   
-    handleValidPositionsUpdate(socket, setValidPosition) {
+    static handleValidPositionsUpdate(setValidPosition) {
       socket.on('update_valid_positions', (ValidPositionArray) => {
         setValidPosition(ValidPositionArray);
       });
     }
   
-    handlePositionsUpdate(socket, validPositions) {
+    static handlePositionsUpdate(validPositions) {
       socket.on('update_piece_positions', (newPositionData) => {
         newPositionData.forEach((data) => {
           const newPosition = data.newPosition;
@@ -28,13 +30,13 @@ class BoardEvents {
       });
     }
   
-    cleanUpSocketListeners(socket) {
+    static cleanUpSocketListeners() {
       socket.off('update_valid_positions');
       socket.off('update_piece_positions');
     }
   
     // Emitter for question request
-    sendQuestionRequest(socket, colorTile, playerColor) {
+    static sendQuestionRequest(colorTile, playerColor) {
       socket.emit('send_question_request', {
         questionColor: colorTile,
         userColor: playerColor
@@ -42,4 +44,4 @@ class BoardEvents {
     }
   }
   
-  module.exports = EventListenersBoard;
+export default BoardEvents;

@@ -1,11 +1,12 @@
-import { sendQuestionRequest } from "./BoardEvents";
+import BoardEvents from "./BoardEvents";
 import { Tile } from "../../components/UI/Tile"
 
 class BoardUtils {
     
     constructor() {}
   
-    assignColorToTile(index, joinedColors, tileInfo, tileInfo2) {
+    static assignColorToTile(index, joinedColors, tileInfo, tileInfo2) {
+      console.log('joined is this: ' + joinedColors);
       let totalColors = joinedColors.length
       let colorRanges = {
         //Blueprint for tile color assignment. If playing with 6 players for example
@@ -53,13 +54,13 @@ class BoardUtils {
       }
     }
   
-    highLightChecker(index, possiblePositions, validPositions) {
+    static highLightChecker(index, possiblePositions, validPositions) {
       // Function checks if a valid position is actually possible and should be highlighted
       const position = possiblePositions[index];
       return validPositions.includes(position);
     }
   
-    createTiles({
+    static createTiles({
       joinedColors,
       tileInfo,
       tileInfo2,
@@ -88,7 +89,7 @@ class BoardUtils {
       return tiles;
     }
   
-    setPiecesOnTile({ piecePositions }) {
+    static setPiecesOnTile({ piecePositions }) {
       // This function is used after the first time
       piecePositions.forEach((data) => {
         const newPosition = data.newPosition;
@@ -104,7 +105,7 @@ class BoardUtils {
       });
     }
   
-    setStartPiecesOnTile({ startPieces }) {
+    static setStartPiecesOnTile({ startPieces }) {
       // This function is used to set the pieces for the first time
       const START_POSITION = "8-5";
       for (let startPiece of startPieces) {
@@ -120,7 +121,7 @@ class BoardUtils {
       }
     }
   
-    handleTileClick({
+    static handleTileClick({
       event,
       startPieces,
       validPositions,
@@ -144,7 +145,7 @@ class BoardUtils {
           if (selectedPawn instanceof HTMLElement) {
             event.target.appendChild(selectedPawn);
             const color = targetTile.className.split(" ")[1];
-            sendQuestionRequest(socket, color, playerColor);
+            BoardEvents.sendQuestionRequest(socket, color, playerColor);
             document
               .querySelectorAll(".tile")
               .forEach((tile) => tile.classList.remove("blink"));
@@ -160,4 +161,4 @@ class BoardUtils {
     }
   }
   
-  module.exports = BoardUtils;
+export default BoardUtils;

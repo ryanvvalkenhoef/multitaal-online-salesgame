@@ -1,43 +1,48 @@
 import React, { useState } from "react";
 import "./SettingsPanelStyle.css";
-import home from "../Assets/back-button.png";
-import { socket } from "../client";
+import { useNavigate } from "react-router-dom";
+import home from "../../Assets/back-button.png";
+import { socket } from "../../client";
 import { useTranslation } from "react-i18next";
-import { useLanguageManager } from "../Translations/LanguageManager";
-import den_flag from "../Assets/den_flag.png";
-import uk_flag from "../Assets/uk_flag.png";
-import nl_flag from "../Assets/nl_flag.png";
-import {
-    handleHome,
-    handlePlayerCountChange,
-    handleRoundsCountChange,
-    decrementPlayerCount,
-    incrementPlayerCount,
-    decrementRoundsCount,
-    incrementRoundsCount,
-    handleSubmit
-} from "../../GameSettings/ModSettings";
+import { useLanguageManager } from "../../Translations/LanguageManager";
+import den_flag from "../../Assets/den_flag.png";
+import uk_flag from "../../Assets/uk_flag.png";
+import nl_flag from "../../Assets/nl_flag.png";
 import ModSettings from "../../GameSettings/ModSettings";
 
-const SettingsPanel = () => {
+export function SettingsPanel() {
   const { t, i18n } = useTranslation("global");
   const { handleChangeLanguage, handleGuide } = useLanguageManager();
-  const [playerCount, setPlayerCount] = useState(2);
-  const [roundsCount, setRoundsCount] = useState(3);
+  const navigate = useNavigate();
 
-  const modSettings = new ModSettings(setPlayerCount, setRoundsCount);
+  const handleGame = () => {
+    navigate("/Gamepin");
+  };
+
+  const handleHome = () => {
+    navigate("/home");
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("Form submitted");
+    modSettings.createRoom();
+    handleGame();
+  };
+
+  const modSettings = new ModSettings();
 
   const handlePlayerCountChange = (e) => {
     let value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 2 && value <= 6) {
-      setPlayerCount(value);
+      modSettings.setPlayerCount(value);
     }
   };
 
   const handleRoundsCountChange = (e) => {
     let value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 3 && value <= 30) {
-      setRoundsCount(value);
+      modSettings.setRoundsCount(value);
     }
   };
 
@@ -53,34 +58,34 @@ const SettingsPanel = () => {
     
             <div className="playerRowSettings">
               <div className="settings text">{t("ModSettings.players")}</div>
-              <div className="player minus" onClick={() => modSettings.decrementPlayerCount(playerCount)}>
+              <div className="player minus" onClick={() => modSettings.decrementPlayerCount(modSettings.playerCount)}>
                 -
               </div>
               <input
                 id="playerCount"
                 name="playerCount"
                 className="player count"
-                value={playerCount}
+                value={modSettings.state.playerCount}
                 onChange={handlePlayerCountChange}
               />
-              <div className="player plus" onClick={() => modSettings.incrementPlayerCount(playerCount)}>
+              <div className="player plus" onClick={() => modSettings.incrementPlayerCount(modSettings.playerCount)}>
                 +
               </div>
             </div>
     
             <div className="roundsRowSettings">
               <div className="settings text">{t("ModSettings.rounds")}</div>
-              <div className="rounds minus" onClick={() => modSettings.decrementRoundsCount(roundsCount)}>
+              <div className="rounds minus" onClick={() => modSettings.decrementRoundsCount(modSettings.roundsCount)}>
                 -
               </div>
               <input
                 id="roundsCount"
                 name="roundsCount"
                 className="rounds count"
-                value={roundsCount}
+                value={modSettings.state.roundsCount}
                 onChange={handleRoundsCountChange}
               />
-              <div className="rounds plus" onClick={() => modSettings.incrementRoundsCount(roundsCount)}>
+              <div className="rounds plus" onClick={() => modSettings.incrementRoundsCount(modSettings.roundsCount)}>
                 +
               </div>
             </div>
@@ -118,5 +123,3 @@ const SettingsPanel = () => {
         </div>
       );
 }
-
-export default SettingsPanel;

@@ -1,9 +1,4 @@
-const {
-  handleTileInfoUpdate,
-  handleTileInfo2Update,
-  handlePieceAddition,
-  handleColorAddition,
-} = require("../modules/boardModule/BoardEvents");
+import BoardEvents from "../modules/boardModule/BoardEvents";
 
 class RenderManager {
   #pieces;

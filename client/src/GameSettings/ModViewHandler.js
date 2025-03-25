@@ -1,3 +1,5 @@
+import { socket } from "../client.js";
+
 class ModViewHandler {
     static instance = null;
 
@@ -11,6 +13,8 @@ class ModViewHandler {
                 answer: "",
                 showPopup: false,
               };
+              this.playerCount = 0;
+              this.currentQuestion = null;
             ModViewHandler.instance = this;
         }
         return ModViewHandler.instance;
@@ -50,6 +54,22 @@ class ModViewHandler {
         this.state.showPopup = showPopup;
     }
 
+    setPlayerCount(count) {
+        this.playerCount = count;
+    }
+
+    setCurrentQuestion(question) {
+        this.currentQuestion = question;
+    }
+
+    getCurrentQuestion() {
+        return this.currentQuestion;
+    }
+
+    getPlayerCount() {
+        return this.playerCount;
+    }
+
     // Dynamic reset for all keys in this.state
     resetAll = () => {
         if (this.setState) {
@@ -72,7 +92,7 @@ class ModViewHandler {
 
     // -- ModView logic
     handleUpdatePoints = (points) => {
-        setSelectedPoints(points);
+        this.setSelectedPoints(points);
     };
     
     reviewQuestion = (questionData) => {
@@ -81,31 +101,31 @@ class ModViewHandler {
           console.error("Invalid question data:", questionData);
           return;
         }
-        setQuestion(questionData.questionText);
-        setColor(questionData.questionColor);
-        setUserColor(questionData.playerColor);
-        setAnswer(questionData.answer);
-        currentQuestionRef.current = questionData;
+        this.setQuestion(questionData.questionText);
+        this.setColor(questionData.questionColor);
+        this.setUserColor(questionData.playerColor);
+        this.setAnswer(questionData.answer);
+        this.setCurrentQuestion(questionData);
     };
     
     submitPoints = () => {
-        setShowPopup(false);
+        this.setShowPopup(false);
         socket.emit("points_submitted_question_reviewed", {
-          totalPoints: selectedPoints,
-          color: userColor,
-          playerId: currentQuestionRef.current.playerId,
+          totalPoints: this.state.selectedPoints,
+          color: this.userColor,
+          playerId: this.getCurrentQuestion().playerId,
           hasBeenReviewed: true,
         });
-        setSelectedPoints([]);
+        this.setSelectedPoints([]);
     };
     
     handleSubmitPoints = () => {
-        submitPoints();
+        this.submitPoints();
     };
     
     onImageClick = (playerId) => {
         socket.emit("get_player_answer_on_click", playerId);
-        setShowPopup(true);
+        this.setShowPopup(true);
     };
 
   }

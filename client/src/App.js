@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomeScreen } from "./components/HomeScreen";
-import ModSettings from "../src/GameSettings/ModSettings";
+import { SettingsPanel } from "./components/UI/SettingsPanel";
 import { Game } from "./components/Game";
 import { JoinGame } from "./components/JoinGame";
 import { GamePin } from "./components/UI/GamePin";
@@ -18,7 +18,7 @@ function App() {
         <Routes>
           <Route index element={<HomeScreen />} />
           <Route path="/home" element={<HomeScreen />} />
-          <Route path="/configuration" element={<ModSettings />} />
+          <Route path="/configuration" element={<SettingsPanel />} />
           <Route path="/game" element={<Game />} />
           <Route path="/joingame" element={<JoinGame />} />
           <Route path="/loadgame" element={<LoadGame />} />{" "}

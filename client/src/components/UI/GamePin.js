@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "./GamePinStyle.css";
-import { socket } from "../../client";
+import { socket } from "../../client.js";
 import React, { useEffect, useState } from "react";
 import back from "../../Assets/back-button.png";
 import { useTranslation } from "react-i18next";
@@ -8,30 +8,41 @@ import den_flag from "../../Assets/den_flag.png";
 import uk_flag from "../../Assets/uk_flag.png";
 import nl_flag from "../../Assets/nl_flag.png";
 import { useLanguageManager } from "../../Translations/LanguageManager";
-import { handleGame, handleBack, handlePlayerCountChange, copygamepin } from "../../GameSettings/GamePinHandler";
+import GamePinHandler from "../../GameSettings/GamePinHandler.js";
 
 export function GamePin() {
   const [gamepin, setGamepin] = useState("");
   const navigate = useNavigate();
   const [playerCount, setPlayerCount] = useState(0);
-  const [playerNeeded, setPlayerNeeded] = useState(0);
-  const [errorCode, setErrorCode] = useState("‎ ");
   const { t, i18n } = useTranslation("global");
   const { handleChangeLanguage, handleGuide } = useLanguageManager();
+
+  const gamePinHandler = new GamePinHandler();
+
+  const handleHome = () => {
+    navigate("/home");
+    socket.emit("delete_mod", "data");
+  };
+
+  const handleBack = () => {
+    navigate("/configuration");
+    socket.emit("delete_mod", "data");
+  };
 
   useEffect(() => {
     // Add event listeners
     socket.on("send_gamepin", (data) => {
+      console.log(data.room);
       setGamepin(data.room);
       console.log("sending game pin:, data.room ");
-      setPlayerNeeded(data.playerTotal);
+      gamePinHandler.setPlayerNeeded(data.playerTotal);
     });
     socket.on("add_user", () => {
       console.log("being added");
-      setPlayerCount((prevCount) => prevCount + 1);
+      gamePinHandler.setPlayerCount((prevCount) => prevCount + 1);
     });
     socket.on("delete_user", () => {
-      setPlayerCount((prevCount) => prevCount - 1);
+      gamePinHandler.setPlayerCount((prevCount) => prevCount - 1);
     });
   
     // Cleanup-function to remove all listeners
@@ -56,7 +67,7 @@ export function GamePin() {
           type="text"
           className="gamepinGenerate"
           value={gamepin}
-          onClick={copygamepin}
+          onClick={gamePinHandler.copygamepin}
           readOnly
           onChange={(event) => setGamepin(event.target.value)}
         />
@@ -69,16 +80,16 @@ export function GamePin() {
           className="joinedPlayers"
           value={playerCount}
           readOnly
-          onChange={handlePlayerCountChange}
+          onChange={gamePinHandler.handlePlayerCountChange}
         />
       </div>
       <div className="buttonGamePin">
-        <button type="submit" className="gamePinButton" onClick={handleGame}>
+        <button type="submit" className="gamePinButton" onClick={gamePinHandler.handleGame}>
           {" "}
           {t("GamePin.start")}{" "}
         </button>
       </div>
-      <div className="errorGamepin">{errorCode}</div>
+      <div className="errorGamepin">{gamePinHandler.errorCode}</div>
       <div className="languageRow">
         <img
           className="flagImg4"

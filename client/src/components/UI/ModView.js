@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import "../GameStyle.css";
 import "../../App.css";
 import { socket } from "../../client";
@@ -15,25 +15,27 @@ import { useNavigate } from "react-router-dom";
 
 import PlayerProgress from "./PlayerProgress";
 import RenderManager from "../../RenderManager/RenderManager";
-import {
-  cleanUpSocketListeners,
-  handleColorAddition,
-  handlePieceAddition,
-  handleTileInfo2Update,
-  handleTileInfoUpdate,
-  handleUpdateRound,
-  handleGameOverEvent,
-  handleReceivePlayerAnswer,
-  handleLeaderBoardUpdate,
-  handleGoToHomeScreen,
-  handlePositionsUpdate,
-  handleRoundFinished,
-} from "../../modules/boardModule/BoardEvents";
+import BoardEvents from "../../modules/boardModule/BoardEvents";
 import { startRender } from "../../screenRenderer";
-import Pieces from "../UI/Pieces";
+import Pieces from "./Pieces";
 import ModViewWrapper from '../../GameSettings/ModViewWrapper';
+import ModViewContext from "../../GameSettings/ModViewWrapper";
 
 export function ModView() {
+  const {
+    reviewQuestion,
+    showPopup,
+    onImageClick,
+    answer,
+    popupColor,
+    setShowPopup,
+    question,
+    modViewHandler,
+    selectedPoints,
+    handleSubmitPoints,
+    handleUpdatePoints
+  } = useContext(ModViewContext);
+
   const { t, i18n } = useTranslation("global");
   const [data, setData] = useState([]);
   const [users, setUsers] = useState([]);
@@ -50,8 +52,6 @@ export function ModView() {
   const [totalRounds, setTotalRounds] = useState(0);
   const [roundText, setRoundText] = useState("");
   const { handleChangeLanguage, handleGuide } = useLanguageManager();
-  const playerCountRef = useRef(0);
-  const currentQuestionRef = useRef(null);
   const navigate = useNavigate();
 
   const [tileInfo, setTileInfo] = useState([]);
@@ -75,28 +75,28 @@ export function ModView() {
       setIsReadyToRender,
       socket,
     );
-    handleTileInfoUpdate({ socket, setTileInfo }, (data) =>
+    BoardEvents.handleTileInfoUpdate({ socket, setTileInfo }, (data) =>
       renderManager.setTileInfo(data),
     );
-    handleTileInfo2Update({ socket, setTileInfo2 }, (data) =>
+    BoardEvents.handleTileInfo2Update({ socket, setTileInfo2 }, (data) =>
       renderManager.setTileInfo2(data),
     );
-    handlePieceAddition({ socket, setStartPieces }, (data) =>
+    BoardEvents.handlePieceAddition({ socket, setStartPieces }, (data) =>
       renderManager.setPieces(data),
     );
-    handlePositionsUpdate({ socket, setPiecePositions });
-    handleColorAddition({ socket, setJoinedColors }, (data) =>
+    BoardEvents.handlePositionsUpdate({ socket, setPiecePositions });
+    BoardEvents.handleColorAddition({ socket, setJoinedColors }, (data) =>
       renderManager.setJoinedColors(data),
     );
-    handleLeaderBoardUpdate({ socket, setData });
-    handleUpdateRound({ socket, setRoundText, t });
-    handleReceivePlayerAnswer({ socket, reviewQuestion });
-    handleGoToHomeScreen({ socket, navigate });
-    handleGameOverEvent({ socket, navigate });
-    handleRoundFinished({ socket, setIsDisabled });
+    BoardEvents.handleLeaderBoardUpdate({ socket, setData });
+    BoardEvents.handleUpdateRound({ socket, setRoundText, t });
+    BoardEvents.handleReceivePlayerAnswer({ socket, reviewQuestion });
+    BoardEvents.handleGoToHomeScreen({ socket, navigate });
+    BoardEvents.handleGameOverEvent({ socket, navigate });
+    BoardEvents.handleRoundFinished({ socket, setIsDisabled });
 
     return () => {
-      cleanUpSocketListeners(socket);
+      BoardEvents.cleanUpSocketListeners(socket);
     };
   }, []);
 
@@ -212,7 +212,7 @@ export function ModView() {
         setShowPopup={setShowPopup}
         question={question}
         submittedAnswer={
-          currentQuestionRef.current && currentQuestionRef.current.playerAnswer
+          modViewHandler.getCurrentQuestion() && modViewHandler.getCurrentQuestion().playerAnswer
         } // When the game starts currentQuestion will be null
         selectedPoints={selectedPoints}
         handleSubmitPoints={handleSubmitPoints}
