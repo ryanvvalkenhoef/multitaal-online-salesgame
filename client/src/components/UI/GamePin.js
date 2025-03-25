@@ -2,11 +2,11 @@ import { useNavigate } from "react-router-dom";
 import "./GamePinStyle.css";
 import { socket } from "../../client";
 import React, { useEffect, useState } from "react";
-import back from "../Assets/back-button.png";
+import back from "../../Assets/back-button.png";
 import { useTranslation } from "react-i18next";
-import den_flag from "../Assets/den_flag.png";
-import uk_flag from "../Assets/uk_flag.png";
-import nl_flag from "../Assets/nl_flag.png";
+import den_flag from "../../Assets/den_flag.png";
+import uk_flag from "../../Assets/uk_flag.png";
+import nl_flag from "../../Assets/nl_flag.png";
 import { useLanguageManager } from "../../Translations/LanguageManager";
 import { handleGame, handleBack, handlePlayerCountChange, copygamepin } from "../../GameSettings/GamePinHandler";
 

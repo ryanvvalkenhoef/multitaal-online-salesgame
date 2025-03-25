@@ -1,5 +1,5 @@
 import React from "react";
-import "../Board/BoardGridStyle.css";
+import "./BoardGridStyle.css";
 import { renderStartPieces } from "../../modules/pieceModule/PieceUtils";
 
 export const Tile = ({

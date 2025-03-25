@@ -1,4 +1,5 @@
 import { sendQuestionRequest } from "./BoardEvents";
+import { Tile } from "../../components/UI/Tile"
 
 class BoardUtils {
     

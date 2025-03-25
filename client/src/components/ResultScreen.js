@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../PlayerScreen/GameStyle.css";
+import "../components/GameStyle.css";
 import "./ResultScreenStyle.css";
 import "../App.css";
 import { socket } from "../client";

@@ -2,7 +2,6 @@ class ModViewHandler {
     static instance = null;
 
     constructor(props) {
-        super(props);
         if (!ModViewHandler.instance) {
             this.state = {
                 selectedPoints: null,

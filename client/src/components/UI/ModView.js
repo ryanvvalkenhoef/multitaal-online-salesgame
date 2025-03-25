@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../PlayerScreen/GameStyle.css";
-import "../App.css";
+import "../GameStyle.css";
+import "../../App.css";
 import { socket } from "../../client";
-import DiceContainer from "../GameScreen/Dice/DiceContainer";
-import LeaderBoard from "../GameScreen/LeaderBoard/LeaderBoard";
+import DiceContainer from "./DiceContainer";
+import LeaderBoard from "./LeaderBoard";
 import ModeratorPopUps from "./ModPopUps";
-import BoardGrid from "../GameScreen/Board/BoardGrid";
+import BoardGrid from "./BoardGrid";
 import { useTranslation } from "react-i18next";
 import { useLanguageManager } from "../../Translations/LanguageManager";
-import den_flag from "../Assets/den_flag.png";
-import uk_flag from "../Assets/uk_flag.png";
-import nl_flag from "../Assets/nl_flag.png";
+import den_flag from "../../Assets/den_flag.png";
+import uk_flag from "../../Assets/uk_flag.png";
+import nl_flag from "../../Assets/nl_flag.png";
 import { useNavigate } from "react-router-dom";
 
 import PlayerProgress from "./PlayerProgress";
@@ -28,9 +28,9 @@ import {
   handleGoToHomeScreen,
   handlePositionsUpdate,
   handleRoundFinished,
-} from "./eventListenersMod";
+} from "../../modules/boardModule/BoardEvents";
 import { startRender } from "../../screenRenderer";
-import Pieces from "../modules/pieceModule/PieceManager";
+import Pieces from "../UI/Pieces";
 import ModViewWrapper from '../../GameSettings/ModViewWrapper';
 
 export function ModView() {

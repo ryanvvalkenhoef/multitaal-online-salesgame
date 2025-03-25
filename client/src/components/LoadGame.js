@@ -9,7 +9,7 @@ import den_flag from "../Assets/den_flag.png";
 import uk_flag from "../Assets/uk_flag.png";
 import nl_flag from "../Assets/nl_flag.png";
 
-export function LoadGame() {
+export default function LoadGame() {
   const [gamepin, setGamepin] = useState("");
   const [information, setInformation] = useState("");
   const navigate = useNavigate();

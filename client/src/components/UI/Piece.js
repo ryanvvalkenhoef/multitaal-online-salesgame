@@ -1,5 +1,5 @@
 import React from "react";
-import "../Board/BoardGridStyle.css";
+import "../UI/BoardGridStyle.css";
 
 export const Piece = ({
   piece,

@@ -1,15 +1,15 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomeScreen } from "./components/HomeScreen";
-import { ModSettings } from "./GameSettings/ModSettings";
+import ModSettings from "../src/GameSettings/ModSettings";
 import { Game } from "./components/Game";
 import { JoinGame } from "./components/JoinGame";
-import { GamePin } from "./comopnents/UI/GamePin";
+import { GamePin } from "./components/UI/GamePin";
 import { ModView } from "./components/UI/ModView";
 import musicOn from "./Assets/musicOn.png";
 import musicOff from "./Assets/musicOff.png";
 import { ResultScreen } from "./components/ResultScreen";
-import { LoadGame } from "./LoadGame/LoadGame";
+import LoadGame from "./components/LoadGame";
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
           {/* New route for LoadGame */}
           <Route path="/gamepin" element={<GamePin />} />
           <Route path="/modview" element={<ModView />} />
-          <Route path="/results" element={<Results />} />
+          <Route path="/results" element={<ResultScreen />} />
         </Routes>
       </BrowserRouter>
     </div>

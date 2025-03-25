@@ -5,7 +5,7 @@ import {
   handlePositionsUpdate,
   handleValidPositionsUpdate,
 } from "./BoardEvents";
-import { createTiles, handleTileClick, setPiecesOnTile, setStartPiecesOnTile } from "./BoardUtils";
+import "./BoardUtils";
 
 const BoardManager = ({
   selectedPawn,
@@ -51,7 +51,7 @@ const BoardManager = ({
     const boardGrid = document.querySelector(".board-grid");
     if (gameScreen && boardGrid !== null) {
       const handleClick = (event) =>
-        handleTileClick({
+        BoardUtils.handleTileClick({
           event,
           startPieces,
           selectedPawn,
@@ -72,7 +72,7 @@ const BoardManager = ({
 
   useEffect(() => {
     // Create the tiles and update the state
-    const tiles = createTiles({
+    const tiles = BoardUtils.createTiles({
       joinedColors,
       tileInfo,
       tileInfo2,
