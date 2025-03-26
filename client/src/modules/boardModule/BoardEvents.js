@@ -1,16 +1,14 @@
-import { socket } from "../../client.js";
-
 class BoardEvents {
 
-    constructor() {  }
+    constructor() { }
   
-    static handleValidPositionsUpdate(setValidPosition) {
+    static handleValidPositionsUpdate(socket, setValidPositions) {
       socket.on('update_valid_positions', (ValidPositionArray) => {
-        setValidPosition(ValidPositionArray);
+        setValidPositions(ValidPositionArray);
       });
     }
   
-    static handlePositionsUpdate(validPositions) {
+    static handlePositionsUpdate(socket, validPositions) {
       socket.on('update_piece_positions', (newPositionData) => {
         newPositionData.forEach((data) => {
           const newPosition = data.newPosition;
@@ -30,13 +28,13 @@ class BoardEvents {
       });
     }
   
-    static cleanUpSocketListeners() {
+    static cleanUpSocketListeners(socket) {
       socket.off('update_valid_positions');
       socket.off('update_piece_positions');
     }
   
     // Emitter for question request
-    static sendQuestionRequest(colorTile, playerColor) {
+    static sendQuestionRequest(socket, colorTile, playerColor) {
       socket.emit('send_question_request', {
         questionColor: colorTile,
         userColor: playerColor

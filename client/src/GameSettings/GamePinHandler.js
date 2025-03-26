@@ -1,5 +1,6 @@
 import { socket } from "../client.js";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 class GamePinHandler {
     
@@ -13,31 +14,41 @@ class GamePinHandler {
                   gamepin: "",
                   errorCode: "‎ ",
                 };
+                this.setState = null;
               GamePinHandler.instance = this;
           }
           return GamePinHandler.instance;
       }
 
-      setErrorCode = (errorCode) => {
-        this.state.errorCode = errorCode;
+      setGamePin(gamepin) {
+        if (this.setState) {
+          this.setState((prevState) => ({ ...prevState, gamepin }));
+        }
+      }
+    
+      setPlayerCount(update) {
+        if (this.setState) {
+          this.setState((prevState) => ({
+            ...prevState,
+            playerCount: typeof update === "function" ? update(prevState.playerCount) : update,
+          }));
+        }
+      }
+    
+      setPlayerNeeded(count) {
+        if (this.setState) {
+          this.setState((prevState) => ({ ...prevState, playerTotal: count }));
+        }
+      }
+    
+      connectState(setStateFunction) {
+        this.setState = setStateFunction;
       }
 
-      setPlayerCount = (playerCount) => {
-        this.state.playerCount = playerCount;
-      }
-
-      setPlayerNeeded = (playerNeeded) => {
-        this.state.playerNeeded = playerNeeded;
-      }
-
-      init(setState) {
-          this.setState = setState;
-      }
-
-      handleGame = () => {
+      handleGame = (navigate) => {
         if (this.state.playerCount === this.state.playerNeeded) {
           socket.emit("start_turn", "data");
-          useNavigate("/modview");
+          navigate("/modview");
           sessionStorage.setItem("socketId", socket.id);
           sessionStorage.setItem("room", this.state.gamepin);
         } else {

@@ -4,8 +4,9 @@ import { HomeScreen } from "./components/HomeScreen";
 import { SettingsPanel } from "./components/UI/SettingsPanel";
 import { Game } from "./components/Game";
 import { JoinGame } from "./components/JoinGame";
-import { GamePin } from "./components/UI/GamePin";
+import { GamePin } from "./components/GamePin";
 import { ModView } from "./components/UI/ModView";
+import { ModViewWrapper } from "./GameSettings/ModViewWrapper";
 import musicOn from "./Assets/musicOn.png";
 import musicOff from "./Assets/musicOff.png";
 import { ResultScreen } from "./components/ResultScreen";
@@ -24,7 +25,14 @@ function App() {
           <Route path="/loadgame" element={<LoadGame />} />{" "}
           {/* New route for LoadGame */}
           <Route path="/gamepin" element={<GamePin />} />
-          <Route path="/modview" element={<ModView />} />
+          <Route
+            path="/modview"
+            element={
+              <ModViewWrapper>
+                <ModView />
+              </ModViewWrapper>
+            }
+          />
           <Route path="/results" element={<ResultScreen />} />
         </Routes>
       </BrowserRouter>

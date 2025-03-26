@@ -70,13 +70,13 @@ class BoardUtils {
       selectedPawn,
     }) {
       const tiles = [];
-      for (let index = 0; index < this.tileInfo.length; index++) {
+      for (let index = 0; index < tileInfo.length; index++) {
         const color = this.assignColorToTile(index, joinedColors, tileInfo, tileInfo2);
         const isHighlighted = this.highLightChecker(index, possiblePositions, validPositions);
         const tileClass = `tile ${color} ${isHighlighted ? "blink" : ""}`;
         const position = possiblePositions[index];
   
-        const tile = new Tile({
+        const tile = Tile({
           index,
           position,
           tileClass,
@@ -90,13 +90,16 @@ class BoardUtils {
     }
   
     static setPiecesOnTile({ piecePositions }) {
+      console.log('positions: ' + piecePositions);
       // This function is used after the first time
       piecePositions.forEach((data) => {
         const newPosition = data.newPosition;
         const selectedPawnName = data.selectedPawn;
+        console.log(selectedPawnName);
         const selectedPawnElement = document.getElementById(selectedPawnName);
   
         if (selectedPawnElement) {
+          console.log('pawnElement: ' + selectedPawnElement);
           const newTile = document.querySelector(
             `.tile[data-pos="${newPosition}"]`
           );
@@ -108,10 +111,12 @@ class BoardUtils {
     static setStartPiecesOnTile({ startPieces }) {
       // This function is used to set the pieces for the first time
       const START_POSITION = "8-5";
+      console.log('startPieces: ' + startPieces);
       for (let startPiece of startPieces) {
         const newPosition = START_POSITION;
         const selectedPawnElement = document.getElementById(startPiece);
   
+        console.log('pawnElement: ' + selectedPawnElement);
         if (selectedPawnElement) {
           const newTile = document.querySelector(
             `.tile[data-pos="${newPosition}"]`

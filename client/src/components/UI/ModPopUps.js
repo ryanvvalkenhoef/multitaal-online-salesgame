@@ -1,7 +1,7 @@
 import React from "react";
 import "./PopUpStyle.css";
 import { useTranslation } from "react-i18next";
-import ModViewWrapper from '../../GameSettings/ModViewWrapper';
+import { ModViewWrapper, ModViewContext }  from '../../GameSettings/ModViewWrapper';
 
 const ModPopUps = ({
   setShowPopup,

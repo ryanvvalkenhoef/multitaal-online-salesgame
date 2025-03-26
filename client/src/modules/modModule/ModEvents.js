@@ -38,4 +38,4 @@ export {
   handleGameOverEvent,
   handleLeaderBoardUpdate,
   handleGoToHomeScreen,
-} from "../PlayerScreen/eventListenersPlayer";
+} from "../../modules/playerModule/PlayerEvents";

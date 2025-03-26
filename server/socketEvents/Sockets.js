@@ -133,6 +133,7 @@ module.exports = function (io) {
           );
           PreGameManager.addPlayerName(data.name, jsonFileHandler);
 
+          console.log('passed');
           socketManager.emitToMod(socket, "add_user", "adding");
           joinStatus = "available";
           socketManager.emitBackToClient(socket, "join_succes", joinStatus);

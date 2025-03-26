@@ -89,3 +89,5 @@ class PlayerState {
       this.setPlayersReviewed([...this.playersReviewed]);
     }
 }
+
+export default PlayerState;

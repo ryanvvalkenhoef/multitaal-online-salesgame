@@ -6,7 +6,7 @@
   },
 
   "JoinGame": {
-    "gamepin": "Room code:",
+    "gamepin": "Kamercode:",
     "strategy": "Strategie:",
     "username": "Gebruikersnaam:",
     "gamePlaceholder": "Voor kamercode in ",
@@ -23,7 +23,7 @@
   },
 
   "GamePin": {
-    "gamepin": "Room code",
+    "gamepin": "Kamercode",
     "players": "Toegetreden spelers",
     "start": "Start spel!",
     "home": "Startscherm"

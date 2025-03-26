@@ -3,14 +3,15 @@ import { createContext, useContext } from "react";
 import { modViewHandler } from "./ModViewHandler";
 import { ModView } from "../components/UI/ModView";
 
-const ModViewContext = createContext();
+export const ModViewContext = createContext();
 
-const ModViewWrapper = ({ children }) => {
+export const ModViewWrapper = ({ children }) => {
 
   const [state, setState] = useState({
     selectedPoints: null,
     question: "",
     color: "",
+    popupColor: "",
     userColor: "",
     answer: "",
     showPopup: false,
@@ -42,20 +43,26 @@ const ModViewWrapper = ({ children }) => {
     modViewHandler.onImageClick(playerId);
   };
 
+  const { selectedPoints, showPopup, answer, color, question } = state;
+
+  // Passing through the state and functions to children through context
   return (
-    <div>
-      {React.Children.map(children, (child) =>
-        React.cloneElement(child, {
-          // Pass through functions to the children
-          handleSubmitPoints,
-          onImageClick,
-          handleUpdatePoints,
-          reviewQuestion,
-          resetAll,
-        })
-      )}
-    </div>
+    <ModViewContext.Provider
+      value={{
+        reviewQuestion,
+        showPopup: state.showPopup,
+        answer: state.answer,
+        color: state.color,
+        question: state.question,
+        selectedPoints: state.selectedPoints,
+        modViewHandler,
+        handleSubmitPoints,
+        handleUpdatePoints,
+        onImageClick,
+        resetAll,
+      }}
+    >
+      {children}
+    </ModViewContext.Provider>
   );
 };
-
-export default { ModViewWrapper, ModViewContext };

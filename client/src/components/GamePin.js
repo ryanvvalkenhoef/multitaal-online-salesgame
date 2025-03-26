@@ -1,23 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import "./GamePinStyle.css";
-import { socket } from "../../client.js";
+import { socket } from "../client.js";
 import React, { useEffect, useState } from "react";
-import back from "../../Assets/back-button.png";
+import back from "../Assets/back-button.png";
 import { useTranslation } from "react-i18next";
-import den_flag from "../../Assets/den_flag.png";
-import uk_flag from "../../Assets/uk_flag.png";
-import nl_flag from "../../Assets/nl_flag.png";
-import { useLanguageManager } from "../../Translations/LanguageManager";
-import GamePinHandler from "../../GameSettings/GamePinHandler.js";
+import den_flag from "../Assets/den_flag.png";
+import uk_flag from "../Assets/uk_flag.png";
+import nl_flag from "../Assets/nl_flag.png";
+import { useLanguageManager } from "../Translations/LanguageManager.js";
+import GamePinHandler from "../GameSettings/GamePinHandler.js";
 
 export function GamePin() {
-  const [gamepin, setGamepin] = useState("");
   const navigate = useNavigate();
-  const [playerCount, setPlayerCount] = useState(0);
   const { t, i18n } = useTranslation("global");
   const { handleChangeLanguage, handleGuide } = useLanguageManager();
+  const [gamePinState, setGamePinState] = useState({
+    gamepin: "",
+    playerCount: 0,
+    playerTotal: 0,
+  });
 
   const gamePinHandler = new GamePinHandler();
+  gamePinHandler.connectState(setGamePinState);
 
   const handleHome = () => {
     navigate("/home");
@@ -29,11 +33,15 @@ export function GamePin() {
     socket.emit("delete_mod", "data");
   };
 
+  const handleStartGame = () => {
+    gamePinHandler.handleGame(navigate);
+  };
+
   useEffect(() => {
     // Add event listeners
     socket.on("send_gamepin", (data) => {
       console.log(data.room);
-      setGamepin(data.room);
+      gamePinHandler.setGamePin(data.room);
       console.log("sending game pin:, data.room ");
       gamePinHandler.setPlayerNeeded(data.playerTotal);
     });
@@ -66,10 +74,10 @@ export function GamePin() {
         <input
           type="text"
           className="gamepinGenerate"
-          value={gamepin}
+          value={gamePinState.gamepin}
           onClick={gamePinHandler.copygamepin}
           readOnly
-          onChange={(event) => setGamepin(event.target.value)}
+          onChange={(event) => gamePinHandler.setGamePin(event.target.value)}
         />
       </div>
       <div className="playersJoinedGamepin">
@@ -78,13 +86,13 @@ export function GamePin() {
           id="playerCount"
           name="playerCount"
           className="joinedPlayers"
-          value={playerCount}
+          value={gamePinState.playerCount}
           readOnly
           onChange={gamePinHandler.handlePlayerCountChange}
         />
       </div>
       <div className="buttonGamePin">
-        <button type="submit" className="gamePinButton" onClick={gamePinHandler.handleGame}>
+        <button type="submit" className="gamePinButton" onClick={handleStartGame}>
           {" "}
           {t("GamePin.start")}{" "}
         </button>

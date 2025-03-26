@@ -23,7 +23,7 @@ const BoardGrid = ({
   gameScreen,
 }) => {
 
-  let boardManager = new BoardManager({
+    let boardManager = new BoardManager({
       selectedPawn: selectedPawn,
       setPosition: setPosition,
       playerColor: playerColor,
@@ -42,12 +42,12 @@ const BoardGrid = ({
   return (
     <div className="board-grid">
       {/* Render the tiles */}
-      {tilesUseState.map((tile, index) => (
+      {boardManager.tilesUseState.map((tile, index) => (
         <div
           key={index}
-          className={`tile ${validPositions.includes(tile.position) ? "valid" : ""}`}
+          className={`tile ${boardManager.validPositions.includes(tile.position) ? "valid" : ""}`}
           onClick={(event) =>
-            handleTileClick({
+            boardManager.handleTileClick({
               event,
               startPieces,
               selectedPawn,

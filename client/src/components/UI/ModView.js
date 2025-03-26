@@ -12,28 +12,42 @@ import den_flag from "../../Assets/den_flag.png";
 import uk_flag from "../../Assets/uk_flag.png";
 import nl_flag from "../../Assets/nl_flag.png";
 import { useNavigate } from "react-router-dom";
-
+import {
+  cleanUpSocketListeners,
+  handleColorAddition,
+  handlePieceAddition,
+  handleTileInfo2Update,
+  handleTileInfoUpdate,
+  handleUpdateRound,
+  handleGameOverEvent,
+  handleReceivePlayerAnswer,
+  handleLeaderBoardUpdate,
+  handleGoToHomeScreen,
+  handlePositionsUpdate,
+  handleRoundFinished,
+} from "../../modules/modModule/ModEvents";
 import PlayerProgress from "./PlayerProgress";
 import RenderManager from "../../RenderManager/RenderManager";
 import BoardEvents from "../../modules/boardModule/BoardEvents";
 import { startRender } from "../../screenRenderer";
 import Pieces from "./Pieces";
-import ModViewWrapper from '../../GameSettings/ModViewWrapper';
-import ModViewContext from "../../GameSettings/ModViewWrapper";
+import { ModViewWrapper, ModViewContext } from "../../GameSettings/ModViewWrapper";
 
 export function ModView() {
+
   const {
     reviewQuestion,
     showPopup,
-    onImageClick,
+    setShowPopup,
     answer,
     popupColor,
-    setShowPopup,
+    color,
     question,
     modViewHandler,
     selectedPoints,
     handleSubmitPoints,
-    handleUpdatePoints
+    handleUpdatePoints,
+    onImageClick
   } = useContext(ModViewContext);
 
   const { t, i18n } = useTranslation("global");
@@ -75,28 +89,28 @@ export function ModView() {
       setIsReadyToRender,
       socket,
     );
-    BoardEvents.handleTileInfoUpdate({ socket, setTileInfo }, (data) =>
+    handleTileInfoUpdate({ socket, setTileInfo }, (data) =>
       renderManager.setTileInfo(data),
     );
-    BoardEvents.handleTileInfo2Update({ socket, setTileInfo2 }, (data) =>
+    handleTileInfo2Update({ socket, setTileInfo2 }, (data) =>
       renderManager.setTileInfo2(data),
     );
-    BoardEvents.handlePieceAddition({ socket, setStartPieces }, (data) =>
+    handlePieceAddition({ socket, setStartPieces }, (data) =>
       renderManager.setPieces(data),
     );
-    BoardEvents.handlePositionsUpdate({ socket, setPiecePositions });
-    BoardEvents.handleColorAddition({ socket, setJoinedColors }, (data) =>
+    handlePositionsUpdate({ socket, setPiecePositions });
+    handleColorAddition({ socket, setJoinedColors }, (data) =>
       renderManager.setJoinedColors(data),
     );
-    BoardEvents.handleLeaderBoardUpdate({ socket, setData });
-    BoardEvents.handleUpdateRound({ socket, setRoundText, t });
-    BoardEvents.handleReceivePlayerAnswer({ socket, reviewQuestion });
-    BoardEvents.handleGoToHomeScreen({ socket, navigate });
-    BoardEvents.handleGameOverEvent({ socket, navigate });
-    BoardEvents.handleRoundFinished({ socket, setIsDisabled });
+    handleLeaderBoardUpdate({ socket, setData });
+    handleUpdateRound({ socket, setRoundText, t });
+    handleReceivePlayerAnswer({ socket, reviewQuestion });
+    handleGoToHomeScreen({ socket, navigate });
+    handleGameOverEvent({ socket, navigate });
+    handleRoundFinished({ socket, setIsDisabled });
 
     return () => {
-      BoardEvents.cleanUpSocketListeners(socket);
+      cleanUpSocketListeners(socket);
     };
   }, []);
 
@@ -117,7 +131,6 @@ export function ModView() {
     }
   }, [currentRound, totalRounds]);
   return (
-    <ModViewWrapper>
     <>
       {isReadyToRender ? (
         <div className={showPopup ? "appBlurred" : "playboard"}>
@@ -219,6 +232,5 @@ export function ModView() {
         handleUpdatePoints={handleUpdatePoints}
       />
     </>
-    </ModViewWrapper>
   );
 }

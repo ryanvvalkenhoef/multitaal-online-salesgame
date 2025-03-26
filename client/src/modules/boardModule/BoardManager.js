@@ -1,8 +1,9 @@
-import { socket } from "../../client";
+import { socket } from "../../client.js";
 import BoardEvents from "./BoardEvents";
 import BoardUtils from "./BoardUtils";
 
 class BoardManager {
+
   constructor({
     selectedPawn,
     setPosition,
@@ -30,6 +31,7 @@ class BoardManager {
     this.validPositions = [];
     this.tilesUseState = [];
     this.isFirstRender = true;
+    this.isInitialized = false; 
 
     this.possiblePositions = [
       '1-9', '2-9', '3-9', '4-9', '5-9', '6-9', '7-9', '8-9', '9-9', '10-9', '11-9', '12-9', '13-9', '14-9', '15-9',
@@ -48,11 +50,20 @@ class BoardManager {
   }
 
   initialize() {
-
     // Handle valid positions and socket events
-    BoardEvents.handleValidPositionsUpdate();
-    BoardEvents.handlePositionsUpdate();
-    this.setIsBoardRendered(true);
+    BoardEvents.handleValidPositionsUpdate(socket, this.setValidPositions.bind(this));
+    BoardEvents.handlePositionsUpdate(socket, this.validPositions);
+    setTimeout(() => {
+      if (this.isFirstRender) {
+        this.setIsBoardRendered(true);
+        this.isFirstRender = false;
+      }
+    }, 0);
+    
+  }
+
+  setValidPositions(validPositionsArray) {
+    this.validPositions = validPositionsArray;
   }
 
   handlePositionsUpdate() {
@@ -102,22 +113,25 @@ class BoardManager {
     this.tilesUseState = tiles;
   }
 
-  setStartPieces() {
-    if (!this.isFirstRender) {
-      if (this.piecePositions[0] === "") {
-        BoardUtils.setStartPiecesOnTile({ startPieces: this.startPieces });
-      } else {
-        BoardUtils.setPiecesOnTile({ piecePositions: this.piecePositions });
-      }
-    }
-  }
-
   setFirstRender() {
     this.isFirstRender = false;
   }
 
+  setStartPieces() {
+    if (!this.isFirstRender) {
+      if (this.piecePositions[0] === "") {
+        console.log('passed1');
+        BoardUtils.setStartPiecesOnTile({ startPieces: this.startPieces });
+      } else {
+        console.log('passed2');
+        BoardUtils.setPiecesOnTile({ piecePositions: this.piecePositions });
+      }
+      
+    }
+  }
+
   update() {
-    console.log('updated');
+    console.log('update: ' + this.isFirstRender);
     this.createTiles();
     this.setStartPieces();
   }
