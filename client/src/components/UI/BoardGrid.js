@@ -42,25 +42,7 @@ const BoardGrid = ({
   return (
     <div className="board-grid">
       {/* Render the tiles */}
-      {boardManager.tilesUseState.map((tile, index) => (
-        <div
-          key={index}
-          className={`tile ${boardManager.validPositions.includes(tile.position) ? "valid" : ""}`}
-          onClick={(event) =>
-            boardManager.handleTileClick({
-              event,
-              startPieces,
-              selectedPawn,
-              validPositions,
-              playerColor,
-              setPosition,
-            })
-          }
-        >
-          {/* Show the contents of the tile */}
-          {tile.content}
-        </div>
-      ))}
+      {boardManager.tilesUseState}
     </div>
   );
 };

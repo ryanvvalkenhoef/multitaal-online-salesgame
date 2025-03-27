@@ -1,5 +1,6 @@
 import BoardEvents from "./BoardEvents";
-import { Tile } from "../../components/UI/Tile"
+import { Tile } from "../../components/UI/Tile";
+import ReactDOMServer from 'react-dom/server';
 
 class BoardUtils {
     
@@ -75,15 +76,16 @@ class BoardUtils {
         const isHighlighted = this.highLightChecker(index, possiblePositions, validPositions);
         const tileClass = `tile ${color} ${isHighlighted ? "blink" : ""}`;
         const position = possiblePositions[index];
+        console.log('position: ' + position);
   
         const tile = Tile({
-          index,
           position,
           tileClass,
+          index,
           renderStartPieces: this.setStartPiecesOnTile,
           startPieces,
           selectedPawn,
-        });
+      });
         tiles.push(tile);
       }
       return tiles;
@@ -115,8 +117,7 @@ class BoardUtils {
       for (let startPiece of startPieces) {
         const newPosition = START_POSITION;
         const selectedPawnElement = document.getElementById(startPiece);
-  
-        console.log('pawnElement: ' + selectedPawnElement);
+        
         if (selectedPawnElement) {
           const newTile = document.querySelector(
             `.tile[data-pos="${newPosition}"]`

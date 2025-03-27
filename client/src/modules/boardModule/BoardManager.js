@@ -53,12 +53,16 @@ class BoardManager {
     // Handle valid positions and socket events
     BoardEvents.handleValidPositionsUpdate(socket, this.setValidPositions.bind(this));
     BoardEvents.handlePositionsUpdate(socket, this.validPositions);
-    setTimeout(() => {
-      if (this.isFirstRender) {
-        this.setIsBoardRendered(true);
-        this.isFirstRender = false;
-      }
-    }, 0);
+    // this.updateInterval = setInterval(() => {
+    //   console.log('Interval actief: setStartPieces wordt opnieuw aangeroepen...');
+    //   this.setStartPieces();
+    // }, 3000);
+    // setTimeout(() => {
+    //   if (this.isFirstRender) {
+    //     this.setIsBoardRendered(true);
+    //     this.isFirstRender = false; 
+    //   }
+    // }, 0);
     
   }
 
@@ -110,6 +114,8 @@ class BoardManager {
       piecePositions: this.piecePositions,
     });
 
+    console.log('tiles: ' + tiles);
+
     this.tilesUseState = tiles;
   }
 
@@ -126,7 +132,9 @@ class BoardManager {
         console.log('passed2');
         BoardUtils.setPiecesOnTile({ piecePositions: this.piecePositions });
       }
-      
+    } else {
+      this.isFirstRender = false;
+      this.setStartPieces();
     }
   }
 
