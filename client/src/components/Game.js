@@ -31,7 +31,7 @@ import {
   handleGoToHomeScreen,
   handlePositionsUpdate,
   handleSetPosition,
-} from "../PlayerScreen/eventListenersPlayer";
+} from "../modules/playerModule/PlayerEvents";
 import { startRender } from "../screenRenderer";
 
 export function Game() {
@@ -47,8 +47,8 @@ export function Game() {
   const [playerRollDice, setPlayerRollDice] = useState(false);
   const [popupColor, setPopupColor] = useState("");
   const [myTurn, setMyTurn] = useState(false);
-  const [selectedPawn, setSelectedPawn] = useState(<div></div>);
   const [position, setPosition] = useState("8-5");
+  const [selectedPawn, setSelectedPawn] = useState(document.createElement('div'));
   const [isPopUpEnabled, setIsPopUpEnabled] = useState(false);
   const [isWaitingScreenEnabled, setIsWaitingScreenEnabled] = useState(false);
   const [textBoxContent, setTextBoxContent] = useState("");

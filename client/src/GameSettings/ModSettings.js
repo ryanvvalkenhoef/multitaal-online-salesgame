@@ -1,7 +1,8 @@
 import { socket } from "../client.js";
 import React, { Component } from 'react';
+import EventEmitter from "events";
 
-class ModSettings extends Component {
+class ModSettings extends EventEmitter {
 
   static instance = null;
 
@@ -17,18 +18,24 @@ class ModSettings extends Component {
         return ModSettings.instance;
     }
 
-    init(setState) {
-        this.setState = setState;
+    getState() {
+      return this.state;
     }
 
-    setPlayerCount = (playerCount) => {
-      this.setState(prevState => ({ ...prevState, playerCount: playerCount }));
-      this.state.playerCount = playerCount;
+    setPlayerCount(playerCount) {
+      let value = parseInt(playerCount, 10);
+      if (!isNaN(value) && value >= 2 && value <= 6) {
+        this.state.playerCount = playerCount;
+        this.emit("update", this.state);
+      }
     }
-
-    setRoundsCount = (roundsCount) => {
-      this.setState(prevState => ({ ...prevState, roundsCount: roundsCount }));
-      this.state.roundsCount = roundsCount;
+  
+    setRoundsCount(roundsCount) {
+      let value = parseInt(roundsCount, 10);
+      if (!isNaN(value) && value >= 3 && value <= 30) {
+        this.state.roundsCount = roundsCount;
+        this.emit("update", this.state);
+      }
     }
 
     createRoom = () => {
@@ -65,4 +72,4 @@ class ModSettings extends Component {
     
 }
 
-export default ModSettings;
+export default new ModSettings();

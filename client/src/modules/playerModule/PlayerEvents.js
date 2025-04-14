@@ -106,6 +106,7 @@ export const handleTileInfoUpdate = ({ socket, setTileInfo }, callback) => {
       //naam van event moet veranderd worden
       try {
         const pawn = document.querySelector("#" + strategy);
+        console.log('PAWN: ' + pawn?.outerHTML);
         // console.log("Pawn: " + pawn)
         // console.log(pawn)
         // const parent = pawn.parentElement

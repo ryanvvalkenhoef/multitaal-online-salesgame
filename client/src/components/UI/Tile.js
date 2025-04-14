@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import "./BoardGridStyle.css";
 import { renderStartPieces } from "../../modules/pieceModule/PieceUtils";
+import boardManager from "../../modules/boardModule/BoardManager";
 
 export const Tile = ({
   position,
@@ -10,13 +11,6 @@ export const Tile = ({
   startPieces,
   selectedPawn,
 }) => {
-  const tileRef = useRef(null);
 
-  useEffect(() => {
-    if (tileRef.current) {
-      console.log("Tile data-pos:", tileRef.current.getAttribute("data-pos"));
-    }
-  }, []);
-
-  return <div ref={tileRef} key={index} className={tileClass} data-pos={position}></div>;
+  return <div key={index} className={tileClass} data-pos={position}></div>;
 };

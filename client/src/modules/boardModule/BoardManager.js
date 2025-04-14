@@ -5,7 +5,7 @@ import BoardUtils from "./BoardUtils";
 class BoardManager {
 
   constructor({
-    selectedPawn,
+    selectedPawnRef,
     setPosition,
     playerColor,
     gameScreen,
@@ -15,9 +15,10 @@ class BoardManager {
     startPieces,
     piecePositions,
     setIsBoardRendered,
+    setTiles,
   }) {
     // Sla de props op in instantievariabelen
-    this.selectedPawn = selectedPawn;
+    this.selectedPawnRef = selectedPawnRef;
     this.setPosition = setPosition;
     this.playerColor = playerColor;
     this.gameScreen = gameScreen;
@@ -31,7 +32,11 @@ class BoardManager {
     this.validPositions = [];
     this.tilesUseState = [];
     this.isFirstRender = true;
-    this.isInitialized = false; 
+    this.isInitialized = false;
+    
+    this.setTiles = setTiles;
+
+    this.renderStatus = false;
 
     this.possiblePositions = [
       '1-9', '2-9', '3-9', '4-9', '5-9', '6-9', '7-9', '8-9', '9-9', '10-9', '11-9', '12-9', '13-9', '14-9', '15-9',
@@ -49,32 +54,48 @@ class BoardManager {
     this.initialize();
   }
 
+  updateSelectedPawn(selectedPawn) {
+    this.selectedPawn = selectedPawn;
+  }
+
+  updateStartPieces(startPieces) {
+    this.startPieces = startPieces;
+  }
+
+  updateJoinedColors(joinedColors) {
+    this.joinedColors = joinedColors;
+    this.createTiles();
+  }
+
+  updatePiecePositions(piecePositions) {
+    this.piecePositions = piecePositions;
+  }
+
+  setRenderStatus(status) {
+    this.renderStatus = status;
+  }
+
+  getRenderStatus() {
+    return this.renderStatus;
+  }
+
   initialize() {
+    console.log("BoardManager initialised");
+    this.handleTileClick();
     // Handle valid positions and socket events
-    BoardEvents.handleValidPositionsUpdate(socket, this.setValidPositions.bind(this));
-    BoardEvents.handlePositionsUpdate(socket, this.validPositions);
-    // this.updateInterval = setInterval(() => {
-    //   console.log('Interval actief: setStartPieces wordt opnieuw aangeroepen...');
-    //   this.setStartPieces();
-    // }, 3000);
-    // setTimeout(() => {
-    //   if (this.isFirstRender) {
-    //     this.setIsBoardRendered(true);
-    //     this.isFirstRender = false; 
-    //   }
-    // }, 0);
-    
+    setInterval(() => {
+      BoardEvents.handleValidPositionsUpdate(socket, (validPositions) => this.setValidPositions(validPositions));
+      BoardEvents.handlePositionsUpdate(socket, this.validPositions, this.setPosition, (data) => {
+        this.setPosition(data);
+      });
+      this.setPieces();
+    }, 1000);
   }
 
   setValidPositions(validPositionsArray) {
     this.validPositions = validPositionsArray;
-  }
-
-  handlePositionsUpdate() {
-    // Imiteer de logica van handlePositionsUpdate
-    BoardEvents.handlePositionsUpdate(this.validPositions, this.setPosition, (data) => {
-      this.setPosition(data);
-    });
+    console.log("Nieuwe validPositions ontvangen:", this.validPositions);
+    this.createTiles();
   }
 
   handleTileClick() {
@@ -88,16 +109,10 @@ class BoardManager {
           validPositions: this.validPositions,
           playerColor: this.playerColor,
           setPosition: this.setPosition,
+          socket
         });
 
       boardGrid.addEventListener("click", handleClick);
-
-      // Cleanup
-      return () => {
-        if (boardGrid) {
-          boardGrid.removeEventListener("click", handleClick);
-        }
-      };
     }
   }
 
@@ -111,37 +126,35 @@ class BoardManager {
       validPositions: this.validPositions,
       startPieces: this.startPieces,
       selectedPawn: this.selectedPawn,
-      piecePositions: this.piecePositions,
     });
 
-    console.log('tiles: ' + tiles);
-
     this.tilesUseState = tiles;
+    return tiles
   }
 
   setFirstRender() {
     this.isFirstRender = false;
   }
 
-  setStartPieces() {
+  setPieces() {
     if (!this.isFirstRender) {
       if (this.piecePositions[0] === "") {
-        console.log('passed1');
+        console.log('passed1:' + this.piecePositions);
         BoardUtils.setStartPiecesOnTile({ startPieces: this.startPieces });
+        this.piecePositions = [];
       } else {
         console.log('passed2');
         BoardUtils.setPiecesOnTile({ piecePositions: this.piecePositions });
       }
     } else {
-      this.isFirstRender = false;
-      this.setStartPieces();
+      if (this.getRenderStatus()) this.isFirstRender = false
+      this.setPieces();
     }
   }
 
   update() {
     console.log('update: ' + this.isFirstRender);
     this.createTiles();
-    this.setStartPieces();
   }
 }
 

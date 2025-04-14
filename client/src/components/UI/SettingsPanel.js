@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./SettingsPanelStyle.css";
 import { useNavigate } from "react-router-dom";
 import home from "../../Assets/back-button.png";
@@ -26,23 +26,37 @@ export function SettingsPanel() {
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("Form submitted");
-    modSettings.createRoom();
+    ModSettings.createRoom();
     handleGame();
   };
 
-  const modSettings = new ModSettings();
+  const [playerCount, setPlayerCount] = useState(ModSettings.getState().playerCount);
+  const [roundsCount, setRoundsCount] = useState(ModSettings.getState().roundsCount);
+
+  useEffect(() => {
+    const updateHandler = (state) => {
+      setPlayerCount(state.playerCount);
+      setRoundsCount(state.roundsCount);
+    };
+
+    ModSettings.on("update", updateHandler);
+
+    return () => {
+      ModSettings.off("update", updateHandler); // Opruimen bij unmount
+    };
+  }, []);
 
   const handlePlayerCountChange = (e) => {
     let value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 2 && value <= 6) {
-      modSettings.setPlayerCount(value);
+      ModSettings.setPlayerCount(value);
     }
   };
 
   const handleRoundsCountChange = (e) => {
     let value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 3 && value <= 30) {
-      modSettings.setRoundsCount(value);
+      ModSettings.setRoundsCount(value);
     }
   };
 
@@ -58,34 +72,34 @@ export function SettingsPanel() {
     
             <div className="playerRowSettings">
               <div className="settings text">{t("ModSettings.players")}</div>
-              <div className="player minus" onClick={() => modSettings.decrementPlayerCount(modSettings.playerCount)}>
+              <div className="player minus" onClick={() => ModSettings.decrementPlayerCount() }>
                 -
               </div>
               <input
                 id="playerCount"
                 name="playerCount"
                 className="player count"
-                value={modSettings.state.playerCount}
+                value={playerCount}
                 onChange={handlePlayerCountChange}
               />
-              <div className="player plus" onClick={() => modSettings.incrementPlayerCount(modSettings.playerCount)}>
+              <div className="player plus" onClick={() => ModSettings.incrementPlayerCount()}>
                 +
               </div>
             </div>
     
             <div className="roundsRowSettings">
               <div className="settings text">{t("ModSettings.rounds")}</div>
-              <div className="rounds minus" onClick={() => modSettings.decrementRoundsCount(modSettings.roundsCount)}>
+              <div className="rounds minus" onClick={() => ModSettings.decrementRoundsCount()}>
                 -
               </div>
               <input
                 id="roundsCount"
                 name="roundsCount"
                 className="rounds count"
-                value={modSettings.state.roundsCount}
+                value={roundsCount}
                 onChange={handleRoundsCountChange}
               />
-              <div className="rounds plus" onClick={() => modSettings.incrementRoundsCount(modSettings.roundsCount)}>
+              <div className="rounds plus" onClick={() => ModSettings.incrementRoundsCount()}>
                 +
               </div>
             </div>

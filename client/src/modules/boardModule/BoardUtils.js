@@ -1,13 +1,13 @@
 import BoardEvents from "./BoardEvents";
 import { Tile } from "../../components/UI/Tile";
 import ReactDOMServer from 'react-dom/server';
+import React from "react";
 
 class BoardUtils {
     
     constructor() {}
   
     static assignColorToTile(index, joinedColors, tileInfo, tileInfo2) {
-      console.log('joined is this: ' + joinedColors);
       let totalColors = joinedColors.length
       let colorRanges = {
         //Blueprint for tile color assignment. If playing with 6 players for example
@@ -76,7 +76,6 @@ class BoardUtils {
         const isHighlighted = this.highLightChecker(index, possiblePositions, validPositions);
         const tileClass = `tile ${color} ${isHighlighted ? "blink" : ""}`;
         const position = possiblePositions[index];
-        console.log('position: ' + position);
   
         const tile = Tile({
           position,
@@ -92,12 +91,11 @@ class BoardUtils {
     }
   
     static setPiecesOnTile({ piecePositions }) {
-      console.log('positions: ' + piecePositions);
       // This function is used after the first time
+      console.log('PIECEPOSITIONS: ' + piecePositions);
       piecePositions.forEach((data) => {
         const newPosition = data.newPosition;
         const selectedPawnName = data.selectedPawn;
-        console.log(selectedPawnName);
         const selectedPawnElement = document.getElementById(selectedPawnName);
   
         if (selectedPawnElement) {
@@ -106,6 +104,7 @@ class BoardUtils {
             `.tile[data-pos="${newPosition}"]`
           );
           newTile.appendChild(selectedPawnElement);
+
         }
       });
     }
@@ -113,7 +112,6 @@ class BoardUtils {
     static setStartPiecesOnTile({ startPieces }) {
       // This function is used to set the pieces for the first time
       const START_POSITION = "8-5";
-      console.log('startPieces: ' + startPieces);
       for (let startPiece of startPieces) {
         const newPosition = START_POSITION;
         const selectedPawnElement = document.getElementById(startPiece);
@@ -136,20 +134,23 @@ class BoardUtils {
       setPosition,
       socket,
     }) {
-      console.log("click");
+      console.log("clicked: " + selectedPawn);
       const targetTile = event.target.closest(".tile");
       if (startPieces.includes(event.target.id)) {
+        console.log('passed1');
         event.target.classList.add("highlight");
       } else if (
         targetTile &&
         validPositions.includes(targetTile.getAttribute("data-pos")) &&
         targetTile.classList.contains("blink")
       ) {
+        console.log(selectedPawn);
         const newPosition = targetTile.getAttribute("data-pos");
         if (validPositions.includes(newPosition)) {
           setPosition(newPosition);
           if (selectedPawn instanceof HTMLElement) {
             event.target.appendChild(selectedPawn);
+            console.log(event.target.children);
             const color = targetTile.className.split(" ")[1];
             BoardEvents.sendQuestionRequest(socket, color, playerColor);
             document
