@@ -11,6 +11,7 @@ class BoardEvents {
     static handlePositionsUpdate(socket, validPositions) {
       socket.on('update_piece_positions', (newPositionData) => {
         newPositionData.forEach((data) => {
+          console.log('POSITIONS: ' + data);
           const newPosition = data.newPosition;
           const selectedPawnName = data.selectedPawn;
           const selectedPawnElement = document.getElementById(selectedPawnName);
