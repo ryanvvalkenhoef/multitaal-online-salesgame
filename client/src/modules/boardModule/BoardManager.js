@@ -80,14 +80,10 @@ class BoardManager {
   }
 
   initialize() {
-    console.log("BoardManager initialised");
-    this.handleTileClick();
+    this.makeGridClickable();
     // Handle valid positions and socket events
     setInterval(() => {
       BoardEvents.handleValidPositionsUpdate(socket, (validPositions) => this.setValidPositions(validPositions));
-      BoardEvents.handlePositionsUpdate(socket, this.validPositions, this.setPosition, (data) => {
-        this.setPosition(data);
-      });
       this.setPieces();
     }, 1000);
   }
@@ -98,7 +94,7 @@ class BoardManager {
     this.createTiles();
   }
 
-  handleTileClick() {
+  makeGridClickable() {
     const boardGrid = document.querySelector(".board-grid");
     if (this.gameScreen && boardGrid !== null) {
       const handleClick = (event) =>

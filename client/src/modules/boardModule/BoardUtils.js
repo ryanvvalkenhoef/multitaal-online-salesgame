@@ -160,6 +160,7 @@ class BoardUtils {
               newPosition: newPosition,
               selectedPawn: selectedPawn.id,
             });
+            socket.emit("update_piece_positions");
           } else {
             console.error("Selected pawn is not a valid DOM element");
           }
