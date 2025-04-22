@@ -18,39 +18,40 @@
  *
  * @class ModLogger
  */
+const CRUDUtils = require("../utils/CRUDUtils");
 
 class ModLogger {
   #room;
   #jsonFileHandler;
 
   constructor(room, jsonFileHandler) {
+    super();
+    const { create, read, update, delete: del } = CRUDUtils;
+    this.create = create;
+    this.read = read;
+    this.update = update;
+    this.delete = del;
     this.#room = room;
     this.#jsonFileHandler = jsonFileHandler;
   }
 
-  getRoom() {
-    return this.#room;
-  }
-
-  getMod() {
-    const data = this.#jsonFileHandler.readData();
-    if (!data) {
-      console.log("Can't find mod");
-      return null;
+  read = (wantsRoom) => {
+    if (wantsRoom) { /* getRoom */
+      return this.#room;
+    } else { /* getMod */
+      const data = this.getData(getMod);
+      return data.mod;
     }
-    return data.mod;
   }
 
-  deleteMod(modsId) {
-    let data = this.#jsonFileHandler.readData();
-    if (!data) return;
+  del = (modsId) => { /* deleteMod */
+    const data = this.getData(del);
     data.mod = data.mod.filter((mods) => mods.id !== modsId);
     this.#jsonFileHandler.writeData(data);
   }
 
-  createMod(socketid) {
-    let data = this.#jsonFileHandler.readData();
-    if (!data) return;
+  create = (socketid) => { /* createMod */
+    const data = this.getData(createMod);
 
     const gameHasMod = Object.keys(data.mod).length > 0; //Checks if mod object in json file is empty;
     if (gameHasMod) {
@@ -69,9 +70,8 @@ class ModLogger {
     this.#jsonFileHandler.writeData(data);
   }
 
-  updateMod(modsId, newData) {
-    let data = this.#jsonFileHandler.readData();
-    if (!data) return;
+  update = (modsId, newData) => { /* updateMod */
+    const data = this.getData(updateMod);
 
     const mod = data.mod;
     if (mod && mod.id === modsId) {
@@ -82,9 +82,17 @@ class ModLogger {
     }
   }
 
-  reconnect(newSocketId, oldSocketId) {
+  getData(funcName) {
     let data = this.#jsonFileHandler.readData();
-    if (!data) return null;
+    if (!data) {
+      console.warn("Can't read data: " + funcName.name);
+      return null;
+    }
+    return data;
+  }
+
+  reconnect(newSocketId, oldSocketId) {
+    const data = this.getData(reconnect);
     const mod = data.mod;
     if (mod && mod.id === oldSocketId) {
       mod.id = newSocketId;

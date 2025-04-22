@@ -5,8 +5,8 @@ const SocketManager = require("../socket/SocketManager");
 const PlayerQuestionQueue = require("../questionQueue/PlayerQuestionQueue");
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
 const RoomGenerator = require("../roomGenerator/RoomGenerator");
-const PreGameManager = require("../preGameManager/PreGameManager");
-const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
+const GameSetupManager = require("../GameLogic/GameSetupManager");
+const JsonFileHandler = require("../utils/jsonFileHandler");
 const instanceFactory = require("../instanceFactory/instanceFactory");
 const ReconnectionManager = require("../reconnectionManager/ReconnectionManager");
 
@@ -116,15 +116,15 @@ module.exports = function (io) {
           gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
           //user is being created and values assigned to properties of user object
-          userLogger.createUser(socket.id);
-          userLogger.updateUser(socket.id, { name: data.name });
-          userLogger.updateUser(socket.id, { room: room });
-          userLogger.updateUser(socket.id, { strategy: data.strategy });
+          userLogger.create(socket.id);
+          userLogger.update(socket.id, { name: data.name });
+          userLogger.update(socket.id, { room: room });
+          userLogger.update(socket.id, { strategy: data.strategy });
           const playerColor = PreGameManager.getColor(
             socket.id,
             jsonFileHandler,
           );
-          userLogger.updateUser(socket.id, { color: playerColor });
+          userLogger.update(socket.id, { color: playerColor });
 
           //Updates the gameState object in the json file
           PreGameManager.addStrategy(
@@ -196,12 +196,12 @@ module.exports = function (io) {
             );
             reconnectionManager.reconnectPlayer(socket, sessionData);
 
-            playerQuestionQueue.reconnectToQueue(socket, sessionData);
+            playerQuestionQueue.update(socket, sessionData);
             const questionQueueLength =
-              playerQuestionQueue.getQuestionQueueLength(socket);
+              playerQuestionQueue.read(socket, true);
             if (questionQueueLength > 0) {
               const questionData =
-                playerQuestionQueue.getQuestionFromQueue(socket);
+                playerQuestionQueue.read(socket, false);
               socketManager.emitBackToClient(
                 socket,
                 "receive_question",
@@ -252,9 +252,9 @@ module.exports = function (io) {
             reconnectionManager.reconnectMod(socket, sessionData);
 
             const questionQueueLength =
-              modQuestionQueue.getQuestionQueueLength(socket);
+              modQuestionQueue.getLength(socket);
             if (questionQueueLength > 0) {
-              const question = modQuestionQueue.getQuestionFromQueue(socket);
+              const question = modQuestionQueue.read(socket, false);
               gameManager.sendAnswerToModerator(socket, question);
             }
           }
@@ -264,7 +264,7 @@ module.exports = function (io) {
       },
 
       send_question_request: async (data) => {
-        //Hier wordt dus de vraag naar de speler gestuurd
+        // Here the question is send to the player
         const availableColors = [
           "red",
           "blue",
@@ -303,9 +303,9 @@ module.exports = function (io) {
           playerColor: data.userColor,
           answer: answer,
         };
-        if (availableColors.includes(data.questionColor)) {//is het een kleurvraag?
+        if (availableColors.includes(data.questionColor)) {// Is it a color question?
           const receiver = userLogger.getReceiver(data.questionColor);
-          playerQuestionQueue.addQuestionToQueue(
+          playerQuestionQueue.create(
             socket,
             receiver,
             questionData,
@@ -313,10 +313,10 @@ module.exports = function (io) {
           const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(
             socket.id,
           );
-          //naar wie moet de vraag? kleur van het vakje bepalende factor, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
+          // To who shall the question be sent? Color of the box the deciding factor, not the user itself. Receiver gets question. socket.id is about the one who is on the tile
           if (receiver !== socket.id && !playerFinishedTurn) {
-            //wanneer speler op ander gekleurd vakje komt, staat deze als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
-            userLogger.updateUser(socket.id, { hasBeenReviewed: true });
+            //When the player gets to another colored tile, it gets set as reviewed, otherwise the icon stays gray and can be confusing
+            userLogger.update(socket.id, { hasBeenReviewed: true });
             socketManager.emitToMod(socket, "player_has_been_reviewed", {
               playerId: socket.id,
               hasBeenReviewed: true,
@@ -325,7 +325,7 @@ module.exports = function (io) {
           const playerIsAnsweringQuestion =
             userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
           if (!playerIsAnsweringQuestion) {
-            //vraag in de queue als speler al bezig is met antwoorden
+            // Question in the queue if player is already busy with answering
             socketManager.emitToSpecificSocket(
               receiver,
               "receive_question",
@@ -338,8 +338,8 @@ module.exports = function (io) {
             });
           }
         } else {
-          // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
-          playerQuestionQueue.addQuestionToQueue(
+          // It is not a color question, but a rainbow or black color, this only goes to the player itself
+          playerQuestionQueue.create(
             socket,
             socket.id,
             questionData,
@@ -363,11 +363,11 @@ module.exports = function (io) {
 
       send_answer_to_server: (questionData) => {
         //await gameManager.waitForModToFinishReview(modLogger);
-        modQuestionQueue.addQuestionToQueue(socket, socket.id, questionData);
+        modQuestionQueue.create(socket, socket.id, questionData);
         // Check if the question queue of the player who sent the question to the server contains any questions.
         playerQuestionQueue.removeQuestionFromQueue(socket);
-        if (playerQuestionQueue.getQuestionQueueLength(socket) > 0) {
-          const questionData = playerQuestionQueue.getQuestionFromQueue(socket);
+        if (playerQuestionQueue.getLength(socket) > 0) {
+          const questionData = playerQuestionQueue.read(socket, false);
           socketManager.emitBackToClient(socket, "receive_question", questionData);
         } else {
           userLogger.setIsAnsweringQuestion(false, socket.id);
@@ -382,7 +382,7 @@ module.exports = function (io) {
       },
 
       change_language: (data) => {
-        userLogger.updateUser(socket.id, { language: data });
+        userLogger.update(socket.id, { language: data });
       },
 
       update_position: (data) => {
@@ -420,7 +420,7 @@ module.exports = function (io) {
       },
 
       update_hasFinishedTurn: (hasFinishedTurn) => {
-        userLogger.updateUser(socket.id, { hasFinishedTurn: hasFinishedTurn });
+        userLogger.update(socket.id, { hasFinishedTurn: hasFinishedTurn });
         socketManager.emitToMod(socket, "player_has_finished_turn", {
           playerId: socket.id,
           hasFinishedTurn: hasFinishedTurn,
@@ -428,8 +428,7 @@ module.exports = function (io) {
       },
 
       update_player_position: (playerPosition) => {
-        // playerPostion =  {newPosition: newPosition, selectedPawn: selectedPawn.id}
-        userLogger.updateUser(socket.id, { playerPosition: playerPosition });
+        userLogger.update(socket.id, { playerPosition: playerPosition });
       },
 
       points_submitted_question_reviewed: (reviewData) => {
@@ -437,7 +436,7 @@ module.exports = function (io) {
         const oldTotalPoints = userLogger.getPoints(id);
         const newTotalPoints =
           Number(oldTotalPoints) + Number(reviewData.totalPoints);
-        userLogger.updateUser(id, {
+        userLogger.update(id, {
           totalPoints: newTotalPoints,
           previousPoints: oldTotalPoints,
         });

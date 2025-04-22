@@ -1,8 +1,8 @@
-const JsonFileHandler = require("../jsonFileHandler/JsonFileHandler");
-const ModLogger = require("../loggers/ModLogger");
-const UserLogger = require("../loggers/UserLogger");
-const GameStateTrackerManager = require("../gameState/GameStateTrackerManager");
-const GameManager = require("../GameManager");
+const JsonFileHandler = require("../utils/jsonFileHandler");
+const ModLogger = require("../logging/ModLogger");
+const UserLogger = require("../logging/UserLogger");
+const GameStateTrackerManager = require("../GameLogic/GameStateTrackerManager");
+const GameController = require("../GameLogic/GameController");
 const GameScreenDataEmitter = require("../gameDataEmitters/GameScreenDataEmitter");
 
 const createJsonFileHandler = (room) => {
@@ -28,7 +28,7 @@ const createGameScreenDataEmitter = (
   return new GameScreenDataEmitter(userLogger, socketManager, gameStateTracker);
 };
 
-const createGameManager = (
+const createGameController = (
   userLogger,
   modLogger,
   socketManager,
@@ -36,7 +36,7 @@ const createGameManager = (
   modQuestionQueue,
   gameScreenDataEmitter,
 ) => {
-  return new GameManager(
+  return new GameController(
     userLogger,
     modLogger,
     socketManager,
@@ -86,7 +86,7 @@ const createInstances = (room, socketManager, modQuestionQueue) => {
     socketManager,
     instances.gameStateTracker,
   );
-  instances.gameManager = createGameManager(
+  instances.gameManager = createGameController(
     instances.userLogger,
     instances.modLogger,
     socketManager,

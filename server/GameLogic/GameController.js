@@ -1,4 +1,4 @@
-class GameManager {
+class GameController {
   /** @type {UserLogger} */
   #userLogger;
   #modLogger;
@@ -41,14 +41,14 @@ class GameManager {
   };
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
-    const questionQueueLength = this.#modQuestionQueue.getQuestionQueueLength(
+    const questionQueueLength = this.#modQuestionQueue.getQuestionQueuLength(
       socket,
       playerId,
     );
     if (questionQueueLength !== 0) {
-      const questionData = this.#modQuestionQueue.getQuestionFromQueue(
+      const questionData = this.#modQuestionQueue.read(
         socket,
-        playerId,
+        false,
       );
       this.sendAnswerToModerator(socket, questionData);
       // modQuestionQueue.removeQuestionFromQueue(socket, playerId);
@@ -114,4 +114,4 @@ class GameManager {
   };
 }
 
-module.exports = GameManager;
+module.exports = GameController;

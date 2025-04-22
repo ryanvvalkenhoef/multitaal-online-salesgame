@@ -1,35 +1,47 @@
 const QuestionQueue = require("./questionQueue");
+const CRUDUtils = require("../utils/CRUDUtils");
 
 class ModQuestionQueue extends QuestionQueue {
   constructor() {
     super();
+    const { create, read, update, delete: del } = CRUDUtils;
+    this.create = create;
+    this.read = read;
+    this.update = update;
+    this.delete = del;
   }
 
-  getQuestionQueueLength(socket, playerId) {
-    const room = socket.room;
+  read = (socket, wantsLength) => {
+    if (wantsLength) { /* getQuestionQueueLength */
+      if (this.handleErrors(queue = this.queues[room])) {
+        return 0
+      };
+      if (this.handleErrors(queue = this.queues[room][playerId])) { 
+        return 0;
+      }
 
-    if (!this.queues[room]) {
-      // Mod doesn't have a queue so it returns length of 0.
-      return 0;
+      return this.queues[room][playerId].length;
+    } else { /* getQuestionFromQueue */
+      if (this.handleErrors(queue = this.queues[room])) return null;
+      if (this.handleErrors(queue = this.queues[room][playerId])) return null;
+      
+      const question = this.queues[room][playerId].find((question) => {
+        if (this.handleErrors(question = question)) {
+          return question.playerId === playerId;
+        }
+      });
+      return question || null;
     }
-    if (!this.queues[room][playerId]) {
-      // The player doesn't have a queue, so it returns a length of 0
-      return 0;
-    }
-
-    return this.queues[room][playerId].length;
   }
 
-  addQuestionToQueue(socket, playerId, question) {
+  create = (socket, question) => { /* addQuestionToQueue */
     const room = socket.room;
+    const playerId = socket.id;
 
-    if (!this.queues[room]) {
-      // Check if mod already has a queue
+    if (this.handleErrors(queue = this.queues[room])) {
       this.queues[room] = {};
     }
-
-    if (!this.queues[room][playerId]) {
-      // Initialize player's queue if missing
+    if (this.handleErrors(queue = this.queues[room][playerId])) {
       this.queues[room][playerId] = [];
     }
 
@@ -37,34 +49,13 @@ class ModQuestionQueue extends QuestionQueue {
     return true;
   }
 
-  getQuestionFromQueue(socket, playerId) {
+  delete = (socket) => { /* deleteQuestionFromQueue */
     const room = socket.room;
-    if (!this.queues[room]) {
-      // Mod doesn't have a queue
-      return null;
-    }
-    if (!this.queues[room][playerId]) {
-      // The player doesn't have a queue
-      return null;
-    }
-    const question = this.queues[room][playerId].find((question) => {
-      return question.playerId === playerId;
-    });
-    if (!question) {
-      console.log("No matching question found for playerId:", playerId);
-    }
-    return question || null;
-  }
+    const playerId = socket.id;
 
-  removeQuestionFromQueue(socket, playerId) {
-    const room = socket.room;
+    if (this.handleErrors(queue = this.queues[room])) return null;
+    if (this.handleErrors(queue = this.queues[room][playerId])) return null;
 
-    if (!this.queues[room]) {
-      return null;
-    }
-    if (!this.queues[room][playerId]) {
-      return null;
-    }
     const index = this.queues[room][playerId].findIndex(
       (question) => question.playerId === playerId,
     );
@@ -84,6 +75,19 @@ class ModQuestionQueue extends QuestionQueue {
   #checkIfQueueIsEmpty(room) {
     if (this.queues[room].length < 1) {
       throw new Error("player's queue is empty");
+    }
+  }
+
+  handleErrors(queue = null, question = null) {
+    switch (true) {
+      case !!queue:
+        console.log("Player(s) do not have a question queue")
+        return true;
+      case !!question:
+        console.error("Can't get question");
+        return true;
+      default:
+        return false;
     }
   }
 }

@@ -30,7 +30,7 @@ class PlayerState {
           stateList.splice(index, 1);
         }
       }
-      return [...stateList]; // Nieuwe array retourneren voor state-updates
+      return [...stateList]; // Return new array for state-updates
     }
   
     handleSocketEvent(event) {

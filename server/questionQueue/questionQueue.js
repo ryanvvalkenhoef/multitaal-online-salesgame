@@ -12,19 +12,16 @@ class QuestionQueue {
     );
   }
 
-  getQuestionQueueLength(socket) {
-    this.#throwError("getQuestionQueueLength");
+  read(socket) {
+    this.#throwError("read");
   }
 
-  addQuestionToQueue(socket, question) {
-    this.#throwError("addQuestionToQueue");
+  create(socket, question) {
+    this.#throwError("create");
   }
 
-  getQuestionFromQueue(socket) {
-    this.#throwError("getQuestionFromQueue");
-  }
-  removeQuestionFromQueue(socket) {
-    this.#throwError("getQuestionFromQueue");
+  delete(socket) {
+    this.#throwError("delete");
   }
 }
 
