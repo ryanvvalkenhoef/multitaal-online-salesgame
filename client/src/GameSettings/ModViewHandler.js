@@ -12,6 +12,7 @@ class ModViewHandler {
                 userColor: "",
                 answer: "",
                 showPopup: false,
+                currentQuestionId: null,
               };
               this.playerCount = 0;
               this.currentQuestion = null;
@@ -52,6 +53,11 @@ class ModViewHandler {
     setShowPopup = (showPopup) => {
         this.setState(prevState => ({ ...prevState, showPopup }));
         this.state.showPopup = showPopup;
+    }
+
+    setCurrentQuestionId = (currentQuestionId) => {
+        this.setState(prevState => ({ ...prevState, currentQuestionId }));
+        this.state.currentQuestionId = currentQuestionId;
     }
 
     setPlayerCount(count) {

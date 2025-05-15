@@ -13,6 +13,43 @@ const PlayerPopUps = ({
   setPopupColor,
 }) => {
   const { t, i18n } = useTranslation("global");
+  const [translatedQuestion, setTranslatedQuestion] = useState(question);
+  const [currentQuestionId, setCurrentQuestionId] = useState(null);
+
+  useEffect(() => {
+    const handleTranslatedQuestion = (data) => {
+      if (data && data.questionText) {
+        setTranslatedQuestion(data.questionText);
+        if (data.questionId) {
+          setCurrentQuestionId(data.questionId);
+        }
+      }
+    };
+    socket.on('receive_translated_question', handleTranslatedQuestion);
+    socket.on('receive_question', (data) => {
+      if (data.questionId) {
+        setCurrentQuestionId(data.questionId);
+      }
+    });
+    return () => {
+      socket.off('receive_translated_question', handleTranslatedQuestion);
+      socket.off('receive_question');
+    };
+  }, []);
+  useEffect(() => {
+    // When language changes, emit an event to get the translated question
+    if (isPopUpEnabled && popupColor && currentQuestionId) {
+      try {
+        socket.emit("request_translated_question", {
+          color: popupColor,
+          language: i18n.language,
+          questionId: currentQuestionId
+        });
+      } catch (error) {
+        console.error("Error requesting translated question: ", error);
+      }
+    }
+  }, [i18n.language, isPopUpEnabled, popupColor, currentQuestionId]);
 
   useEffect(() => {
     //prevents copying/pasting
@@ -37,27 +74,26 @@ const PlayerPopUps = ({
           <div className={`questionColorBox ${popupColor}`}>
             <div className="rowpopup">
               <img
-                className={`${
-                  popupColor === "red"
-                    ? "popupsafeline"
-                    : popupColor === "yellow"
-                      ? "popuplunar"
-                      : popupColor === "blue"
-                        ? "popupdomino"
-                        : popupColor === "purple"
-                          ? "popupklaphatten"
-                          : popupColor === "green"
-                            ? "popupworld"
-                            : popupColor === "orange"
-                              ? "popupjysk"
-                              : popupColor === "black1"
-                                ? "chance"
-                                : popupColor === "black2"
-                                  ? "sales"
-                                  : popupColor === "black3"
-                                    ? "megatrends"
-                                    : ""
-                }`}
+                className={`${popupColor === "red"
+                  ? "popupsafeline"
+                  : popupColor === "yellow"
+                    ? "popuplunar"
+                    : popupColor === "blue"
+                      ? "popupdomino"
+                      : popupColor === "purple"
+                        ? "popupklaphatten"
+                        : popupColor === "green"
+                          ? "popupworld"
+                          : popupColor === "orange"
+                            ? "popupjysk"
+                            : popupColor === "black1"
+                              ? "chance"
+                              : popupColor === "black2"
+                                ? "sales"
+                                : popupColor === "black3"
+                                  ? "megatrends"
+                                  : ""
+                  }`}
                 alt=""
               />
               <div className="strategyName">
@@ -86,7 +122,7 @@ const PlayerPopUps = ({
               {" "}
               <br /> {t("PopUps.question")}{" "}
             </div>
-            <div className="questionWhiteBox">{question}</div>
+            <div className="questionWhiteBox">{translatedQuestion}</div>
           </div>
           <div className="answerPopup">
             <div className="answerText"> {t("PopUps.playerAnswer")} </div>

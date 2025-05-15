@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createContext, useContext } from "react";
 import { modViewHandler } from "./ModViewHandler";
-import { ModView } from "../components/UI/ModView";
 
 export const ModViewContext = createContext();
 
@@ -15,12 +14,53 @@ export const ModViewWrapper = ({ children }) => {
     userColor: "",
     answer: "",
     showPopup: false,
+    currentQuestionId: null,
   });
 
   // Initialize ModViewHandler with the setState of the component
   useEffect(() => {
     modViewHandler.init(setState);
   }, []);
+
+ // Set initial question ID when question prop changes
+  useEffect(() => {
+    if (question?.questionId) {
+      setCurrentQuestionId(question.questionId);
+    }
+  }, [state.question]);
+  useEffect(() => {
+    // when language changes, emit an event to get the translated question
+    if (showPopup && popupColor && currentQuestionId) {
+      socket.emit("request_translated_question", {
+        color: popupColor,
+        language: i18n.language,
+        questionId: currentQuestionId
+      });
+    }
+  }, [i18n.language, state.showPopup, state.popupColor, state.currentQuestionId]);
+  // add socket listener for receiving translated question
+  useEffect(() => {
+    const handleTranslatedQuestion = (data) => {
+      if (data.questionText) {
+        modViewHandler.setQuestion(data.questionText);
+      }
+      if (data.answer) {
+        modViewHandler.setAnswer(data.answer);
+      }
+      if (data.questionId) {
+        modViewHandler.setCurrentQuestionId(data.questionId);
+      }
+    };
+    socket.on("receive_translated_question", handleTranslatedQuestion);
+    return () => {
+      socket.off("receive_translated_question", handleTranslatedQuestion);
+    };
+  }, []);
+  // Set initial translated text when component mounts or question/answer changes
+  useEffect(() => {
+    modViewHandler.setQuestion(state.question?.questionText || state.question || "");
+    modViewHandler.setAnswer(state.answer || "");
+  }, [state.question, state.answer]);
 
   // Functions needed to update the state
   const handleUpdatePoints = (points) => {
@@ -51,9 +91,9 @@ export const ModViewWrapper = ({ children }) => {
       value={{
         reviewQuestion,
         showPopup: state.showPopup,
-        answer: state.answer,
+        translatedAnswer: state.answer,
         color: state.color,
-        question: state.question,
+        translatedQuestion: state.question,
         selectedPoints: state.selectedPoints,
         modViewHandler,
         handleSubmitPoints,

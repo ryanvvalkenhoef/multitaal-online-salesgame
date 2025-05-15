@@ -1,5 +1,3 @@
-const databaseQuestion = require("../database/database");
-const databaseAnswer = require("../database/database");
 const getMovesFromCoordinate = require("../positionCalculator");
 const SocketManager = require("../socket/SocketManager");
 const PlayerQuestionQueue = require("../questionQueue/PlayerQuestionQueue");
@@ -9,6 +7,7 @@ const GameSetupManager = require("../GameLogic/GameSetupManager");
 const JsonFileHandler = require("../utils/jsonFileHandler");
 const instanceFactory = require("../instanceFactory/instanceFactory");
 const ReconnectionManager = require("../reconnectionManager/ReconnectionManager");
+const { modulePopUp, getTranslatedQuestion } = require("../database/database");
 
 module.exports = function (io) {
   const playerQuestionQueue = new PlayerQuestionQueue();
@@ -264,96 +263,128 @@ module.exports = function (io) {
       },
 
       send_question_request: async (data) => {
-        // Here the question is send to the player
-        const availableColors = [
-          "red",
-          "blue",
-          "green",
-          "yellow",
-          "purple",
-          "orange",
-        ];
-        const language = userLogger.getLanguage(socket.id);
-        const { question, answer } = await databaseQuestion(
-          data.questionColor,
-          (sort = language),
-        );
-        let popupColor;
-        if (data.questionColor === "rainbow") {
-          data.questionColor = data.userColor;
-          popupColor = data.userColor;
-        }
-        switch (data.questionColor) {
-          case "chance":
-            popupColor = "black1";
-            break;
-          case "sales":
-            popupColor = "black2";
-            break;
-          case "megatrends":
-            popupColor = "black3";
-            break;
-          default:
-            popupColor = data.questionColor;
-        }
-
-        const questionData = {
-          questionText: question,
-          questionColor: popupColor,
-          playerColor: data.userColor,
-          answer: answer,
-        };
-        if (availableColors.includes(data.questionColor)) {// Is it a color question?
-          const receiver = userLogger.getReceiver(data.questionColor);
-          playerQuestionQueue.create(
-            socket,
-            receiver,
-            questionData,
-          );
-          const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(
-            socket.id,
-          );
-          // To who shall the question be sent? Color of the box the deciding factor, not the user itself. Receiver gets question. socket.id is about the one who is on the tile
-          if (receiver !== socket.id && !playerFinishedTurn) {
-            //When the player gets to another colored tile, it gets set as reviewed, otherwise the icon stays gray and can be confusing
-            userLogger.update(socket.id, { hasBeenReviewed: true });
-            socketManager.emitToMod(socket, "player_has_been_reviewed", {
-              playerId: socket.id,
-              hasBeenReviewed: true,
-            });
+        try {
+          if (!userLogger) {
+            throw new Error("UserLogger not initialized");
           }
-          const playerIsAnsweringQuestion =
-            userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
-          if (!playerIsAnsweringQuestion) {
-            // Question in the queue if player is already busy with answering
-            socketManager.emitToSpecificSocket(
+
+        const availableColors = [
+            "red",
+            "blue",
+            "green",
+            "yellow",
+            "purple",
+            "orange",
+          ];
+          const language = userLogger.getLanguage(socket.id);
+          const { question, answer, questionId } = await modulePopUp(data.questionColor, language);
+          let popupColor;
+          if (data.questionColor === "rainbow") {
+            data.questionColor = data.userColor;
+            popupColor = data.userColor;
+          }
+          switch (data.questionColor) {
+            case "chance":
+              popupColor = "black1";
+              break;
+            case "sales":
+              popupColor = "black2";
+              break;
+            case "megatrends":
+              popupColor = "black3";
+              break;
+            default:
+              popupColor = data.questionColor;
+          }
+          const questionData = {
+            questionText: question,
+            questionColor: popupColor,
+            playerColor: data.userColor,
+            answer: answer,
+            questionId: questionId
+          };
+          if (availableColors.includes(data.questionColor)) {//is het een kleurvraag?
+            const receiver = userLogger.getReceiver(data.questionColor);
+            playerQuestionQueue.addQuestionToQueue(
+              socket,
               receiver,
-              "receive_question",
               questionData,
             );
-            userLogger.setIsAnsweringQuestion(true, receiver);
-            socketManager.emitToMod(socket, "player_is_answering", {
-              playerId: receiver,
-              isAnsweringQuestion: true,
-            });
-          }
-        } else {
-          // It is not a color question, but a rainbow or black color, this only goes to the player itself
-          playerQuestionQueue.create(
-            socket,
-            socket.id,
-            questionData,
-          );
-          socketManager.emitBackToClient(
-            socket,
-            "receive_question",
-            questionData,
-          );
-          userLogger.setIsAnsweringQuestion(true, socket.id);
-          socketManager.emitToMod(socket, "player_is_answering", {
-            playerId: socket.id,
-            isAnsweringQuestion: true,
+            const playerFinishedTurn = userLogger.checkIfPlayerHasFinishedTurn(
+              socket.id,
+            );
+            //naar wie moet de vraag? kleur van het vakje bepalende factor, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
+            if (receiver !== socket.id && !playerFinishedTurn) {
+              //wanneer speler op ander gekleurd vakje komt, staat deze als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
+              userLogger.updateUser(socket.id, { hasBeenReviewed: true });
+              socketManager.emitToMod(socket, "player_has_been_reviewed", {
+                playerId: socket.id,
+                hasBeenReviewed: true,
+              });
+            }
+            const playerIsAnsweringQuestion =
+              userLogger.checkIfPlayerIsAnsweringQuestion(receiver);
+            if (!playerIsAnsweringQuestion) {
+              //vraag in de queue als speler al bezig is met antwoorden
+              socketManager.emitToSpecificSocket(
+                receiver,
+                "receive_question",
+                questionData,
+              );
+              userLogger.setIsAnsweringQuestion(true, receiver);
+              socketManager.emitToMod(socket, "player_is_answering", {
+                playerId: receiver,
+                isAnsweringQuestion: true,
+              });
+            }
+          } else {
+            // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
+            playerQuestionQueue.addQuestionToQueue(
+              socket,
+              socket.id,
+              questionData,
+            );
+            socketManager.emitBackToClient(
+              socket,
+                "receive_question",
+                questionData,
+              );
+              userLogger.setIsAnsweringQuestion(true, socket.id);
+              socketManager.emitToMod(socket, "player_is_answering", {
+                playerId: socket.id,
+                isAnsweringQuestion: true,
+              });
+            }
+          } catch (error) {
+          console.error("Error getting question: ", error);
+          socket.emit("error", { 
+            message: "Failed to get question - please try again or rejoin the game",
+            details: error.message 
           });
+        }
+      },
+      request_translated_question: async (data) => {
+        try {
+          // get the current question from the queue
+          console.log("Server received translation request: ", data);
+          const language = data.language;
+          const color = data.color;
+          const questionId = data.questionId;
+          let result;
+          if (questionId) {
+            result = await getTranslatedQuestion(questionId, language);
+          } else {
+            result = await modulePopUp(color, language);
+          }
+          // send back the translated question
+          socketManager.emitBackToClient(socket, "receive_translated_question", {
+            questionText: result.question,
+            answer: result.answer,
+            questionId: questionId
+          });
+        } catch (error) {
+          console.error("Error requesting translated question", error);
+          socket.emit("error", { message: "Failed to get translated question" });
         }
       },
 
@@ -362,15 +393,37 @@ module.exports = function (io) {
       },
 
       send_answer_to_server: (questionData) => {
-        //await gameManager.waitForModToFinishReview(modLogger);
-        modQuestionQueue.create(socket, socket.id, questionData);
-        // Check if the question queue of the player who sent the question to the server contains any questions.
-        playerQuestionQueue.removeQuestionFromQueue(socket);
-        if (playerQuestionQueue.getLength(socket) > 0) {
-          const questionData = playerQuestionQueue.read(socket, false);
-          socketManager.emitBackToClient(socket, "receive_question", questionData);
-        } else {
-          userLogger.setIsAnsweringQuestion(false, socket.id);
+        try {
+          //await gameManager.waitForModToFinishReview(modLogger);
+          if (!modQuestionQueue) {
+            throw new Error("Question queue not initialized");
+          }
+          // Include the original question and questionId in the data sent to moderator
+          const modQuestionData = {
+            ...questionData,
+            originalQuestion: questionData.question,  // Store the original question
+            questionId: questionData.questionId      // Make sure questionId is included
+          };
+          modQuestionQueue.addQuestionToQueue(socket, socket.id, modQuestionData);
+          // Check if the question queue of the player who sent the question to the server contains any questions.
+          if (!playerQuestionQueue) {
+            throw new Error("Player question queue not initialized");
+          }
+          playerQuestionQueue.removeQuestionFromQueue(socket);
+          if (playerQuestionQueue.getQuestionQueueLength(socket) > 0) {
+            const nextQuestionData = playerQuestionQueue.getQuestionFromQueue(socket);
+            socketManager.emitBackToClient(socket, "receive_question", nextQuestionData);
+          } else {
+            if (!userLogger) {
+              console.error("UserLogger not initialized - player may need to rejoin");
+              socket.emit("error", { message: "Session expired - please rejoin the game" });
+              return;
+            }
+            userLogger.setIsAnsweringQuestion(false, socket.id);
+          }
+        } catch (error) {
+          console.error("Error in send_answer_to_server:", error);
+          socket.emit("error", { message: "Failed to process answer - please try again" });
         }
       },
 
@@ -432,24 +485,46 @@ module.exports = function (io) {
       },
 
       points_submitted_question_reviewed: (reviewData) => {
-        const id = reviewData.playerId;
+        try {
+          const id = reviewData.playerId;
+          if (!userLogger) {
+            throw new Error("UserLogger not initialized");
+          }
+          if (!modLogger) {
+            throw new Error("ModLogger not initialized");
+          }
+          if (!modQuestionQueue) {
+            throw new Error("ModQuestionQueue not initialized");
+          }
+          if (!gameManager) {
+            throw new Error("GameManager not initialized");
+          }
+          if (!gameStateTracker) {
+            throw new Error("GameStateTracker not initialized");
+          }
+
         const oldTotalPoints = userLogger.getPoints(id);
-        const newTotalPoints =
-          Number(oldTotalPoints) + Number(reviewData.totalPoints);
-        userLogger.update(id, {
-          totalPoints: newTotalPoints,
-          previousPoints: oldTotalPoints,
-        });
+        const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
+
+         userLogger.updateUser(id, {
+            totalPoints: newTotalPoints,
+            previousPoints: oldTotalPoints,
+          });
 
         modLogger.updateNumberOfQuestionsReviewed();
-        modQuestionQueue.removeQuestionFromQueue(socket, id);
-        modLogger.setIsReviewingQuestion(false);
-
-        gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, id);
-
-        const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
-        if (isRoundFinished) {
-          socketManager.emitToMod(socket, "is_next_round_button_disabled", false);
+          modQuestionQueue.removeQuestionFromQueue(socket, id);
+          modLogger.setIsReviewingQuestion(false);
+          gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, id);
+          const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();
+          if (isRoundFinished) {
+            socketManager.emitToMod(socket, "is_next_round_button_disabled", false);
+          }
+        } catch (error) {
+          console.error("Error in points_submitted_question_reviewed:", error);
+          socket.emit("error", {
+            message: "Failed to process points submission - the game session may need to be restarted",
+            details: error.message
+          });
         }
       },
 

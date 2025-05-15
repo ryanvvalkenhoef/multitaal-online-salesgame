@@ -248,7 +248,7 @@
   align-self: flex-start;
   font-size: min(calc(30vh * 0.1), calc(33vw * 0.05));
   margin-left: calc(7vw / 2);
-  margin-top: 6vw;
+  margin-top: 2vw;
 }
 
 .correctAnswerBox {

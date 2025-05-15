@@ -27,9 +27,44 @@ const questionIDs = {
   rainbow: [1],
 };
 
+async function getTranslatedQuestion(questionId, language) {
+  let queryMod;
+  switch (language) {
+    case "en":
+      queryMod = "SELECT ID, QEnglish AS question, AEnglish AS answer FROM questionstable WHERE ID=?";
+      break;
+    case "dk":
+      queryMod = "SELECT ID, QDanish AS question, ADanish AS answer FROM questionstable WHERE ID=?";
+      break;
+    case "nl":
+      queryMod = "SELECT ID, QDutch AS question, ADutch AS answer FROM questionstable WHERE ID=?";
+      break;
+    default:
+      queryMod = "SELECT ID, QEnglish AS question, AEnglish AS answer FROM questionstable WHERE ID=?";
+      break;
+  }
+  return new Promise((resolve, reject) => {
+    connection.query(queryMod, [questionId], (error, results) => {
+      if (error) {
+        console.error("Database error: ", error);
+        reject(error);
+        return;
+      }
+      if (!results || results.length === 0) {
+        reject(new Error("No results found"));
+        return;
+      }
+      resolve({
+        question: results[0].question,
+        answer: results[0].answer,
+        questionId: results[0].ID
+      });
+    });
+  });
+}
+
 async function modulePopUp(color, sort = "en") {
   let number;
-
   switch (color) {
     case "yellow":
     case "green":
@@ -53,38 +88,20 @@ async function modulePopUp(color, sort = "en") {
       number = 1;
       break;
   }
+  try {
 
-  let queryMod;
-  switch (sort) {
-    case "en":
-      queryMod =
-        "SELECT QEnglish AS question, AEnglish AS answer FROM questionstable WHERE ID=?";
-      break;
-    case "dk":
-      queryMod =
-        "SELECT QDanish AS question, ADanish AS answer FROM questionstable WHERE ID=?";
-      break;
-    case "nl":
-      queryMod =
-        "SELECT QDutch AS question, ADutch AS answer FROM questionstable WHERE ID=?";
-      break;
-    default:
-      queryMod =
-        "SELECT QEnglish AS question, AEnglish AS answer FROM questionstable WHERE ID=?";
-      break;
+    const result = await getTranslatedQuestion(number, sort);
+    return {
+      ...result,
+      questionId: number
+    };
+  } catch (error) {
+    console.error("Error in modulePopUp: ", error);
+    return error;
   }
-
-  return new Promise((resolve, reject) => {
-    connection.query(queryMod, [number], (error, results) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      const { question, answer } = results[0];
-      resolve({ question, answer });
-    });
-  });
 }
 
-module.exports = modulePopUp;
+module.exports = {
+  modulePopUp,
+  getTranslatedQuestion
+};

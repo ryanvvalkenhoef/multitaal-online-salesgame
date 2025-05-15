@@ -24,8 +24,7 @@ const ModPopUps = ({
           <div className={`questionColorBox ${popupColor}`}>
             <div className="rowpopup">
               <img
-                className={`${
-                  popupColor === "red"
+                className={`${popupColor === "red"
                     ? "popupsafeline"
                     : popupColor === "yellow"
                       ? "popuplunar"
@@ -70,7 +69,7 @@ const ModPopUps = ({
               </div>
             </div>
             <div className="questionLabel2"> {t("PopUps.question")}</div>
-            <div className="questionWhiteBox2"> {question} </div>
+            <div className="questionWhiteBox2"> {translatedQuestion} </div>
             <div className="answerLabel"> {t("PopUps.modAnswer")} </div>
             <div className="questionWhiteBox3"> {submittedAnswer} </div>
           </div>
@@ -132,7 +131,6 @@ const ModPopUps = ({
                 30
               </button>
             </div>
-            {/*<button className='submitScoreButton' onClick={() => { handleSubmitPoints(); }}>Submit</button>*/}
             <button
               className="submitScoreButton"
               onClick={() => {
