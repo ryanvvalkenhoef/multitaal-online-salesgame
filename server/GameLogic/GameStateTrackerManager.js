@@ -1,4 +1,4 @@
-const GamesStateTracker = require("../gameState/GameStateTracker");
+const GamesStateTracker = require("./GameStateTracker");
 
 class GameStateTrackerManager {
   static #gameStateTrackers = new Map();

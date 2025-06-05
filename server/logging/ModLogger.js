@@ -25,7 +25,6 @@ class ModLogger {
   #jsonFileHandler;
 
   constructor(room, jsonFileHandler) {
-    super();
     const { create, read, update, delete: del } = CRUDUtils;
     this.create = create;
     this.read = read;

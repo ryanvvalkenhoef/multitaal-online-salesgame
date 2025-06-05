@@ -1,4 +1,6 @@
+import { socket } from "../client.js";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { createContext, useContext } from "react";
 import { modViewHandler } from "./ModViewHandler";
 
@@ -15,7 +17,13 @@ export const ModViewWrapper = ({ children }) => {
     answer: "",
     showPopup: false,
     currentQuestionId: null,
+    i18n: useTranslation("global")
   });
+
+  const setCurrentQuestionId = (questionId) => {
+        this.setState(prevState => ({ ...prevState, currentQuestionId: questionId }));
+        this.state.currentQuestionId = questionId;
+  };
 
   // Initialize ModViewHandler with the setState of the component
   useEffect(() => {
@@ -30,14 +38,14 @@ export const ModViewWrapper = ({ children }) => {
   }, [state.question]);
   useEffect(() => {
     // when language changes, emit an event to get the translated question
-    if (showPopup && popupColor && currentQuestionId) {
+    if (showPopup && state.popupColor && state.currentQuestionId) {
       socket.emit("request_translated_question", {
-        color: popupColor,
-        language: i18n.language,
-        questionId: currentQuestionId
+        color: state.popupColor,
+        language: state.i18n.language,
+        questionId: state.currentQuestionId
       });
     }
-  }, [i18n.language, state.showPopup, state.popupColor, state.currentQuestionId]);
+  }, [state.i18n.language, state.showPopup, state.popupColor, state.currentQuestionId]);
   // add socket listener for receiving translated question
   useEffect(() => {
     const handleTranslatedQuestion = (data) => {

@@ -1,13 +1,13 @@
-const getMovesFromCoordinate = require("../positionCalculator");
+const getMovesFromCoordinate = require("../utils/positionCalculator");
 const SocketManager = require("../socket/SocketManager");
 const PlayerQuestionQueue = require("../questionQueue/PlayerQuestionQueue");
 const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
-const RoomGenerator = require("../roomGenerator/RoomGenerator");
+const RoomGenerator = require("../utils/RoomGenerator");
 const GameSetupManager = require("../GameLogic/GameSetupManager");
 const JsonFileHandler = require("../utils/jsonFileHandler");
-const instanceFactory = require("../instanceFactory/instanceFactory");
-const ReconnectionManager = require("../reconnectionManager/ReconnectionManager");
-const { modulePopUp, getTranslatedQuestion } = require("../database/database");
+const instanceFactory = require("../utils/instanceFactory");
+const ReconnectionManager = require("../GameLogic/ReconnectionManager");
+const { modulePopUp, getTranslatedQuestion } = require("../database/DatabaseManager");
 
 module.exports = function (io) {
   const playerQuestionQueue = new PlayerQuestionQueue();

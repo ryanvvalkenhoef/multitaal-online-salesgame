@@ -7,7 +7,7 @@ const cors = require("cors");
 const fs = require("fs");
 const socketInit = require("./socket/socketInit");
 const sockets = require("./socketEvents/Sockets");
-const gameSockets = require("./socketEvents/gameSockets");
+const gameSockets = require("./socketEvents/Sockets");
 
 const server = http.createServer(app);
 const { instrument } = require("@socket.io/admin-ui");
