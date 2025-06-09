@@ -17,7 +17,7 @@
  * @class PreGameManager
  */
 
-class PreGameManager {
+class GameSetupManager {
   static setTotalPlayers(totalPlayers, jsonFileHandler) {
     const data = jsonFileHandler.readData();
     if (!data) return null;
@@ -142,4 +142,4 @@ class PreGameManager {
     return true;
   }
 }
-module.exports = PreGameManager;
+export default GameSetupManager;

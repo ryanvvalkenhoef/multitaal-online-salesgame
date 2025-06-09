@@ -62,4 +62,4 @@ function getMovesFromCoordinate(startX, startY, steps) {
 // const steps = 2; // Number of steps you can take
 // console.log(getMovesFromCoordinate(startCoordinate.x, startCoordinate.y, steps));
 
-module.exports = getMovesFromCoordinate;
+export default getMovesFromCoordinate;

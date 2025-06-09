@@ -25,4 +25,4 @@ class QuestionQueue {
   }
 }
 
-module.exports = QuestionQueue;
+export default QuestionQueue;

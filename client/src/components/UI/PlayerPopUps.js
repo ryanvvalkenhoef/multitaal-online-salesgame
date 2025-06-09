@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./PopUpStyle.css";
 import { useTranslation } from "react-i18next";
+import { socket } from "../../client";
 
 const PlayerPopUps = ({
   isPopUpEnabled,

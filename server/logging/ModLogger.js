@@ -18,39 +18,36 @@
  *
  * @class ModLogger
  */
-const CRUDUtils = require("../utils/CRUDUtils");
+import CRUDUtils from '../utils/CRUDUtils.js';
 
-class ModLogger {
+class ModLogger extends CRUDUtils {
   #room;
   #jsonFileHandler;
 
   constructor(room, jsonFileHandler) {
-    const { create, read, update, delete: del } = CRUDUtils;
-    this.create = create;
-    this.read = read;
-    this.update = update;
-    this.delete = del;
+    super();
+
     this.#room = room;
     this.#jsonFileHandler = jsonFileHandler;
   }
 
-  read = (wantsRoom) => {
+  read(wantsRoom) {
     if (wantsRoom) { /* getRoom */
       return this.#room;
     } else { /* getMod */
-      const data = this.getData(getMod);
+      const data = this.getData('getMod');
       return data.mod;
     }
   }
 
-  del = (modsId) => { /* deleteMod */
-    const data = this.getData(del);
+  del(modsId) { /* deleteMod */
+    const data = this.getData('del');
     data.mod = data.mod.filter((mods) => mods.id !== modsId);
     this.#jsonFileHandler.writeData(data);
   }
 
-  create = (socketid) => { /* createMod */
-    const data = this.getData(createMod);
+  create(socketid) { /* createMod */
+    const data = this.getData('createMod');
 
     const gameHasMod = Object.keys(data.mod).length > 0; //Checks if mod object in json file is empty;
     if (gameHasMod) {
@@ -69,8 +66,8 @@ class ModLogger {
     this.#jsonFileHandler.writeData(data);
   }
 
-  update = (modsId, newData) => { /* updateMod */
-    const data = this.getData(updateMod);
+  update(modsId, newData) { /* updateMod */
+    const data = this.getData('updateMod');
 
     const mod = data.mod;
     if (mod && mod.id === modsId) {
@@ -84,14 +81,14 @@ class ModLogger {
   getData(funcName) {
     let data = this.#jsonFileHandler.readData();
     if (!data) {
-      console.warn("Can't read data: " + funcName.name);
+      console.warn("Can't read data: " + funcName);
       return null;
     }
     return data;
   }
 
   reconnect(newSocketId, oldSocketId) {
-    const data = this.getData(reconnect);
+    const data = this.getData('reconnect');
     const mod = data.mod;
     if (mod && mod.id === oldSocketId) {
       mod.id = newSocketId;
@@ -132,4 +129,4 @@ class ModLogger {
   }
 }
 
-module.exports = ModLogger;
+export default ModLogger;

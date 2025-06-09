@@ -3,6 +3,7 @@
 export const handleReceivePlayerAnswer = ({ socket, reviewQuestion }) => {
   socket.on("receive_player_answer", (questionData) => {
     //parameter is an object
+    console.log('question reviewed');
     reviewQuestion(questionData);
   });
 };

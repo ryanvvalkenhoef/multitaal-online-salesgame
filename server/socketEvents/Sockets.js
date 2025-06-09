@@ -1,15 +1,17 @@
-const getMovesFromCoordinate = require("../utils/positionCalculator");
-const SocketManager = require("../socket/SocketManager");
-const PlayerQuestionQueue = require("../questionQueue/PlayerQuestionQueue");
-const ModQuestionQueue = require("../questionQueue/ModQuestionQueue");
-const RoomGenerator = require("../utils/RoomGenerator");
-const GameSetupManager = require("../GameLogic/GameSetupManager");
-const JsonFileHandler = require("../utils/jsonFileHandler");
-const instanceFactory = require("../utils/instanceFactory");
-const ReconnectionManager = require("../GameLogic/ReconnectionManager");
-const { modulePopUp, getTranslatedQuestion } = require("../database/DatabaseManager");
+import getMovesFromCoordinate from '../utils/positionCalculator.js';
+import SocketManager from '../socket/SocketManager.js';
+import PlayerQuestionQueue from '../questionQueue/PlayerQuestionQueue.js';
+import ModQuestionQueue from '../questionQueue/ModQuestionQueue.js';
+import RoomGenerator from '../utils/RoomGenerator.js';
+import GameSetupManager from '../GameLogic/GameSetupManager.js';
+import UserLogger from '../logging/UserLogger.js';
+import ModLogger from '../logging/ModLogger.js';
+import JsonFileHandler from '../utils/jsonFileHandler.js';
+import instanceFactory from '../utils/instanceFactory.js';
+import ReconnectionManager from '../GameLogic/ReconnectionManager.js';
+import { modulePopUp, getTranslatedQuestion } from '../database/DatabaseManager.js';
 
-module.exports = function (io) {
+export default function (io) {
   const playerQuestionQueue = new PlayerQuestionQueue();
   const modQuestionQueue = new ModQuestionQueue();
 
@@ -47,10 +49,10 @@ module.exports = function (io) {
 
         jsonFileHandler.createJsonFile();
 
-        modLogger.createMod(socket.id, data);
+        modLogger.create(socket.id, data);
 
-        PreGameManager.setTotalPlayers(data.playerCount, jsonFileHandler);
-        PreGameManager.setTotalRounds(data.roundsCount, jsonFileHandler);
+        GameSetupManager.setTotalPlayers(data.playerCount, jsonFileHandler);
+        GameSetupManager.setTotalRounds(data.roundsCount, jsonFileHandler);
 
         socket.emit("send_gamepin", {
           room: room,
@@ -72,18 +74,18 @@ module.exports = function (io) {
         let joinStatus;
 
         const existingRooms = RoomGenerator.getRoomList();
-        const isValidRoom = PreGameManager.checkIfValidRoom(
+        const isValidRoom = GameSetupManager.checkIfValidRoom(
           data.room,
           existingRooms,
         );
         jsonFileHandler = new JsonFileHandler(data.room);
-        const isRoomFull = PreGameManager.checkIfRoomFull(jsonFileHandler);
+        const isRoomFull = GameSetupManager.checkIfRoomFull(jsonFileHandler);
         const isStrategyAssigned = data.strategy !== "";
-        const isStrategyUnique = PreGameManager.checkIfUniqueStrategy(
+        const isStrategyUnique = GameSetupManager.checkIfUniqueStrategy(
           jsonFileHandler,
           data.strategy,
         );
-        const isNameUnique = PreGameManager.checkIfUniqueName(
+        const isNameUnique = GameSetupManager.checkIfUniqueName(
           jsonFileHandler,
           data.name,
         );
@@ -115,22 +117,23 @@ module.exports = function (io) {
           gameScreenDataEmitter = instances.gameScreenDataEmitter;
 
           //user is being created and values assigned to properties of user object
+          console.log(JSON.stringify(userLogger));
           userLogger.create(socket.id);
           userLogger.update(socket.id, { name: data.name });
           userLogger.update(socket.id, { room: room });
           userLogger.update(socket.id, { strategy: data.strategy });
-          const playerColor = PreGameManager.getColor(
+          const playerColor = GameSetupManager.getColor(
             socket.id,
             jsonFileHandler,
           );
           userLogger.update(socket.id, { color: playerColor });
 
           //Updates the gameState object in the json file
-          PreGameManager.addStrategy(
+          GameSetupManager.addStrategy(
             data.strategy.toLowerCase(),
             jsonFileHandler,
           );
-          PreGameManager.addPlayerName(data.name, jsonFileHandler);
+          GameSetupManager.addPlayerName(data.name, jsonFileHandler);
 
           console.log('passed');
           socketManager.emitToMod(socket, "add_user", "adding");
@@ -161,7 +164,7 @@ module.exports = function (io) {
       reconnect_player: (sessionData) => {
         try {
           const room = sessionData.room;
-          const isValidRoom = PreGameManager.checkIfValidRoom(
+          const isValidRoom = GameSetupManager.checkIfValidRoom(
             room,
             RoomGenerator.getRoomList(),
           );
@@ -217,7 +220,7 @@ module.exports = function (io) {
       reconnect_mod: (sessionData) => {
         try {
           const room = sessionData.room;
-          const isValidRoom = PreGameManager.checkIfValidRoom(
+          const isValidRoom = GameSetupManager.checkIfValidRoom(
             room,
             RoomGenerator.getRoomList(),
           );
@@ -305,7 +308,7 @@ module.exports = function (io) {
           };
           if (availableColors.includes(data.questionColor)) {//is het een kleurvraag?
             const receiver = userLogger.getReceiver(data.questionColor);
-            playerQuestionQueue.addQuestionToQueue(
+            playerQuestionQueue.create(
               socket,
               receiver,
               questionData,
@@ -316,7 +319,7 @@ module.exports = function (io) {
             //naar wie moet de vraag? kleur van het vakje bepalende factor, niet speler zelf. receiver krijgt vraag socket.id gaat om degene die op het vakje staat
             if (receiver !== socket.id && !playerFinishedTurn) {
               //wanneer speler op ander gekleurd vakje komt, staat deze als gereviewed, anders blijft icoontje grijs en kan verwarrend zijn
-              userLogger.updateUser(socket.id, { hasBeenReviewed: true });
+              userLogger.update(socket.id, { hasBeenReviewed: true });
               socketManager.emitToMod(socket, "player_has_been_reviewed", {
                 playerId: socket.id,
                 hasBeenReviewed: true,
@@ -339,7 +342,7 @@ module.exports = function (io) {
             }
           } else {
             // het is geen kleurvraag, maar een regenboog of zwarte kleur, die kan alleen naar speler zelf
-            playerQuestionQueue.addQuestionToQueue(
+            playerQuestionQueue.create(
               socket,
               socket.id,
               questionData,
@@ -404,13 +407,13 @@ module.exports = function (io) {
             originalQuestion: questionData.question,  // Store the original question
             questionId: questionData.questionId      // Make sure questionId is included
           };
-          modQuestionQueue.addQuestionToQueue(socket, socket.id, modQuestionData);
+          modQuestionQueue.create(socket, socket.id, modQuestionData);
           // Check if the question queue of the player who sent the question to the server contains any questions.
           if (!playerQuestionQueue) {
             throw new Error("Player question queue not initialized");
           }
-          playerQuestionQueue.removeQuestionFromQueue(socket);
-          if (playerQuestionQueue.getQuestionQueueLength(socket) > 0) {
+          playerQuestionQueue.delete(socket);
+          if (playerQuestionQueue.read(socket, true) > 0) {
             const nextQuestionData = playerQuestionQueue.getQuestionFromQueue(socket);
             socketManager.emitBackToClient(socket, "receive_question", nextQuestionData);
           } else {
@@ -506,13 +509,13 @@ module.exports = function (io) {
         const oldTotalPoints = userLogger.getPoints(id);
         const newTotalPoints = Number(oldTotalPoints) + Number(reviewData.totalPoints);
 
-         userLogger.updateUser(id, {
+         userLogger.update(id, {
             totalPoints: newTotalPoints,
             previousPoints: oldTotalPoints,
           });
 
         modLogger.updateNumberOfQuestionsReviewed();
-          modQuestionQueue.removeQuestionFromQueue(socket, id);
+          modQuestionQueue.delete(socket, id);
           modLogger.setIsReviewingQuestion(false);
           gameManager.checkIfQueueNotEmptyAndSendAnswer(socket, id);
           const isRoundFinished = gameStateTracker.checkIfRoundIsFinished();

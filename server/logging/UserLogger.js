@@ -1,4 +1,5 @@
-const fs = require("fs");
+import fs from 'fs';
+import CRUDUtils from '../utils/CRUDUtils.js';
 
 /**
  * Class representing the players state and management in the game.
@@ -29,16 +30,13 @@ const fs = require("fs");
  * @class UserLogger
  */
 
-class UserLogger {
+class UserLogger extends CRUDUtils {
   #room;
   #jsonFileHandler;
 
   constructor(room, jsonFileHandler) {
-    const { create, read, update, delete: del } = CRUDUtils;
-    this.create = create;
-    this.read = read;
-    this.update = update;
-    this.delete = del;
+    super();
+    
     this.#room = room;
     this.#jsonFileHandler = jsonFileHandler;
   }
@@ -46,22 +44,22 @@ class UserLogger {
   getData(funcName) {
     let data = this.#jsonFileHandler.readData();
     if (!data) {
-      console.warn("Can't read data: " + funcName.name);
+      console.warn("Can't read data: " + funcName);
       return null;
     }
     return data;
   }
 
-  del = (userId) => { /* deleteUser */
-    const data = this.getData(del);
+  del(userId) { /* deleteUser */
+    const data = this.getData('del');
 
     data.users = data.users.filter((user) => user.id !== userId);
 
     this.#jsonFileHandler.writeData(data);
   }
 
-  create = (socketid) => { /* createUser */
-    const data = this.getData(create);
+  create(socketid) { /* createUser */
+    const data = this.getData('create');
 
     const user = {
       id: socketid,
@@ -82,8 +80,8 @@ class UserLogger {
     this.#jsonFileHandler.writeData(data);
   }
 
-  update = (userId, newData) => { /* updateUser */
-    const data = this.getData(update);
+  update(userId, newData) { /* updateUser */
+    const data = this.getData('update');
 
     const index = data.users.findIndex((user) => user.id === userId);
     if (index !== -1) {
@@ -94,8 +92,8 @@ class UserLogger {
     }
   }
 
-  read = (wantsRoom) => {
-    const data = this.getData(read);
+  read(wantsRoom) {
+    const data = this.getData('read');
     if (wantsRoom) { /* getRoom */
       const user = data.users.find((user) => user.id === socketid);
       if (user) {
@@ -116,7 +114,7 @@ class UserLogger {
   }
 
   getScores() {
-    const data = this.getData(getScores);
+    const data = this.getData('getScores');
 
     const users = data.users.map((user) => ({
       id: user.id,
@@ -127,7 +125,7 @@ class UserLogger {
   }
 
   reconnect(newSocketId, oldSocketId) {
-    const data = this.getData(reconnect);    
+    const data = this.getData('reconnect');    
 
     let changedPlayerId = false;
     data.users.forEach((player) => {
@@ -146,7 +144,7 @@ class UserLogger {
   }
 
   getPoints(id) {
-    const data = getData(getPoints);
+    const data = this.getData('getPoints');
 
     const user = data.users.find((user) => user.id === id);
     if (user) {
@@ -158,7 +156,7 @@ class UserLogger {
   }
 
   getStrategy(socketid) {
-    const data = getData(getStrategy);
+    const data = this.getData('getStrategy');
 
     const user = data.users.find((user) => user.id === socketid);
     if (user) {
@@ -184,18 +182,18 @@ class UserLogger {
   }
 
   getColor(socketid) {
-    const data = this.getData(getColor);
+    const data = this.getData('getColor');
 
-    const players = data.users;
-    const player = players.find((player) => {
-      return player.id === socketid;
+    const users = data.users;
+    const user = users.find((user) => {
+      return user.id === socketid;
     });
-
-    return player.color;
+    console.log('data: ' + JSON.stringify(data));
+    return user.color;
   }
 
   getReceiver(questionColor) {
-    const data = this.getData(getReceiver);
+    const data = this.getData('getReceiver');
 
     const users = data.users;
     for (let user of users) {
@@ -231,7 +229,7 @@ class UserLogger {
   }
 
   getPlayerName(socketid) {
-    const data = this.getData(getPlayerName);
+    const data = this.getData('getPlayerName');
 
     const user = data.users.find((user) => user.id === socketid);
     if (user) {
@@ -243,7 +241,7 @@ class UserLogger {
   }
 
   getLanguage(socketid) {
-    const data = this.getData(getLanguage);
+    const data = this.getData('getLanguage');
 
     const user = data.users.find((user) => user.id === socketid);
     if (user) {
@@ -255,14 +253,14 @@ class UserLogger {
   }
 
   getCanRollDice(playerId) {
-    const data = this.getData(getCanRollDice);
+    const data = this.getData('getCanRollDice');
 
     const player = data.users.find((player) => player.id === playerId);
     return player.canRollDice;
   }
 
   setCanRollDice(playerId, boolean) {
-    const data = this.getData(setCanRollDice);
+    const data = this.getData('setCanRollDice');
 
     const player = data.users.find((player) => player.id === playerId);
     player.canRollDice = boolean;
@@ -270,7 +268,7 @@ class UserLogger {
   }
 
   resetHasFinishedTurn() {
-    const data = this.getData(resetHasFinishedTurn);
+    const data = this.getData('resetHasFinishedTurn');
 
     data.users.forEach((player) => {
       player.hasFinishedTurn = false;
@@ -280,11 +278,11 @@ class UserLogger {
   }
 
   getAllPlayerObjects() {
-    return this.getData(getAllPlayerObjects).users;
+    return this.getData('getAllPlayerObjects').users;
   }
 
   setIsAnsweringQuestion(boolean, socketid) {
-    const data = this.getData(setIsAnsweringQuestion);
+    const data = this.getData('setIsAnsweringQuestion');
 
     const player = data.users.find((player) => player.id === socketid);
     player.isAnsweringQuestion = boolean;
@@ -292,21 +290,21 @@ class UserLogger {
   }
 
   checkIfPlayerIsAnsweringQuestion(socketid) {
-    const data = this.getData(checkIfPlayerIsAnsweringQuestion)
+    const data = this.getData('checkIfPlayerIsAnsweringQuestion')
 
     const player = data.users.find((player) => player.id === socketid);
     return player.isAnsweringQuestion;
   }
 
   checkIfPlayerHasFinishedTurn(socketid) {
-    const data = this.getData(checkIfPlayerHasFinishedTurn)
+    const data = this.getData('checkIfPlayerHasFinishedTurn')
 
     const player = data.users.find((player) => player.id === socketid);
     return player.hasFinishedTurn;
   }
 
   getPlayerTurnStatus(socketid) {
-    const data = this.getData(getPlayerTurnStatus);
+    const data = this.getData('getPlayerTurnStatus');
 
     const player = data.users.find((player) => player.id === socketid);
     if (!player) {
@@ -317,7 +315,7 @@ class UserLogger {
   }
 
   setHasBeenReviewed(socketid, boolean) {
-    const data = this.getData(setHasBeenReviewed);
+    const data = this.getData('setHasBeenReviewed');
 
     const player = data.users.find((player) => player.id === socketid);
     player.hasBeenReviewed = boolean;
@@ -325,4 +323,4 @@ class UserLogger {
   }
 }
 
-module.exports = UserLogger;
+export default UserLogger;

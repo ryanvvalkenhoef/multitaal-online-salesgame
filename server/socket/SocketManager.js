@@ -65,4 +65,4 @@ class SocketManager {
   };
 }
 
-module.exports = SocketManager;
+export default SocketManager;

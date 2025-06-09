@@ -1,4 +1,4 @@
-const GamesStateTracker = require("./GameStateTracker");
+import GameStateTracker from './GameStateTracker.js';
 
 class GameStateTrackerManager {
   static #gameStateTrackers = new Map();
@@ -16,7 +16,7 @@ class GameStateTrackerManager {
       // makes gameStateTracker if room doesn't have one
       this.#gameStateTrackers.set(
         room,
-        new GamesStateTracker(room, jsonFileHandler),
+        new GameStateTracker(room, jsonFileHandler),
       );
     }
 
@@ -24,4 +24,4 @@ class GameStateTrackerManager {
   }
 }
 
-module.exports = GameStateTrackerManager;
+export default GameStateTrackerManager;

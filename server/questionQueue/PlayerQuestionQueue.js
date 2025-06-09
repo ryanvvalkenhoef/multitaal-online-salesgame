@@ -1,94 +1,70 @@
-const QuestionQueue = require("./questionQueue");
-const CRUDUtils = require("../utils/CRUDUtils");
+import QuestionQueue from './questionQueue.js';
+import CRUDUtils from '../utils/CRUDUtils.js';
 
 class PlayerQuestionQueue extends QuestionQueue {
   constructor() {
     super();
-    const { create, read, update, delete: del } = CRUDUtils;
-    this.create = create;
-    this.read = read;
-    this.update = update;
-    this.delete = del;
+    Object.assign(this, CRUDUtils);
   }
 
-  read = (socket, wantsLength) => {
-    if (wantsLength) { /* getQuestionQueueLength */
-      const room = socket.room;
-      const playerId = socket.id;
-  
-      if (this.handleErrors(queue = this.queues[room])) {
-        return 0;
-      }
-      if (this.handleErrors(queue = this.queues[room][playerId])) {
-        return 0;    
-      }
-
-      return this.queues[room][playerId].length;
-
-    } else { /* getQuestionFromQueue */
-      const room = socket.room;
-      const playerId = socket.id;
-
-      if (this.handleErrors(queue = this.queues[room])) return null;
-      if (this.handleErrors(queue = this.queues[room][playerId])) return null;
-
-      return this.queues[room][playerId][0];
-    }
-  }
-
-  create = (socket, receiverId, question) => { /* addQuestionToQueue */
-    const room = socket.room;
-
-    if (this.handleErrors(question = question)) {
-      return false;
-    }
-    // Check if rooms already has an object to hold the queues and makes one if not.
-    if (this.handleErrors(queue = this.queues[room])) this.queues[room] = {};
-
-    const currentQueue = this.queues[room][receiverId] || []; // Initialize an empty array (queue) if player's queue is missing
-    this.queues[room][receiverId] = [...currentQueue, question];
-    return true;
-  }
-
-  delete = (socket) => { /* deleteQuestionFromQueue */
+  read(socket, wantsLength) {
     const room = socket.room;
     const playerId = socket.id;
 
-    if (this.handleErrors(queue = this.queues[room])) {
-      return null;
-    }
-    if (this.handleErrors(queue = this.queues[room][playerId])) {
-      return null;
-    }
+    const roomQueue = this.queues[room];
+    if (!roomQueue) return wantsLength ? 0 : null;
 
-    this.queues[room][playerId].shift();
+    const playerQueue = roomQueue[playerId];
+    if (!playerQueue) return wantsLength ? 0 : null;
+
+    return wantsLength ? playerQueue.length : playerQueue[0] || null;
   }
 
-  update = (socket, sessionData) => { /* reconnectToQueue */
+  create(socket, receiverId, question) {
+    const room = socket.room;
+    if (!question) {
+      console.error("Can't add undefined/null question to queue.");
+      return false;
+    }
+
+    if (!this.queues[room]) {
+      this.queues[room] = {};
+    }
+
+    const playerQueue = this.queues[room][receiverId] || [];
+    playerQueue.push(question);
+    this.queues[room][receiverId] = playerQueue;
+
+    return true;
+  }
+
+  delete(socket) {
+    const room = socket.room;
+    const playerId = socket.id;
+
+    const roomQueue = this.queues[room];
+    if (!roomQueue) return;
+
+    const playerQueue = roomQueue[playerId];
+    if (!playerQueue || playerQueue.length === 0) return;
+
+    playerQueue.shift(); // verwijder eerste vraag
+  }
+
+  update(socket, sessionData) {
     const room = socket.room;
     const oldSocketId = sessionData.socketId;
     const newSocketId = socket.id;
 
-    if (this.handleErrors(queue = this.queues[room])
-      && this.handleErrors(queue = this.queues[room][oldSocketId])) {
-        // Checks if player has a queue that needs to be reconnected to.
-        this.queues[room][newSocketId] = this.queues[room][oldSocketId];
-        delete this.queues[room][oldSocketId];
-    }
-  }
+    const roomQueue = this.queues[room];
+    if (!roomQueue) return;
 
-  handleErrors(queue = null, question = null) {
-    switch (true) {
-      case !!queue:
-        console.log("Player(s) do not have a question queue")
-        return true;
-      case !!question:
-        console.error("Can't add question to player queue");
-        return true;
-      default:
-        return false;
-    }
+    const oldQueue = roomQueue[oldSocketId];
+    if (!oldQueue) return;
+
+    roomQueue[newSocketId] = oldQueue;
+    delete roomQueue[oldSocketId];
   }
 }
 
-module.exports = PlayerQuestionQueue;
+export default PlayerQuestionQueue;

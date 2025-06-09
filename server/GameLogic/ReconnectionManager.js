@@ -205,4 +205,4 @@ class ReconnectionManager {
     });
   };
 }
-module.exports = ReconnectionManager;
+export default ReconnectionManager;

@@ -41,7 +41,7 @@ class GameController {
   };
 
   checkIfQueueNotEmptyAndSendAnswer = (socket, playerId) => {
-    const questionQueueLength = this.#modQuestionQueue.getQuestionQueuLength(
+    const questionQueueLength = this.#modQuestionQueue.read(
       socket,
       playerId,
     );
@@ -114,4 +114,4 @@ class GameController {
   };
 }
 
-module.exports = GameController;
+export default GameController;

@@ -81,4 +81,4 @@ class GameStateTracker {
   };
 }
 
-module.exports = GameStateTracker;
+export default GameStateTracker;

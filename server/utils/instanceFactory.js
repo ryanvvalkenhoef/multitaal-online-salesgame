@@ -1,9 +1,9 @@
-const JsonFileHandler = require("../utils/jsonFileHandler");
-const ModLogger = require("../logging/ModLogger");
-const UserLogger = require("../logging/UserLogger");
-const GameStateTrackerManager = require("../GameLogic/GameStateTrackerManager");
-const GameController = require("../GameLogic/GameController");
-const GameScreenDataEmitter = require("../gameDataEmitters/GameScreenDataEmitter");
+import JsonFileHandler from '../utils/jsonFileHandler.js';
+import ModLogger from '../logging/ModLogger.js';
+import UserLogger from '../logging/UserLogger.js';
+import GameStateTrackerManager from '../GameLogic/GameStateTrackerManager.js';
+import GameController from '../GameLogic/GameController.js';
+import GameScreenDataEmitter from '../gameDataEmitters/GameScreenDataEmitter.js';
 
 const createJsonFileHandler = (room) => {
   return new JsonFileHandler(room);
@@ -98,4 +98,4 @@ const createInstances = (room, socketManager, modQuestionQueue) => {
   return instances;
 };
 
-module.exports = createInstances;
+export default createInstances;
