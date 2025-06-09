@@ -11,6 +11,7 @@ const ModPopUps = ({
   selectedPoints,
   handleSubmitPoints,
   handleUpdatePoints,
+  translatedQuestion,
   answer,
   popupColor,
 }) => {
