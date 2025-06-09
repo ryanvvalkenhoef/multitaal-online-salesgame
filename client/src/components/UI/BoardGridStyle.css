@@ -36,17 +36,17 @@
 }
 
 .yellow {
-  background-color: #dab24b;
+  background-color: #CFCF57;
 }
 .pieceyellow {
-  color: #dab24b;
+  color: #CFCF57;
 }
 
 .blue {
-  background-color: #47a1c8;
+  background-color: #4A8CC8;
 }
 .pieceblue {
-  color: #47a1c8;
+  color: #4A8CC8;
 }
 
 .red {
@@ -57,24 +57,24 @@
 }
 
 .green {
-  background-color: #53a65b;
+  background-color: #29604B;
 }
 .piecegreen {
-  color: #53a65b;
+  color: #29604B;
 }
 
 .orange {
-  background-color: #c66732;
+  background-color: #E47340;
 }
 .pieceorange {
-  color: #c66732;
+  color: #E47340;
 }
 
 .purple {
-  background-color: #a83e8a;
+  background-color: #E9D1DF;
 }
 .piecepurple {
-  color: #a83e8a;
+  color: #E9D1DF;
 }
 
 .black {
