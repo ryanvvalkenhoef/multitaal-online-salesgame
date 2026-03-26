@@ -81,15 +81,31 @@ const BoardGrid = React.forwardRef(({
     }
   }, [joinedColors]);
 
+  useEffect(() => {
+    if (boardManagerInstance.current) {
+      boardManagerInstance.current.roomCode = roomCode;
+    }
+  }, [roomCode]);
+
   return (
     <div className="board-grid" onClick={(event) => {
         // DEBUG STAP: Als dit 'undefined' logt, komt het niet aan in BoardGrid
-        console.log("Check in Grid:", roomCode);
+        const effectiveRoomCode =
+          typeof roomCode === "string" && roomCode.trim() !== ""
+            ? roomCode
+            : typeof sessionStorage !== "undefined"
+              ? sessionStorage.getItem("room")
+              : null;
+
+        console.log("Check in Grid - roomCode prop/effective:", {
+          roomCodeProp: roomCode,
+          roomCodeEffective: effectiveRoomCode,
+        });
 
         BoardUtils.handleTileClick({
             event,
             socket,
-            roomCode, // Dit moet exact matchen met de naam hierboven
+            roomCode: effectiveRoomCode, // Pass computed value to avoid stale/undefined props
             startPieces,
             validPositions: possiblePositions || [],
             selectedPawn,

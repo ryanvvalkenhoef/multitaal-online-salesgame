@@ -136,8 +136,14 @@ class BoardUtils {
       roomCode
     }) {
       console.log("clicked: " + selectedPawn);
-      const effectiveRoomCode =
-        roomCode ?? (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("room") : null);
+      // Resolve roomCode from origin prop first; fall back to sessionStorage for robustness.
+      // Never allow `undefined` to be sent to the server (JSON.stringify would omit it).
+      const resolvedRoomCode =
+        typeof roomCode === "string" && roomCode.trim() !== ""
+          ? roomCode
+          : typeof sessionStorage !== "undefined"
+            ? sessionStorage.getItem("room")
+            : null;
       const targetTile = event.target.closest(".tile");
       if (startPieces.includes(event.target.id)) {
         console.log('passed1');
@@ -167,17 +173,40 @@ class BoardUtils {
             const updatedGameState = {
               players: [{ position: newPosition, pawnId: selectedPawn.id }]
             };
-            console.log("Klik gedetecteerd! RoomCode:", effectiveRoomCode);
+
+            // Ensure roomCode is always present before saving.
+            if (
+              typeof resolvedRoomCode !== "string" ||
+              resolvedRoomCode.trim() === ""
+            ) {
+              console.error("save-game aborted: invalid roomCode", {
+                roomCodeFromProp: roomCode,
+                resolvedRoomCode,
+              });
+              return;
+            }
+
+            console.log("Klik gedetecteerd! roomCode prop/resolved:", {
+              roomCodeFromProp: roomCode,
+              roomCodeToSave: resolvedRoomCode,
+            });
+            console.log("Game state update to save:", updatedGameState);
+
             fetch('http://localhost:3000/save-game', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                roomCode: effectiveRoomCode, 
+                roomCode: resolvedRoomCode,
                 gameData: updatedGameState
               })
             })
             .then(res => res.json())
-            .then(data => console.log("Bewijs van opslag:", data));
+            .then(data => {
+              console.log("Bewijs van opslag:", data);
+              // Print the actual game state that we sent, after the server confirms.
+              console.log("Game state na save-game (client):", updatedGameState);
+            })
+            .catch(err => console.error("save-game failed:", err));
           } else {
             console.error("Selected pawn is not a valid DOM element");
           }

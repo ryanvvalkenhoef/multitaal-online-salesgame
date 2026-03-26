@@ -65,7 +65,9 @@ export function Game() {
   const [piecePositions, setPiecePositions] = useState([]);
   const [arePiecesRendered, setArePiecesRendered] = useState(false);
   const [isBoardRendered, setIsBoardRendered] = useState(false);
-  const roomCode = sessionStorage.getItem("room");
+  // Read roomCode into state so it is available even when sessionStorage is populated
+  // right around navigation timing.
+  const [roomCode, setRoomCode] = useState(() => sessionStorage.getItem("room"));
   const navigate = useNavigate();
   const currentQuestionRef = useRef(null);
 
@@ -134,6 +136,15 @@ export function Game() {
       cleanUpSocketListeners(socket);
     };
   }, []);
+
+  useEffect(() => {
+    // Re-check on mount to avoid `null/undefined` on the initial render.
+    setRoomCode(sessionStorage.getItem("room"));
+  }, []);
+
+  useEffect(() => {
+    console.log("Game.js roomCode state:", roomCode);
+  }, [roomCode]);
 
   useEffect(() => {
     // If there is no sessionData stored the game screen can't be rendered

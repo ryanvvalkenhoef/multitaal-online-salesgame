@@ -48,9 +48,9 @@ class GamePinHandler {
       handleGame = (navigate) => {
         if (this.state.playerCount === this.state.playerNeeded) {
           socket.emit("start_turn", "data");
-          navigate("/modview");
           sessionStorage.setItem("socketId", socket.id);
           sessionStorage.setItem("room", this.state.gamepin);
+          navigate("/modview");
         } else {
           this.setErrorCode(`Not all players have joined`);
         }
