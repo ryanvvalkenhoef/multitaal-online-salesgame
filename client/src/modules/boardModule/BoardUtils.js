@@ -127,14 +127,17 @@ class BoardUtils {
   
     static handleTileClick({
       event,
-      startPieces,
-      validPositions,
+      startPieces = [],
+      validPositions = [],
       selectedPawn,
       playerColor,
       setPosition,
       socket,
+      roomCode
     }) {
       console.log("clicked: " + selectedPawn);
+      const effectiveRoomCode =
+        roomCode ?? (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("room") : null);
       const targetTile = event.target.closest(".tile");
       if (startPieces.includes(event.target.id)) {
         console.log('passed1');
@@ -161,6 +164,20 @@ class BoardUtils {
               selectedPawn: selectedPawn.id,
             });
             socket.emit("update_piece_positions");
+            const updatedGameState = {
+              players: [{ position: newPosition, pawnId: selectedPawn.id }]
+            };
+            console.log("Klik gedetecteerd! RoomCode:", effectiveRoomCode);
+            fetch('http://localhost:3000/save-game', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                roomCode: effectiveRoomCode, 
+                gameData: updatedGameState
+              })
+            })
+            .then(res => res.json())
+            .then(data => console.log("Bewijs van opslag:", data));
           } else {
             console.error("Selected pawn is not a valid DOM element");
           }

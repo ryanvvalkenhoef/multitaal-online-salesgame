@@ -20,6 +20,8 @@ const BoardGrid = React.forwardRef(({
   tileInfo2,
   possiblePositions,
   gameScreen,
+  roomCode,
+  socket
 }, ref) => {
 
   const [tiles, setTiles] = useState([]);
@@ -38,6 +40,7 @@ const BoardGrid = React.forwardRef(({
         joinedColors,
         startPieces,
         piecePositions,
+        roomCode,
         setIsBoardRendered,
       });
     } else {
@@ -79,8 +82,21 @@ const BoardGrid = React.forwardRef(({
   }, [joinedColors]);
 
   return (
-    <div className="board-grid">
-      {/* Render de tegels */}
+    <div className="board-grid" onClick={(event) => {
+        // DEBUG STAP: Als dit 'undefined' logt, komt het niet aan in BoardGrid
+        console.log("Check in Grid:", roomCode);
+
+        BoardUtils.handleTileClick({
+            event,
+            socket,
+            roomCode, // Dit moet exact matchen met de naam hierboven
+            startPieces,
+            validPositions: possiblePositions || [],
+            selectedPawn,
+            playerColor,
+            setPosition,
+        });
+    }}>
       {tiles}
     </div>
   );

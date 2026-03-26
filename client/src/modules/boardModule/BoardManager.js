@@ -14,6 +14,7 @@ class BoardManager {
     joinedColors,
     startPieces,
     piecePositions,
+    roomCode,
     setIsBoardRendered,
     setTiles,
   }) {
@@ -27,6 +28,7 @@ class BoardManager {
     this.joinedColors = joinedColors;
     this.startPieces = startPieces;
     this.piecePositions = piecePositions;
+    this.roomCode = roomCode;
     this.setIsBoardRendered = setIsBoardRendered;
 
     this.validPositions = [];
@@ -80,7 +82,6 @@ class BoardManager {
   }
 
   initialize() {
-    this.makeGridClickable();
     // Handle valid positions and socket events
     setInterval(() => {
       BoardEvents.handleValidPositionsUpdate(socket, (validPositions) => this.setValidPositions(validPositions));
@@ -92,24 +93,6 @@ class BoardManager {
     this.validPositions = validPositionsArray;
     console.log("Nieuwe validPositions ontvangen:", this.validPositions);
     this.createTiles();
-  }
-
-  makeGridClickable() {
-    const boardGrid = document.querySelector(".board-grid");
-    if (this.gameScreen && boardGrid !== null) {
-      const handleClick = (event) =>
-        BoardUtils.handleTileClick({
-          event,
-          startPieces: this.startPieces,
-          selectedPawn: this.selectedPawn,
-          validPositions: this.validPositions,
-          playerColor: this.playerColor,
-          setPosition: this.setPosition,
-          socket
-        });
-
-      boardGrid.addEventListener("click", handleClick);
-    }
   }
 
   createTiles() {
