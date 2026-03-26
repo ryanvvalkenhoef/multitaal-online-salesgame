@@ -1,4 +1,4 @@
-const fs = require("fs");
+import fs from "fs";
 
 class JsonFileHandler {
   #room;
@@ -48,4 +48,4 @@ class JsonFileHandler {
     }
   }
 }
-module.exports = JsonFileHandler;
+export default JsonFileHandler;

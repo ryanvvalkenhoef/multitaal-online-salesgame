@@ -76,4 +76,5 @@ class GameScreenDataEmitter {
   };
 }
 
-module.exports = GameScreenDataEmitter;
+
+export default GameScreenDataEmitter;

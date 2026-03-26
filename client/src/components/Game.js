@@ -65,6 +65,7 @@ export function Game() {
   const [piecePositions, setPiecePositions] = useState([]);
   const [arePiecesRendered, setArePiecesRendered] = useState(false);
   const [isBoardRendered, setIsBoardRendered] = useState(false);
+  const roomCode = sessionStorage.getItem("room");
   const navigate = useNavigate();
   const currentQuestionRef = useRef(null);
 
@@ -170,6 +171,8 @@ export function Game() {
               startPieces={startPieces}
               piecePositions={piecePositions}
               setIsBoardRendered={setIsBoardRendered}
+              socket={socket}
+              roomCode={roomCode}
             />
           )}
           <Pieces

@@ -1,4 +1,4 @@
-const mysql = require("mysql");
+import mysql from "mysql";
 
 // MySQL Connection
 const connection = mysql.createConnection({
@@ -101,7 +101,7 @@ async function modulePopUp(color, sort = "en") {
   }
 }
 
-module.exports = {
+export {
   modulePopUp,
   getTranslatedQuestion
 };

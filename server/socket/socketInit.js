@@ -1,6 +1,6 @@
-const { Server } = require("socket.io");
+import { Server } from "socket.io";
 
-module.exports = function (server) {
+export default function (server) {
   return new Server(server, {
     cors: {
       origin: ["http://localhost:3000", "https://admin.socket.io"],

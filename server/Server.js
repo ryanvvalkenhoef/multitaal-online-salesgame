@@ -15,11 +15,18 @@ app.use(bodyParser.json());
 app.post("/save-game", (req, res) => {
   const { roomCode, gameData } = req.body;
 
-  // Update GameSave.json met de nieuwe game state
-  updateGameSaveFile(gameData);
+  if (!roomCode) {
+        return res.status(400).json({ message: "Geen roomCode ontvangen" });
+    }
 
-  // Sla game state op in de database
-  saveGameProgressToDatabase({ roomCode, ...gameData });
+    // Maak een object dat matcht met wat saveGameProgressToDatabase verwacht
+    const dataToSave = {
+        roomCode: roomCode,
+        ...gameData // Hier zitten de players, position, etc. in
+    };
+
+    // DIT IS DE CRUCIALE STAP:
+    saveGameProgressToDatabase(dataToSave);
 
   res.json({ message: "Game state saved successfully" });
 });

@@ -18,4 +18,4 @@ class RoomGenerator {
   }
 }
 
-module.exports = RoomGenerator;
+export default RoomGenerator;
